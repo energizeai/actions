@@ -3,14 +3,23 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "ade:dev": "turbo dev --filter ade",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "turbo run typecheck",
+    "format:write": "turbo run format:write",
+    "format:check": "turbo run format:check",
+    "check": "turbo lint typecheck format:check",
+    "postinstall": "manypkg check"
   },
-  "devDependencies": {
+  "dependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
+    "@manypkg/cli": "latest",
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "prettier": "^3.1.1",
+    "tailwindcss": "^3.4.1",
     "turbo": "latest"
   },
   "engines": {
@@ -19,6 +28,10 @@
   "packageManager": "npm@10.2.3",
   "workspaces": [
     "apps/*",
-    "packages/*"
-  ]
+    "packages/*",
+    "tools/*"
+  ],
+  "devDependencies": {
+    "prettier-plugin-organize-imports": "^3.2.4"
+  }
 }

@@ -1,0 +1,65 @@
+import { z } from "zod";
+import { AuthConfig, ActionComponent, ActionConfig } from "@repo/types";
+import { generateDayTimeReference } from "@repo/shared";
+
+// =============================================================================
+// DEFINE INPUT SCHEMA
+// =============================================================================
+
+const InputSchema = z
+  .object({
+    fieldOne: z.string().min(1).describe(`The first input field`),
+    fieldTwo: z.string().min(1).describe(`The second input field`),
+  })
+  .describe(`The input schema for the {{ properCase name }} action. 
+    This is where you define the input fields that the user will 
+    fill out when they run the action.`
+  );
+type TInput = typeof InputSchema;
+
+// =============================================================================
+// DEFINE OUTPUT SCHEMA
+// =============================================================================
+
+<|OUTPUT_TEMPLATE|>
+
+// =============================================================================
+// DEFINE AUTH CONFIG
+// =============================================================================
+
+<|AUTH_TEMPLATE|>
+
+// =============================================================================
+// DEFINE ACTION : )
+// =============================================================================
+
+const {{ properCase name }}Action = {
+  resource: "{{ resource }}",
+  defaultKeywords: ["{{ dashCase defaultKeyword }}"],
+  title: "{{ name }}",
+  chatMessage: "{{ chatMessage }}",
+  description: "{{ description }}",
+  <|SCOPE_POOL_TEMPLATE|>,
+  avatar: {
+    light: "/logos/{{ camelCase resource }}.svg",
+    dark: "/logos/{{ camelCase resource }}.svg",
+  },
+  apiReference:
+    "{{ apiReference }}",
+  examples: [
+    "{{ example }}",
+  ],
+  authConfig: AuthConfig,
+  input: InputSchema,
+  <|CARD_COMPONENT_TEMPLATE|>
+  output: OutputSchema,
+  loadingMessage: "{{ chatLoadingMessage }}",
+  runTimeDescriptionGenerator: undefined,
+  actionFunction: async ({ input, auth }) => {
+    // TODO: Implement action function
+
+    <|RETURN_TEMPLATE|>
+  },
+} as const satisfies ActionConfig<TInput, TOutput, TAuth>;
+
+export default {{ properCase name }}Action;

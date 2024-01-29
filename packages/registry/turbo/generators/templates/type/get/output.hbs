@@ -1,0 +1,8 @@
+const OutputSchema = z
+  .object({
+    fieldOne: z.string().min(1).describe(`The first output field`),
+    fieldTwo: z.string().min(1).describe(`The second output field`),
+  }).describe(
+    `The output schema for the {{ pascalCase name }} action. This is where you define the output fields that the user will see after they run the action.`
+  )
+type TOutput = typeof OutputSchema;
