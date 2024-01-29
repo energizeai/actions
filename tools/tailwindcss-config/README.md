@@ -1,3 +1,3 @@
-# `@repo/tailwindcss-config`
+# `@energizeai/tailwindcss-config`
 
 Collection of internal tailwind configurations.

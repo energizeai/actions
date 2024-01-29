@@ -1,4 +1,4 @@
-import { TActionConfig, TAuthConfig } from "@repo/types"
+import { TActionConfig, TAuthConfig } from "@energizeai/types"
 import { z } from "zod"
 
 // ================================================================================

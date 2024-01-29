@@ -254,6 +254,8 @@ export type TActionConfig<
    * }
    * ```
    */
+
+  // eslint-disable-next-line no-unused-vars
   runTimeDescriptionGenerator?: (_: {
     localTimeZone: string
     userData: { name: string; email: string }
@@ -319,6 +321,8 @@ export type TActionConfig<
    * }
    * ```
    */
+
+  // eslint-disable-next-line no-unused-vars
   actionFunction: (_: {
     input: z.infer<TInput>
     auth: TAuthInputArg<TAuth>

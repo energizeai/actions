@@ -1,9 +1,9 @@
 "use client"
 
-import { ActionsRegistry } from "@repo/registry"
-import { Button } from "@repo/ui/button"
-import { ThemedImage } from "@repo/ui/themed-image"
-import { cn } from "@repo/ui/utils"
+import { ActionsRegistry } from "@energizeai/registry"
+import { Button } from "@energizeai/ui/button"
+import { ThemedImage } from "@energizeai/ui/themed-image"
+import { cn } from "@energizeai/ui/utils"
 import {
   Fingerprint,
   HandMetalIcon,

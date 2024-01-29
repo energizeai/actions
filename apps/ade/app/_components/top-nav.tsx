@@ -1,6 +1,6 @@
-import { Button } from "@repo/ui/button"
-import { ThemedImage } from "@repo/ui/themed-image"
-import { cn } from "@repo/ui/utils"
+import { Button } from "@energizeai/ui/button"
+import { ThemedImage } from "@energizeai/ui/themed-image"
+import { cn } from "@energizeai/ui/utils"
 import { GithubIcon, SearchIcon, TwitterIcon } from "lucide-react"
 
 export default async function TopNav() {

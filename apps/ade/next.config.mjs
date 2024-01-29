@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
-  transpilePackages: ["@repo/ui", "@repo/shared", "@repo/registry", "@repo/types"],
+  transpilePackages: ["@energizeai/ui", "@energizeai/shared", "@energizeai/registry", "@energizeai/types"],
 };
 
 const withMDX = createMDX({

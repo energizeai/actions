@@ -1,3 +1,3 @@
-# `@turbo/eslint-config`
+# `@energizeai/eslint-config`
 
 Collection of internal eslint configurations.

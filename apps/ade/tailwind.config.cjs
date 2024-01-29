@@ -1,4 +1,4 @@
-const baseConfig = require("@repo/tailwindcss-config/base.config.cjs")
+const baseConfig = require("@energizeai/tailwindcss-config/base.config.cjs")
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {

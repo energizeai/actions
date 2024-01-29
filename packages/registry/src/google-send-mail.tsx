@@ -1,8 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { generateDayTimeReference } from "@repo/shared"
-import { TActionComponent, TActionConfig, TAuthConfig } from "@repo/types"
-import { Avatar, AvatarImage } from "@repo/ui/avatar"
-import { Button } from "@repo/ui/button"
+import { generateDayTimeReference } from "@energizeai/shared"
+import { TActionComponent, TActionConfig, TAuthConfig } from "@energizeai/types"
+import { Avatar, AvatarImage } from "@energizeai/ui/avatar"
+import { Button } from "@energizeai/ui/button"
 import {
   Card,
   CardContent,
@@ -10,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ui/card"
+} from "@energizeai/ui/card"
 import {
   Form,
   FormControl,
@@ -19,12 +18,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@repo/ui/form"
-import { Input } from "@repo/ui/input"
-import { ConditionalSkeleton } from "@repo/ui/skeleton"
-import { Spinner } from "@repo/ui/spinner"
-import { Textarea } from "@repo/ui/textarea"
-import { cn } from "@repo/ui/utils"
+} from "@energizeai/ui/form"
+import { Input } from "@energizeai/ui/input"
+import { ConditionalSkeleton } from "@energizeai/ui/skeleton"
+import { Spinner } from "@energizeai/ui/spinner"
+import { Textarea } from "@energizeai/ui/textarea"
+import { cn } from "@energizeai/ui/utils"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useFieldArray, useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -96,13 +96,7 @@ const CardComponent: TActionComponent<TInput, TOutput>["Component"] = ({
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form
-          onSubmit={(e) => {
-            if (onSubmit) {
-              form.handleSubmit(onSubmit)
-            }
-          }}
-        >
+        <form onSubmit={onSubmit ? form.handleSubmit(onSubmit) : undefined}>
           <CardContent className="flex flex-col gap-4">
             <FormField
               control={form.control}

@@ -1,8 +1,8 @@
 "use client"
 
-import { ActionsRegistry } from "@repo/registry"
-import { Badge } from "@repo/ui/badge"
-import { CodeBlock } from "@repo/ui/codeblock"
+import { ActionsRegistry } from "@energizeai/registry"
+import { Badge } from "@energizeai/ui/badge"
+import { CodeBlock } from "@energizeai/ui/codeblock"
 import { ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { zodToJsonSchema } from "zod-to-json-schema"

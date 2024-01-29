@@ -1,5 +1,5 @@
 {
-  "name": "@repo/ui",
+  "name": "@energizeai/ui",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -68,8 +68,8 @@
     "tailwind-merge": "^2.2.1"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
+    "@energizeai/eslint-config": "*",
+    "@energizeai/typescript-config": "*",
     "@turbo/gen": "^1.11.3",
     "@types/eslint": "^8.56.1",
     "@types/node": "^20.10.6",

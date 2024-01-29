@@ -14,13 +14,21 @@
     "postinstall": "manypkg check"
   },
   "dependencies": {
+    "@energizeai/eslint-config": "*",
+    "@energizeai/typescript-config": "*",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@manypkg/cli": "latest",
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
+    "@typescript-eslint/parser": "^6.19.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-turbo": "^1.11.3",
+    "eslint-plugin-react": "^7.33.2",
     "prettier": "^3.1.1",
+    "prettier-plugin-organize-imports": "^3.2.4",
     "tailwindcss": "^3.4.1",
-    "turbo": "latest"
+    "tsx": "^4.7.0",
+    "turbo": "latest",
+    "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=18"
@@ -30,8 +38,5 @@
     "apps/*",
     "packages/*",
     "tools/*"
-  ],
-  "devDependencies": {
-    "prettier-plugin-organize-imports": "^3.2.4"
-  }
+  ]
 }

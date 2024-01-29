@@ -1,7 +1,7 @@
 "use client"
 
-import { ActionsRegistry } from "@repo/registry"
-import { ValuesOf } from "@repo/types"
+import { ActionsRegistry } from "@energizeai/registry"
+import { ValuesOf } from "@energizeai/types"
 import React, { useEffect } from "react"
 
 export const ActionComponent = ({
