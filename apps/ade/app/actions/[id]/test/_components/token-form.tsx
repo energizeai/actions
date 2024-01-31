@@ -3,6 +3,7 @@
 import { camelCaseToTitleCase } from "@/lib/utils"
 import { api } from "@/trpc/react"
 import { extractErrorMessage } from "@/trpc/shared"
+import { ActionsRegistry } from "@energizeai/registry"
 import { TActionId, TTokenAction } from "@energizeai/registry/types"
 import { Button } from "@energizeai/ui/button"
 import {
@@ -32,13 +33,10 @@ import { toast } from "sonner"
 import { z } from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
 
-export default function TokenForm({
-  authConfig,
-  actionId,
-}: {
-  authConfig: TTokenAction["authConfig"]
-  actionId: TActionId
-}) {
+export default function TokenForm({ actionId }: { actionId: TActionId }) {
+  const authConfig = ActionsRegistry[
+    actionId
+  ].getAuthConfig() as TTokenAction["authConfig"]
   const router = useRouter()
 
   const formSchema = z.object({

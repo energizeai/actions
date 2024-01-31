@@ -11,7 +11,7 @@ export const ActionAuthForm = async ({ actionId }: { actionId: TActionId }) => {
   if (authConfig.type === "None") return null
 
   if (authConfig.type === "Token") {
-    return <TokenForm authConfig={authConfig} actionId={actionId} />
+    return <TokenForm actionId={actionId} />
   }
 
   let authorizationEndpoint = await getAuthorizationEndpoint(
