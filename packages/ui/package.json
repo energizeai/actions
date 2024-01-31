@@ -19,6 +19,7 @@
     "./themed-image": "./src/components/themed-image.tsx",
     "./input": "./src/components/input.tsx",
     "./separator": "./src/components/separator.tsx",
+    "./command": "./src/components/command.tsx",
     "./textarea": "./src/components/textarea.tsx",
     "./form": "./src/components/form.tsx",
     "./spinner": "./src/components/spinner.tsx",

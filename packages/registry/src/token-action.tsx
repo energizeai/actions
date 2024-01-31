@@ -1,12 +1,4 @@
 import { createAction, createActionMetadata } from "@energizeai/types"
-import { Button } from "@energizeai/ui/button"
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@energizeai/ui/card"
 import z from "zod"
 
 const TokenAction = createAction({
@@ -33,32 +25,11 @@ const TokenAction = createAction({
   //     testing: z.string(),
   //   })
   // )
-  .setOutputSchema(z.void())
-  .setComponentSubmissionSchema(
+  .setOutputSchema(
     z.object({
-      custom: z.string().describe("Please enter your organization ID"),
+      hello: z.string(),
     })
   )
-  .setComponent(({ data, displayState }) => {
-    if (displayState === "skeleton") return null
-    if (displayState === "placeholder") return null
-
-    const { onSubmit } = data
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>hello world</CardTitle>
-        </CardHeader>
-        <CardContent>{data.input.name}</CardContent>
-        <CardFooter>
-          <Button onClick={() => onSubmit({ custom: "hello world" })}>
-            Submit
-          </Button>
-        </CardFooter>
-      </Card>
-    )
-  })
   // .setAuthType("None")
   // .setAuthType("OAuth")
   // .setOAuthData({
@@ -88,7 +59,9 @@ const TokenAction = createAction({
   })
   .setActionFunction(async ({ input, auth }) => {
     console.log(auth)
-    return
+    return {
+      hello: input.hello,
+    }
   })
   .setExampleInput({
     name: "hello world",

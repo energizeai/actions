@@ -1,7 +1,8 @@
 import { Button } from "@energizeai/ui/button"
 import { ThemedImage } from "@energizeai/ui/themed-image"
 import { cn } from "@energizeai/ui/utils"
-import { GithubIcon, SearchIcon, TwitterIcon } from "lucide-react"
+import { GithubIcon, TwitterIcon } from "lucide-react"
+import { CommandMenu } from "./command-menu"
 
 export default async function TopNav() {
   return (
@@ -25,13 +26,7 @@ export default async function TopNav() {
             Energize AI
           </h1>
         </div>
-        <Button variant={"outline"} className="text-muted-foreground px-3">
-          <SearchIcon className="h-4 w-4" />
-          <span className="flex-1 min-w-[300px] text-left">Search ADE...</span>
-          <kbd className="font-semibold tracking-widest bg-muted border text-muted-foreground px-2 text-sm rounded-sm py-0.5">
-            ⌘K
-          </kbd>
-        </Button>
+        <CommandMenu />
         <div className="flex flex-1 justify-end gap-2 items-center">
           <Button size={"icon"} variant={"outline"}>
             <GithubIcon className="h-4 w-4" />
