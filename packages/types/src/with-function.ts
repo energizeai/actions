@@ -16,9 +16,7 @@ export type TActionFunction<
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
 > = (_: {
-  input: TSubmission extends z.ZodObject<any>
-    ? z.infer<TSubmission>
-    : z.infer<TInput>
+  input: z.infer<TSubmission extends undefined ? TInput : TSubmission>
   auth: TAuthArg<TAuth>
   userData: TActionUserData
 }) => Promise<z.infer<TOutput>>
