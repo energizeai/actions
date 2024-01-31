@@ -1,6 +1,7 @@
 "use client"
 
 import { ActionsRegistry } from "@energizeai/registry"
+import { TActionId } from "@energizeai/registry/types"
 import { Button } from "@energizeai/ui/button"
 import { ThemedImage } from "@energizeai/ui/themed-image"
 import { cn } from "@energizeai/ui/utils"
@@ -68,13 +69,13 @@ export default function SideNav() {
       </SideNavLink>
       <h1 className="text-sm font-semibold my-2">Actions</h1>
       {Object.keys(ActionsRegistry).map((key) => {
-        const action = ActionsRegistry[key as keyof typeof ActionsRegistry]
+        const action = ActionsRegistry[key as TActionId]
 
         return (
           <SideNavLink href={`/actions/${key}`} key={key}>
             <ThemedImage
-              srcLight={action.avatar.light}
-              srcDark={action.avatar.dark}
+              srcLight={action.getMetadata().avatar.light}
+              srcDark={action.getMetadata().avatar.dark}
               invert={isActive(pathname, `/actions/${key}`)}
               ImageComponent={
                 <img
@@ -84,7 +85,7 @@ export default function SideNav() {
                 />
               }
             />
-            {action.title}
+            {action.getMetadata().title}
           </SideNavLink>
         )
       })}

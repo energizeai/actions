@@ -1,20 +1,18 @@
-"use client"
-
 import { ActionsRegistry } from "@energizeai/registry"
+import { TActionId } from "@energizeai/registry/types"
 import { Badge } from "@energizeai/ui/badge"
 import { CodeBlock } from "@energizeai/ui/codeblock"
 import { ExternalLink } from "lucide-react"
 import Link from "next/link"
-import { zodToJsonSchema } from "zod-to-json-schema"
 
 import { ActionComponent } from "../_components/action-component"
 
 export default function ActionDetailsPage({
   params,
 }: {
-  params: { id: string }
+  params: { id: TActionId }
 }) {
-  const actionData = ActionsRegistry[params.id as keyof typeof ActionsRegistry]
+  const actionData = ActionsRegistry[params.id]
 
   if (!actionData) {
     return <div>ERROR</div>
@@ -28,10 +26,10 @@ export default function ActionDetailsPage({
         description, and other information.
       </p>
       <div className="grid mb-4 gap-4 grid-cols-2 flex-1 p-4 border rounded">
-        {actionData.apiReference && (
+        {actionData.getMetadata().apiReference && (
           <Link
             className="flex items-center hover:underline font-semibold text-muted-foreground"
-            href={actionData.apiReference}
+            href={actionData.getMetadata().apiReference || "#"}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -46,33 +44,37 @@ export default function ActionDetailsPage({
             Default Keywords:
           </span>
           <div className="flex items-center justify-start gap-2 flex-wrap">
-            {actionData.defaultKeywords.map((keyword, index) => (
+            {actionData.getMetadata().defaultKeywords.map((keyword, index) => (
               <Badge key={index} variant={"outline"}>
                 @{keyword}
               </Badge>
             ))}
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center line-clamp-1">
           <span className="mr-4">🔒</span>
           <span className="font-semibold text-muted-foreground mr-2">
             Authentication Method:
           </span>
-          {actionData.authConfig.type.toUpperCase()}
+          {actionData.getAuthConfig().type.toUpperCase()}
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center line-clamp-1">
           <span className="mr-4">🗣️</span>
           <span className="font-semibold text-muted-foreground mr-2">
             Chat Message:
           </span>
-          {actionData.chatMessage}
+          <span className="flex-1 line-clamp-1">
+            {actionData.getMetadata().chatMessage}
+          </span>
         </div>
         <div className="flex items-center">
           <span className="mr-4">️⌛</span>
           <span className="font-semibold text-muted-foreground mr-2">
             Loading Message:
           </span>
-          {actionData.loadingMessage}
+          <span className="flex-1 line-clamp-1">
+            {actionData.getMetadata().loadingMessage}
+          </span>
         </div>
       </div>
       <h1 className="text-xl font-semibold mt-4">Input Schema</h1>
@@ -88,7 +90,7 @@ export default function ActionDetailsPage({
           maxWidth: "100%",
         }}
         language="json"
-        value={JSON.stringify(zodToJsonSchema(actionData.input), null, 2)}
+        value={JSON.stringify(actionData.getInputJSONSchema(), null, 2)}
       />
       <h1 className="text-xl font-semibold mt-4">Action Function</h1>
       <p className="text-muted-foreground mb-7">
@@ -103,16 +105,19 @@ export default function ActionDetailsPage({
           maxWidth: "100%",
         }}
         language="typescript"
-        value={actionData.actionFunction.toString()}
+        value={actionData.getActionFunction().toString()}
       />
       <h1 className="text-xl font-semibold mt-4">Output</h1>
       <p className="text-muted-foreground mb-7">
         This is the resulting output of the action.
       </p>
-      {"Component" in actionData ? (
-        <>
-          <ActionComponent actionData={actionData} />
-        </>
+      {actionData.getComponent() !== null ? (
+        <ActionComponent
+          actionId={params.id}
+          inputDataAsString={undefined}
+          state="placeholder"
+          userData={undefined}
+        />
       ) : (
         <CodeBlock
           className="max-w-full overflow-x-hidden"
@@ -122,7 +127,7 @@ export default function ActionDetailsPage({
             maxWidth: "100%",
           }}
           language="json"
-          value={JSON.stringify(zodToJsonSchema(actionData.output), null, 2)}
+          value={JSON.stringify(actionData.getOutputJSONSchema(), null, 2)}
         />
       )}
     </div>

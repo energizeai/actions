@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1706559605732,
+      "tag": "0000_futuristic_aqueduct",
+      "breakpoints": true
+    }
+  ]
+}

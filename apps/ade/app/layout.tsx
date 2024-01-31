@@ -10,6 +10,8 @@ import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 
+import { TRPCReactProvider } from "@/trpc/react"
+import { cookies } from "next/headers"
 import SideNav from "./_components/side-nav"
 import TopNav from "./_components/top-nav"
 
@@ -31,26 +33,28 @@ export default function RootLayout({
           `${GeistSans.variable} ${GeistMono.variable}`
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ThemeToggle shortcutOnly />
-          <TooltipProvider delayDuration={0}>
-            <div className="flex flex-col gap-4">
-              <TopNav />
-              <div className="flex flex-row gap-10 mx-auto px-4 max-w-screen-xl w-full pt-2 pb-4">
-                <SideNav />
-                <div className="flex-1 overflow-hidden max-w-full">
-                  {children}
+        <TRPCReactProvider cookies={cookies().toString()}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ThemeToggle shortcutOnly />
+            <TooltipProvider delayDuration={0}>
+              <div className="flex flex-col gap-4">
+                <TopNav />
+                <div className="flex flex-row gap-10 mx-auto px-4 max-w-screen-xl w-full pt-2 pb-4">
+                  <SideNav />
+                  <div className="flex-1 overflow-hidden max-w-full">
+                    {children}
+                  </div>
                 </div>
               </div>
-            </div>
-          </TooltipProvider>
-          <Toaster duration={3000} />
-        </ThemeProvider>
+            </TooltipProvider>
+            <Toaster duration={3000} />
+          </ThemeProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   )

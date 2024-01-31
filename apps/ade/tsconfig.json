@@ -3,11 +3,11 @@
   "compilerOptions": {
     "plugins": [
       {
-        "name": "next"
-      }
+        "name": "next",
+      },
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
     },
   },
   "include": [
@@ -16,7 +16,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/page.tsx"  
+    "app/page.tsx",
   ],
   "exclude": ["node_modules"],
 }

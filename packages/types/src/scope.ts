@@ -1,5 +1,3 @@
-import { TAuthConfig, TOAuthConfig } from "."
-
 /**
  * Defines a structure for 'ScopePoolOr', which represents a logical OR condition in a scope pool.
  *
@@ -12,7 +10,7 @@ import { TAuthConfig, TOAuthConfig } from "."
  * ```
  */
 type TScopePoolNode = {
-  and: Readonly<[string, ...string[]]>
+  and: [string, ...string[]]
 }
 
 /**
@@ -40,8 +38,6 @@ type TScopePoolNode = {
  * ```
  */
 
-export type TScopePool<TAuth extends TAuthConfig> = TAuth extends TOAuthConfig
-  ? Readonly<{
-      or: Readonly<[TScopePoolNode, ...TScopePoolNode[]]>
-    }>
-  : null
+export type TScopePool = {
+  or: [TScopePoolNode, ...TScopePoolNode[]]
+}

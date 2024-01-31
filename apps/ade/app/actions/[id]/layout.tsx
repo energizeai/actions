@@ -1,4 +1,5 @@
 import { ActionsRegistry } from "@energizeai/registry"
+import { TActionId } from "@energizeai/registry/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@energizeai/ui/avatar"
 import { SectionHeader } from "@energizeai/ui/section-header"
 import { TabNav } from "@energizeai/ui/tab-nav"
@@ -13,23 +14,23 @@ export default async function ActionLayout({
   params,
   children,
 }: {
-  params: { id: string }
+  params: { id: TActionId }
   children: React.ReactNode
 }) {
-  const actionData = ActionsRegistry[params.id as keyof typeof ActionsRegistry]
+  const actionData = ActionsRegistry[params.id]
 
   if (!actionData) notFound()
 
   return (
     <div className="w-full flex flex-col gap-4">
       <SectionHeader
-        title={actionData.title}
+        title={actionData.getMetadata().title}
         className="h-fit bg-background bg-background/80 backdrop-blur w-full"
         icon={
           <Avatar className="h-8 w-8 rounded-sm bg-muted text-foreground">
             <ThemedImage
-              srcLight={actionData.avatar.light}
-              srcDark={actionData.avatar.dark}
+              srcLight={actionData.getMetadata().avatar.light}
+              srcDark={actionData.getMetadata().avatar.dark}
               ImageComponent={
                 <AvatarImage className={cn("bg-background")} src={""} />
               }
@@ -37,11 +38,11 @@ export default async function ActionLayout({
             <AvatarFallback className="bg-muted" />
           </Avatar>
         }
-        subtitle={actionData.description}
+        subtitle={actionData.getMetadata().description}
       >
-        <code>
+        <pre className="max-w-[300px] text-wrap break-all">
           @/packages/registry/src/{dashCase(params.id).substring(1)}.tsx
-        </code>
+        </pre>
       </SectionHeader>
       <TabNav
         items={[
