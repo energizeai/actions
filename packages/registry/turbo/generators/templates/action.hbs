@@ -1,65 +1,40 @@
 import { z } from "zod";
-import { AuthConfig, ActionComponent, ActionConfig } from "@energizeai/types";
-import { generateDayTimeReference } from "@energizeai/shared";
+import { createAction, createActionMetadata } from "@energizeai/types"
+<|IMPORT_TEMPLATE|>
 
-// =============================================================================
-// DEFINE INPUT SCHEMA
-// =============================================================================
-
-const InputSchema = z
-  .object({
-    fieldOne: z.string().min(1).describe(`The first input field`),
-    fieldTwo: z.string().min(1).describe(`The second input field`),
-  })
-  .describe(`The input schema for the {{ properCase name }} action. 
-    This is where you define the input fields that the user will 
-    fill out when they run the action.`
-  );
-type TInput = typeof InputSchema;
-
-// =============================================================================
-// DEFINE OUTPUT SCHEMA
-// =============================================================================
-
+const {{ properCase name }}Action = createAction({
+  metadata: createActionMetadata({
+    title: "{{ name }}",
+    description: "{{ description }}",
+    resource: "{{ titleCase resource }}",
+    avatar: {
+      light: "/logos/energize-black.svg",
+      dark: "/logos/energize-white.svg",
+    },
+    defaultKeywords: ["{{ dashCase defaultKeyword }}"],
+    apiReference: "{{ apiReference}}",
+    examples: ["{{ example }}"]
+  }),
+})
+  .setInputSchema(
+    z.object({
+      fieldOne: z.string().describe("This is a description of fieldOne"),
+      fieldTwo: z.string().describe("This is a description of fieldTwo"),
+    }).describe("This is a description of the input schema")
+  )
 <|OUTPUT_TEMPLATE|>
-
-// =============================================================================
-// DEFINE AUTH CONFIG
-// =============================================================================
-
 <|AUTH_TEMPLATE|>
+  .setActionFunction(async ({ input, auth, userData }) => {
+    // Add your action function logic here
+    console.log(auth)
+    console.log(input)
+    console.log(userData)
 
-// =============================================================================
-// DEFINE ACTION : )
-// =============================================================================
+<|RETURN_TEMPLATE|>
+  })
+  .setExampleInput({
+    fieldOne: "hello",
+    fieldTwo: "world",
+  })
 
-const {{ properCase name }}Action = {
-  resource: "{{ resource }}",
-  defaultKeywords: ["{{ dashCase defaultKeyword }}"],
-  title: "{{ name }}",
-  chatMessage: "{{ chatMessage }}",
-  description: "{{ description }}",
-  <|SCOPE_POOL_TEMPLATE|>,
-  avatar: {
-    light: "/logos/{{ camelCase resource }}.svg",
-    dark: "/logos/{{ camelCase resource }}.svg",
-  },
-  apiReference:
-    "{{ apiReference }}",
-  examples: [
-    "{{ example }}",
-  ],
-  authConfig: AuthConfig,
-  input: InputSchema,
-  <|CARD_COMPONENT_TEMPLATE|>
-  output: OutputSchema,
-  loadingMessage: "{{ chatLoadingMessage }}",
-  runTimeDescriptionGenerator: undefined,
-  actionFunction: async ({ input, auth }) => {
-    // TODO: Implement action function
-
-    <|RETURN_TEMPLATE|>
-  },
-} as const satisfies ActionConfig<TInput, TOutput, TAuth>;
-
-export default {{ properCase name }}Action;
+export { {{ properCase name }}Action };

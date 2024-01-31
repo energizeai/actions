@@ -1,0 +1,42 @@
+  .setOutputSchema(z.void())
+  .setComponent(({ data, displayState, inputSchema, metadata }) => {
+    // create your component here
+
+    // This is a skeleton component (loading state)
+    if (displayState === "skeleton") return <div>skeleton component</div>
+
+    // This is a placeholder component (display state)
+    if (displayState === "placeholder") return <div>placeholder component</div>
+
+    // This is the active component (form state)
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{{ titleCase name }}</CardTitle>
+          <CardDescription>
+            {{ description }}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          Make your form here
+        </CardContent>
+        <CardFooter className="justify-end gap-2">
+          <Button
+            name="send"
+            type="submit"
+            disabled={displayState !== "active" || data.isLoading}
+            variant={data?.isSuccess ? "success" : undefined}
+            onClick={() => {
+              data.onSubmit({
+                fieldOne: "hello",
+                fieldTwo: "world",
+              })
+            }}
+          >
+            {data?.isLoading ? <Spinner /> : null}
+            {!data?.isSuccess ? "Send" : "Sent!"}
+          </Button>
+        </CardFooter>
+      </Card>
+    )
+  })

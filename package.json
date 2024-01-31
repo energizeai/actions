@@ -12,6 +12,7 @@
     "format:write": "turbo run format:write",
     "format:check": "turbo run format:check",
     "check": "turbo lint typecheck format:check",
+    "generate:action": "turbo gen action-starter",
     "postinstall": "manypkg check"
   },
   "dependencies": {

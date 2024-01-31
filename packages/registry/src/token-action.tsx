@@ -30,18 +30,6 @@ const TokenAction = createAction({
       hello: z.string(),
     })
   )
-  // .setAuthType("None")
-  // .setAuthType("OAuth")
-  // .setOAuthData({
-  //   discoveryEndpoint: "hello world",
-  //   humanReadableDescription: "dfdklfjsdlkfjlsdfja",
-  //   humanReadableName: "sdfsjflkajlksdfl",
-  //   button: {
-  //     text: "Continue with google",
-  //   },
-  //   scopes: ["sdfjsdkflsjdfdjf"],
-  //   oauthAppGenerationURL: "sjdfklsdjflksdjfls",
-  // })
   .setAuthType("Token")
   .setTokenData({
     humanReadableDescription: "dfdklfjsdlkfjlsdfja",

@@ -1,0 +1,12 @@
+  .setAuthType("OAuth")
+  .setOAuthData({
+    humanReadableDescription: "{{ scopeDescription }}",
+    humanReadableName: "{{ titleCase name }}",
+    button: {
+      text: "Continue with {{ titleCase resource }}",
+    },
+    discoveryEndpoint:
+      "ENTER YOUR DISCOVERY ENDPOINT HERE",
+    scopes: ["{{ scope }}"],
+    oauthAppGenerationURL: "ENTER A LINK TO GENERATE OAUTH APP HERE",
+  })

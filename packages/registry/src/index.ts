@@ -1,9 +1,8 @@
-// <|GENERATOR|> import new action here
-
 import { ActionBuilderWithFunction } from "@energizeai/types"
 import { GoogleSendMailAction } from "./google-send-mail"
 import { NoauthAction } from "./noauth-action"
 import { TokenAction } from "./token-action"
+// <|GENERATOR|> import new action here
 
 const ActionsRegistry = {
   GoogleSendMailAction: GoogleSendMailAction,

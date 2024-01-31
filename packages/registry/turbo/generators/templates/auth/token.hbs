@@ -1,0 +1,17 @@
+  .setAuthType("Token")
+  .setTokenData({
+    humanReadableDescription: "{{ scopeDescription }}",
+    humanReadableName: "{{ titleCase name }}",
+    generatingTokenReferenceURL: "{{ generatingTokenReferenceURL }}",
+    button: {
+      text: "Continue with {{ titleCase resource }}",
+    },
+    customDataSchema: z.object({
+      // Add your custom data schema here
+      organization: z.string().describe("Please enter your organization name"),
+    }),
+    validateToken: async ({ auth }) => {
+      // Add your custom token validation logic here
+      return { isValid: true }
+    },
+  })
