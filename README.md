@@ -6,6 +6,11 @@ Welcome to `energizeai/actions`, by Energize AI. We're building the foundations 
 
 ## Documentation
 
+Please refer to the following links for more information:
+
+- [Introduction](https://ade.energize.ai)
+- [Getting Started](https://ade.energize.ai/getting-started)
+
 First, make sure you have cloned the repository and installed all the dependencies. You can do this by running the following commands in the root directory.
 
 ```bash
