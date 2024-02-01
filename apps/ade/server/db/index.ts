@@ -7,6 +7,7 @@ const sqlite = new Database("./server/db/sqlite.db")
 export const db = drizzle(sqlite)
 
 once(() => {
+  if (process.env.NODE_ENV !== "development") return
   console.log("Migrating database...")
   migrate(db, { migrationsFolder: "./server/db/drizzle" })
 })()

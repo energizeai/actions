@@ -8,6 +8,7 @@ import { cn } from "@energizeai/ui/utils"
 import { notFound } from "next/navigation"
 import React from "react"
 
+import { env } from "@/env/server.mjs"
 import { dashCase } from "@/lib/utils"
 
 export default async function ActionLayout({
@@ -52,7 +53,7 @@ export default async function ActionLayout({
           },
           {
             name: "Test",
-            href: `/actions/${params.id}/test`,
+            href: `/actions/${params.id}/${env.NODE_ENV === "development" ? "test" : "test-prod"}`,
           },
         ]}
         className="lg:pl-8"
