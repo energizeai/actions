@@ -1,3 +1,4 @@
+import { env } from "@/env/server.mjs"
 import { db } from "@/server/db"
 import { linkedAccounts } from "@/server/db/schema"
 import { TActionId } from "@energizeai/registry/types"
@@ -11,11 +12,13 @@ export default async function ActionTestPage({
   params: { id: TActionId }
 }) {
   const linkedAccount =
-    (await db
-      .select()
-      .from(linkedAccounts)
-      .where(eq(linkedAccounts.actionId, params.id))
-      .then((res) => res[0])) || null
+    env.NODE_ENV === "development"
+      ? (await db
+          .select()
+          .from(linkedAccounts)
+          .where(eq(linkedAccounts.actionId, params.id))
+          .then((res) => res[0])) || null
+      : null
 
   return (
     <ActionTestForm params={params} linkedAccount={linkedAccount}>

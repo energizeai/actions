@@ -4,11 +4,13 @@ import { DalleCreateImageAction } from "./dalle-create-image"
 import { GoogleGetContactAction } from "./google-get-contact"
 import { GoogleSendMailAction } from "./google-send-mail"
 import { GoogleWebSearchAction } from "./google-web-search"
+import { HelloWorldAction } from "./hello-world-action"
 import { LinearCreateIssueAction } from "./linear-create-issue"
 import { PlanetScaleGetBranchSchemaAction } from "./planet-scale-get-branch-schema"
 // <|GENERATOR|> import new action here
 
 const ActionsRegistry = {
+  HelloWorldAction: HelloWorldAction,
   GoogleSendMailAction: GoogleSendMailAction,
   GoogleGetContactAction: GoogleGetContactAction,
   GoogleWebSearchAction: GoogleWebSearchAction,
