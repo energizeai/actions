@@ -49,7 +49,7 @@ export default function SideNav() {
   const pathname = usePathname()
 
   return (
-    <div className="flex-none h-fit w-[250px] flex flex-col gap-2 sticky top-24 left-0">
+    <div className="flex-none h-fit w-[250px] hidden lg:flex flex-col gap-2 sticky top-24 left-0">
       <h1 className="text-sm font-semibold mb-2">Documentation</h1>
       <SideNavLink href={"/"}>
         <HandMetalIcon className="h-4 w-4" />

@@ -18,7 +18,9 @@ const SectionHeader = ({
   className?: string
 }) => {
   return (
-    <div className={cn("flex items-start gap-3", className)}>
+    <div
+      className={cn("flex flex-col lg:flex-row items-start gap-3", className)}
+    >
       {icon}
       <div className="flex flex-1 flex-col">
         <h1

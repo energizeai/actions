@@ -27,7 +27,7 @@ export default async function TopNav() {
           </h1>
         </div>
         <CommandMenu />
-        <div className="flex flex-1 justify-end gap-2 items-center">
+        <div className="flex flex-1 hidden lg:flex justify-end gap-2 items-center">
           <Button size={"icon"} variant={"outline"}>
             <GithubIcon className="h-4 w-4" />
           </Button>

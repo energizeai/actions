@@ -13,6 +13,7 @@ import {
   CheckCircle,
   DatabaseIcon,
   Fingerprint,
+  HandIcon,
   Info,
   TrashIcon,
 } from "lucide-react"
@@ -20,6 +21,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { env } from "@/env/client.mjs"
 import useLocalStorage from "@/lib/hooks/use-local-storage"
 import { extractErrorMessage } from "@/trpc/shared"
 import { TActionUserData } from "@energizeai/types"
@@ -36,6 +38,7 @@ import { Label } from "@energizeai/ui/label"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@energizeai/ui/tooltip"
 import { cn } from "@energizeai/ui/utils"
 import hjson from "hjson"
+import Link from "next/link"
 import { ActionComponent } from "../../_components/action-component"
 
 const StatusBadge = ({
@@ -269,7 +272,7 @@ export default function ActionTestForm({
   }
 
   return (
-    <div className="grid grid-cols-2 border">
+    <div className="grid grid-cols-2 border relative">
       <div className="flex flex-col">
         <div className="p-3 border-b font-bold text-sm flex items-center justify-between">
           <p className="flex justify-start items-center gap-2">
@@ -427,6 +430,24 @@ export default function ActionTestForm({
           {output}
         </div>
       </div>
+      {env.NODE_ENV !== "development" && (
+        <div className="absolute h-full w-full flex-col bg-background/10 flex justify-center items-center backdrop-blur z-10 rounded">
+          <HandIcon className="h-12 w-12 mb-12" />
+          <div className="w-[50%] text-center">
+            In order to test this action, you must run ADE locally. ADE stores
+            all of your data locally and does not send any data to the server.
+            ADE is fully open sourced and{" "}
+            <Link
+              href={"https://github.com/energizeai/actions"}
+              passHref
+              target="_blank"
+              className="text-primary hover:underline"
+            >
+              you can clone it here
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

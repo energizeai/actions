@@ -58,7 +58,7 @@ const GoogleSendMailAction = createAction({
     })
   )
   .setOutputSchema(z.void())
-  .setComponent(({ data, displayState, inputSchema, metadata }) => {
+  .setOutputComponent(({ data, displayState, inputSchema, metadata }) => {
     const form = useForm<z.infer<typeof inputSchema>>({
       resolver: zodResolver(inputSchema),
       defaultValues: {

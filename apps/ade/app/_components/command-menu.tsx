@@ -19,7 +19,13 @@ import {
   CommandSeparator,
 } from "@energizeai/ui/command"
 import { ThemedImage } from "@energizeai/ui/themed-image"
-import { SearchIcon } from "lucide-react"
+import {
+  Fingerprint,
+  HandMetalIcon,
+  RocketIcon,
+  SearchIcon,
+  SparklesIcon,
+} from "lucide-react"
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter()
@@ -56,16 +62,13 @@ export function CommandMenu({ ...props }: DialogProps) {
     <>
       <Button
         variant={"outline"}
-        className="text-muted-foreground px-3"
+        className="text-muted-foreground px-3 min-w-[200px] justify-start lg:justify-auto"
         onClick={() => setOpen(true)}
         {...props}
       >
         <SearchIcon className="h-4 w-4" />
-        <span className="hidden lg:inline-flex min-w-[300px]">
-          Search ADE...
-        </span>
-        <span className="inline-flex lg:hidden">Search...</span>
-        <kbd className="font-semibold tracking-widest bg-muted border text-muted-foreground px-2 text-sm rounded-sm py-0.5">
+        <span className="text-left lg:min-w-[300px]">Search ADE...</span>
+        <kbd className="font-semibold hidden lg:inline-block tracking-widest bg-muted border text-muted-foreground px-2 text-sm rounded-sm py-0.5">
           ⌘K
         </kbd>
       </Button>
@@ -73,6 +76,44 @@ export function CommandMenu({ ...props }: DialogProps) {
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Documentation">
+            <CommandItem
+              value={"Introduction"}
+              onSelect={() => {
+                runCommand(() => router.push(`/`))
+              }}
+            >
+              <HandMetalIcon className="h-3 w-3 mr-2" />
+              Introduction
+            </CommandItem>
+            <CommandItem
+              value={"Getting Started"}
+              onSelect={() => {
+                runCommand(() => router.push(`/getting-started`))
+              }}
+            >
+              <RocketIcon className="h-3 w-3 mr-2" />
+              Getting Started
+            </CommandItem>
+            <CommandItem
+              value={"Authentication"}
+              onSelect={() => {
+                runCommand(() => router.push(`/authentication`))
+              }}
+            >
+              <Fingerprint className="h-3 w-3 mr-2" />
+              Authentication
+            </CommandItem>
+            <CommandItem
+              value={"Contribue"}
+              onSelect={() => {
+                runCommand(() => router.push(`/contribute`))
+              }}
+            >
+              <SparklesIcon className="h-3 w-3 mr-2" />
+              Contribute
+            </CommandItem>
+          </CommandGroup>
           <CommandGroup heading="Actions">
             {Object.keys(ActionsRegistry).map((actionId, ix) => {
               const action = ActionsRegistry[actionId as TActionId]

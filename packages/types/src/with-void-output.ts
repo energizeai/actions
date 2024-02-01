@@ -123,7 +123,7 @@ export class ActionBuilderWithVoidOutput<
     })
   }
 
-  setComponent(
+  setOutputComponent(
     component: React.FC<TActionComponentProps<TInput, TSubmission>>
   ): ActionBuilderWithOutput<TInput, z.ZodVoid, TSubmission> {
     return new ActionBuilderWithOutput({

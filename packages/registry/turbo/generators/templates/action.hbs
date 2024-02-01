@@ -3,10 +3,6 @@ import { createAction, createActionMetadata } from "@energizeai/types"
 <|IMPORT_TEMPLATE|>
 
 const {{ properCase name }}Action = createAction({
-  // 
-  // TODO: METADATA
-  // Add metadata fields to describe your action
-  // 
   metadata: createActionMetadata({
     title: "{{ name }}",
     description: "{{ description }}",
@@ -20,38 +16,14 @@ const {{ properCase name }}Action = createAction({
     examples: ["{{ example }}"]
   }),
 })
-// 
-// TODO: (STEP 1) DEFINE INPUTS
-// Define the inputs required for your action.
-// See the README for more information.
-// 
   .setInputSchema(
     z.object({
       fieldOne: z.string().describe("This is a description of fieldOne"),
       fieldTwo: z.string().describe("This is a description of fieldTwo"),
     }).describe("This is a description of the input schema")
   )
-// 
-// TODO: (STEP 2) DEFINE OUTPUTS
-// Your output will either be JSON Data (GET) or a React Component (POST).
-// If it's JSON Data, use setOutputSchema similar to Step 1.
-// If it's a React Component, use setComponent, and set the output schema to z.void().
-// This Google-Send-Mail example uses setComponent, as shown below.
-// 
 <|OUTPUT_TEMPLATE|>
-// 
-// TODO: (STEP 4) DEFINE AUTH REQUIREMENTS
-// If your action needs authentification, you can specify it here.
-// Spark supports OAuth, Manual Token, or NoAuth. 
-// There are other examples of this in the /src file, as well as in the Readme.
-// In this example, we use OAuth
-// 
 <|AUTH_TEMPLATE|>
-// 
-// TODO: (STEP 3) DEFINE ACTION FUNCTION
-// The action function is predefined code to best take a desired action.
-// See more in the README.
-// 
   .setActionFunction(async ({ input, auth, userData }) => {
     // Add your action function logic here
     console.log(auth)

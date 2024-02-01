@@ -6,7 +6,27 @@ Welcome to `energizeai/actions`, by Energize AI. We're building the foundations 
 
 ## Documentation
 
-To create and submit a new action in just 5 simple steps, please follow [documentation](/packages/registry/DOCUMENTATION.md).
+First, make sure you have cloned the repository and installed all the dependencies. You can do this by running the following commands in the root directory.
+
+```bash
+git clone https://github.com/energizeai/actions.git
+
+cd actions
+
+npm install
+```
+
+To run ADE, you can use the following command in the root directory.
+
+```bash
+npm run ade:dev
+```
+
+💡 To automate these steps for you, we recommend using our Code-Gen tool. You can run the following command in the root directory. It will create a custom Action template for you.
+
+```bash
+npm run generate:action
+```
 
 ## Contributing
 

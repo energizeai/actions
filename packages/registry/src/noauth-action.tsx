@@ -28,7 +28,7 @@ const NoauthAction = createAction({
   //   })
   // )
   .setOutputSchema(z.void())
-  .setComponent(({ data, displayState }) => {
+  .setOutputComponent(({ data, displayState }) => {
     if (displayState === "skeleton") return <div>skeleton component</div>
     if (displayState === "placeholder") return <div>placeholder component</div>
     return (

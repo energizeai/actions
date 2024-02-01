@@ -25,7 +25,7 @@ export default function ActionDetailsPage({
         Below is the metadata for the action. This includes the action's name,
         description, and other information.
       </p>
-      <div className="grid mb-4 gap-4 grid-cols-2 flex-1 p-4 border rounded">
+      <div className="grid mb-4 gap-4 grid-cols-1 lg:grid-cols-2 flex-1 p-4 border rounded">
         {actionData.getMetadata().apiReference && (
           <Link
             className="flex items-center hover:underline font-semibold text-muted-foreground"

@@ -55,9 +55,9 @@ export default async function ActionLayout({
             href: `/actions/${params.id}/test`,
           },
         ]}
-        className="pl-8"
+        className="lg:pl-8"
       />
-      <div className="pl-11 py-4 overflow-hidden max-w-full">{children}</div>
+      <div className="lg:pl-11 py-4 overflow-hidden max-w-full">{children}</div>
     </div>
   )
 }
