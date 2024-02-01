@@ -6,7 +6,7 @@ Welcome to `energizeai/actions`, by Energize AI. We're building the foundations 
 
 ## Documentation
 
-To create and submit a new action, please follow [documentation](/packages/registry/DOCUMENTATION.md).
+To create and submit a new action in just 5 simple steps, please follow [documentation](/packages/registry/DOCUMENTATION.md).
 
 ## Contributing
 
