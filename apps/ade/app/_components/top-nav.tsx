@@ -2,6 +2,7 @@ import { Button } from "@energizeai/ui/button"
 import { ThemedImage } from "@energizeai/ui/themed-image"
 import { cn } from "@energizeai/ui/utils"
 import { GithubIcon, TwitterIcon } from "lucide-react"
+import Link from "next/link"
 import { CommandMenu } from "./command-menu"
 
 export default async function TopNav() {
@@ -28,12 +29,26 @@ export default async function TopNav() {
         </div>
         <CommandMenu />
         <div className="flex flex-1 hidden lg:flex justify-end gap-2 items-center">
-          <Button size={"icon"} variant={"outline"}>
-            <GithubIcon className="h-4 w-4" />
-          </Button>
-          <Button size={"icon"} variant={"outline"}>
-            <TwitterIcon className="h-4 w-4" />
-          </Button>
+          <Link
+            href="https://github.com/energizeai/actions"
+            passHref
+            target="_blank"
+            rel="noopener"
+          >
+            <Button size={"icon"} variant={"outline"}>
+              <GithubIcon className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link
+            href="https://twitter.com/Energize_AI"
+            passHref
+            target="_blank"
+            rel="noopener"
+          >
+            <Button size={"icon"} variant={"outline"}>
+              <TwitterIcon className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
