@@ -9,7 +9,7 @@ export default async function TopNav() {
     <div className="sticky h-fit top-0 bg-background/80 backdrop-blur z-10">
       <div className="flex flex-row gap-2 mx-auto px-4 max-w-screen-xl items-center w-full py-4">
         <div className="flex-1">
-          <h1 className="text-2xl font-medium flex gap-2.5 items-center justify-start text-left">
+          <h1 className="text-lg lg:text-2xl font-medium flex gap-2.5 items-center justify-start text-left">
             <span>
               <ThemedImage
                 srcLight={"/logos/energize-black-square.png"}

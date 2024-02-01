@@ -62,7 +62,7 @@ export function CommandMenu({ ...props }: DialogProps) {
     <>
       <Button
         variant={"outline"}
-        className="text-muted-foreground px-3 min-w-[200px] justify-start lg:justify-auto"
+        className="text-muted-foreground px-3 min-w-[150px] justify-start lg:justify-auto"
         onClick={() => setOpen(true)}
         {...props}
       >
