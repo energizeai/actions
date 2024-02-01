@@ -1,14 +1,20 @@
 # Actions by Energize AI
 
-Welcome to the Actions repository, by Energize AI. Spark is designed to run a variety of tasks such as sending emails via Google, creating issues in Linear, and more. This repository is dedicated to community contributions for developing new actions for Spark.
+Welcome to Actions, by Energize AI. Spark is designed to run a variety of tasks such as sending emails via Google, creating issues in Linear, and more. This repository is your one-stop-shop to quickly develop a new Action for Spark.
+
+Feel free to email info@energize.ai with questions, post a feedback to Spark, or reach out on the [Discord](https://discord.gg/H5RXqCJU)!
+
+## What is an Action?
+
+You can think of an action as a Function that Spark can call. It takes input information from the user, runs code within the function (an API call), and usually outputs information. There are two types of Actions: `GET`s or `POST`s. `GET` Actions retrieve and report information to the user (e.g. retrieving the weather), while `POST` Actions send information onto the internet (e.g. making a Tweet). This distinction will become relevant in Step 2.
 
 ## Contributing Actions
 
-Contributing an action to Spark involves five key steps. Below is a guide to help you define and contribute your action effectively.
+Run `npm run generate:action`, which will guide you through setting up the action `.tsx` file. You'll then get a templated file (`/registry/src/[action-name]`), with which you can follow along using this README.
 
 ### Step 1: Define Inputs
 
-First, define the inputs required for your action. Inputs should be structured as a Zod object. For instance, an action to send an email would require inputs like `subject`, `body`, etc.
+First, define the inputs required for your action. This is the contextual information the user should provide Spark so it carry out a command. Inputs should be structured as a Zod object. For instance, an action to send an email would require inputs like `subject`, `body`, etc.
 
 You must include a `.describe()` call on each field to provide a description of the input. This description will be used to generate the prompts and details page for your action.
 
@@ -32,12 +38,12 @@ const SendEmailInput = z.object({
 
 Spark has two options for outputs:
 
-1. **JSON Data** that adheres to a specific Zod schema. This is the recommended the output for actions that `GET data`.
-2. **React Component** that asks for confirmation for the action. This is the recommended output for actions that `POST data`.
+1. **JSON Data** that adheres to a specific Zod schema. This is the recommended the output for Actions that `GET` data.
+2. **React Component** that asks for confirmation for the action. This is the recommended output for Actions that `POST` data.
 
 #### Option 1: JSON Data Output
 
-In this example, the GetGoogleContact action is GETting data from Google Contacts. The output is a JSON object that adheres to the Zod schema below.
+In this example, the GetGoogleContact action is `GET`ting data from Google Contacts. The output is a JSON object that adheres to the Zod schema below. No React Component is specified.
 
 ```typescript
 const GetGoogleContactOutput = z.object({
@@ -51,7 +57,7 @@ const GetGoogleContactOutput = z.object({
 
 #### Option 2: React Component Output
 
-In this example, the SendEmailInput action is POSTing data to Google. The output is a React component that asks for confirmation for the action.
+In this example, the SendEmailInput action is POSTing data to Google. The output is a React component that asks for confirmation for the action. In this case, there is no output JSON, so we should `setOutputSchema(z.void())` before defining the component. See the Template for an example.
 
 ```typescript
 // form schema == the input for the action
@@ -101,9 +107,15 @@ Note that for functions that POST data, your action function will not need to re
 
 ### Step 4: Define Authentication Requirements
 
-Most actions will need some sort of authentication. For instance, the `SendGoogleEmail` action will need to authenticate with `Google OAuth`. The authentication requirements should be defined as a Zod object following our Auth Config Schema.
+We support three types of authentification: OAuth, Manual Token, or No Auth.
+
+Most actions will need some sort of authentication. For instance, the `SendGoogleEmail` action will need to authenticate with `Google OAuth`. If you do need authentification, the auth requirements should be defined as a Zod object following our Auth Config Schema.
+
+NOTE: all auth data is stored locally on your computer in `ade/server/db/sqlite.db`. You can delete it freely, and only you have access to it.
 
 #### Option 1: OAuth
+
+Specify the discovery endpoint and ADE will take care of the rest (refreshing tokens, revoking tokens, etc). If there is no discovery endpoint, you can manually specify the endpoints. See the below example:
 
 ```typescript
 const GoogleSendMailAuthConfig: AuthConfig = {
@@ -115,6 +127,8 @@ const GoogleSendMailAuthConfig: AuthConfig = {
 
 #### Option 2: Manual API Key Entry
 
+You can specify a custom data schema to ask the user for, alongside the token. For instance, if connecting with the Planetscale API, you'd likely want to ask for the organization name. See the below example:
+
 ```typescript
 const CanvasAuthConfig: AuthConfig = {
   type: "manual-token",
@@ -123,6 +137,10 @@ const CanvasAuthConfig: AuthConfig = {
   }),
 }
 ```
+
+#### Option 3: No Auth
+
+Simply `.setAuthType("None")`. See an example in `registry/src/noauth-action.tsx`.
 
 ### Step 5: Putting it all Together
 
@@ -143,3 +161,5 @@ const SendEmailAction: Action = {
 ```
 
 ### Submission
+
+Test your action using our Actions Development Environment (ADE), with `npm run ade:dev`. You should see your new action under the Actions tab! How exciting! When you're ready, submit a merge request with your action file, and we'll quickly review and add it in!
