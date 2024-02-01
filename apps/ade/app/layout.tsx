@@ -10,6 +10,7 @@ import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 
+import { env } from "@/env/server.mjs"
 import { TRPCReactProvider } from "@/trpc/react"
 import { cookies } from "next/headers"
 import SideNav from "./_components/side-nav"
@@ -18,6 +19,19 @@ import TopNav from "./_components/top-nav"
 export const metadata: Metadata = {
   title: "ADE - Energize AI",
   description: "Open Sourced Action Development Environment by Energize AI",
+  openGraph: {
+    images: [
+      new URL(
+        `${
+          env.NODE_ENV === "development"
+            ? "http://localhost:3000"
+            : "https://ade.energize.ai"
+        }/api/og`
+      ),
+    ],
+    title: "ADE - Energize AI",
+    description: "Open Sourced Action Development Environment by Energize AI",
+  },
 }
 
 export default function RootLayout({

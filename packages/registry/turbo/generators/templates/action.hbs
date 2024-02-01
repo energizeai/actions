@@ -3,6 +3,9 @@ import { createAction, createActionMetadata } from "@energizeai/types"
 <|IMPORT_TEMPLATE|>
 
 const {{ properCase name }}Action = createAction({
+  // ==========================================================================
+  // Define the metadata for your action
+  // ==========================================================================
   metadata: createActionMetadata({
     title: "{{ name }}",
     description: "{{ description }}",
@@ -16,14 +19,34 @@ const {{ properCase name }}Action = createAction({
     examples: ["{{ example }}"]
   }),
 })
+
+  // ==========================================================================
+  // Define the input schema for your action
+  // ==========================================================================
+
   .setInputSchema(
     z.object({
       fieldOne: z.string().describe("This is a description of fieldOne"),
       fieldTwo: z.string().describe("This is a description of fieldTwo"),
     }).describe("This is a description of the input schema")
   )
+
+  // ==========================================================================
+  // Define the output schema for your action
+  // ==========================================================================
+
 <|OUTPUT_TEMPLATE|>
+
+  // ==========================================================================
+  // Define the authentication configuration for your action
+  // ==========================================================================
+
 <|AUTH_TEMPLATE|>
+
+  // ==========================================================================
+  // Define the action function for your action
+  // ==========================================================================
+
   .setActionFunction(async ({ input, auth, userData }) => {
     // Add your action function logic here
     console.log(auth)

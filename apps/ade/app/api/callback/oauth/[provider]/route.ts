@@ -1,4 +1,8 @@
-import { getTokenEndpoint } from "@/lib/oauth"
+import {
+  getClientIdEnvKey,
+  getClientSecretEnvKey,
+  getTokenEndpoint,
+} from "@/lib/oauth"
 import { db } from "@/server/db"
 import { linkedAccounts } from "@/server/db/schema"
 import { ActionsRegistry } from "@energizeai/registry"
@@ -48,8 +52,12 @@ export async function GET(
   }
 
   const tokenParams: Record<string, string> = {
-    client_id: process.env.GOOGLE_CLIENT_ID as string,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET as string,
+    client_id: process.env[
+      getClientIdEnvKey(foundAction.getMetadata())
+    ] as string,
+    client_secret: process.env[
+      getClientSecretEnvKey(foundAction.getMetadata())
+    ] as string,
     redirect_uri: `http://localhost:3000/api/callback/oauth/${params.provider}`,
     grant_type: `authorization_code`,
     code: code,
@@ -80,7 +88,10 @@ export async function GET(
 
   if (!newLinkedAccountSafe.success) {
     return new Response(
-      "Invalid response: " + newLinkedAccountSafe.error.message,
+      "Invalid response: " +
+        newLinkedAccountSafe.error.message +
+        " " +
+        JSON.stringify(tokenData),
       { status: 400 }
     )
   }

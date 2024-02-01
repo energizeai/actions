@@ -1,4 +1,5 @@
 // import { format, utcToZonedTime } from "date-fns-tz";
+import { customAlphabet } from "nanoid"
 
 export function convertToTimezone(input: {
   date: Date
@@ -40,4 +41,11 @@ export const generateDayTimeReference = (localTimeZone: string) => {
   })
 
   return `For reference, the current day is ${dayOfWeek}, the current time is ${currentTimeRFC3339}, the local timezone is ${timezone}.`
+}
+
+const nanoid = customAlphabet(
+  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+)
+export function newId(len: number = 16): string {
+  return nanoid(len)
 }

@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Beaker,
   CheckCircle,
+  Copy,
   DatabaseIcon,
   Fingerprint,
   HandIcon,
@@ -167,6 +168,10 @@ export default function ActionTestForm({
 
     for (const key in actionInputRecord) {
       try {
+        if (actionInputRecord[key] === "") {
+          parsed[key] = undefined
+          continue
+        }
         parsed[key] = hjson.parse(actionInputRecord[key]!)
       } catch (error) {
         parsed[key] = actionInputRecord[key]
@@ -225,19 +230,38 @@ export default function ActionTestForm({
 
   if (actionMutation.isSuccess) {
     output = (
-      <pre>
-        {JSON.stringify(
-          JSON.parse(actionMutation.data.outputDataAsString ?? "{}"),
-          null,
-          2
-        )}
-      </pre>
+      <div className="relative">
+        <Button
+          size={"icon"}
+          className="absolute top-0 right-0"
+          variant={"ghost"}
+          onClick={() => {
+            navigator.clipboard.writeText(
+              JSON.stringify(
+                JSON.parse(actionMutation.data.outputDataAsString ?? "{}"),
+                null,
+                2
+              )
+            )
+            toast.success("Copied to clipboard")
+          }}
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
+        <pre className="max-w-full overflow-x-auto overflow-auto max-h-[70vh]">
+          {JSON.stringify(
+            JSON.parse(actionMutation.data.outputDataAsString ?? "{}"),
+            null,
+            2
+          )}
+        </pre>
+      </div>
     )
   }
 
   if (actionMutation.isError) {
     output = (
-      <pre className="whitespace-pre-wrap text-destructive-foreground">
+      <pre className="whitespace-pre-wrap text-destructive max-w-full overflow-auto max-h-[70vh]">
         {actionMutation.error.message}
       </pre>
     )

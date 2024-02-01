@@ -117,7 +117,7 @@ export default function OAuthForm({
         <small className="text-muted-foreground mt-2">
           Make sure the following scopes are checked
         </small>
-        <div className="flex flex-row gap-2 items-center justify-start">
+        <div className="flex flex-row gap-1 items-center justify-start flex-wrap">
           {authConfig.config.scopes.map((scope, index) => (
             <Badge key={index} className="mt-2" variant={"outline"}>
               {scope}

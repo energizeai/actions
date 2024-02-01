@@ -142,7 +142,7 @@ export type TOAuthConfig = TAuthConfigBase & {
          * @example
          * For google, this is `https://oauth2.googleapis.com/token`.
          */
-        refreshEndpoint: string
+        refreshEndpoint?: string
 
         /**
          * The URL of the revoke endpoint for revoking access tokens.
