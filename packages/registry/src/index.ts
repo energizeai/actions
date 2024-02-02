@@ -2,6 +2,7 @@ import { ActionBuilderWithFunction } from "@energizeai/types"
 import { BingWebSearchAction } from "./bing-web-search"
 import { DalleCreateImageAction } from "./dalle-create-image"
 import { GoogleGetContactAction } from "./google-get-contact"
+import { GoogleReadMailAction } from "./google-read-mail"
 import { GoogleSendMailAction } from "./google-send-mail"
 import { GoogleWebSearchAction } from "./google-web-search"
 import { HelloWorldAction } from "./hello-world-action"
@@ -12,6 +13,7 @@ import { PlanetScaleGetBranchSchemaAction } from "./planet-scale-get-branch-sche
 const ActionsRegistry = {
   HelloWorldAction: HelloWorldAction,
   GoogleSendMailAction: GoogleSendMailAction,
+  GoogleReadMailAction: GoogleReadMailAction,
   GoogleGetContactAction: GoogleGetContactAction,
   GoogleWebSearchAction: GoogleWebSearchAction,
   DalleCreateImageAction: DalleCreateImageAction,
