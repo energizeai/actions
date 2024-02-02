@@ -11,11 +11,11 @@ import {
   AlertTriangle,
   Beaker,
   CheckCircle,
-  Copy,
   DatabaseIcon,
   Fingerprint,
   HandIcon,
   Info,
+  RefreshCw,
   TrashIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -41,6 +41,7 @@ import { cn } from "@energizeai/ui/utils"
 import hjson from "hjson"
 import Link from "next/link"
 import { ActionComponent } from "../../_components/action-component"
+import { JSONViewer } from "./json-viewer"
 
 const StatusBadge = ({
   isError,
@@ -230,32 +231,9 @@ export default function ActionTestForm({
 
   if (actionMutation.isSuccess) {
     output = (
-      <div className="relative">
-        <Button
-          size={"icon"}
-          className="absolute top-0 right-0"
-          variant={"ghost"}
-          onClick={() => {
-            navigator.clipboard.writeText(
-              JSON.stringify(
-                JSON.parse(actionMutation.data.outputDataAsString ?? "{}"),
-                null,
-                2
-              )
-            )
-            toast.success("Copied to clipboard")
-          }}
-        >
-          <Copy className="h-4 w-4" />
-        </Button>
-        <pre className="max-w-full overflow-x-auto overflow-auto max-h-[70vh]">
-          {JSON.stringify(
-            JSON.parse(actionMutation.data.outputDataAsString ?? "{}"),
-            null,
-            2
-          )}
-        </pre>
-      </div>
+      <JSONViewer
+        dataAsString={actionMutation.data?.outputDataAsString ?? ""}
+      />
     )
   }
 
@@ -309,14 +287,39 @@ export default function ActionTestForm({
               "Input"
             )}{" "}
           </p>
-          <StatusBadge
-            linkedAccount={linkedAccount}
-            handleDeleteAuth={() => {
-              setActionInputRecord(defaultRecord)
-              setComponentInput(null)
-              actionMutation.reset()
-            }}
-          />
+          <div className="flex justify-end items-center gap-2">
+            {!needsAuth && (
+              <>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size={"icon"}
+                      variant={"ghost"}
+                      className="p-2 h-fit my-0 py-0 hover:underline hover:bg-background"
+                    >
+                      <RefreshCw
+                        className="h-4 w-4"
+                        onClick={() => {
+                          setActionInputRecord(defaultRecord)
+                          setComponentInput(null)
+                          actionMutation.reset()
+                        }}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Reset input</TooltipContent>
+                </Tooltip>
+                <StatusBadge
+                  linkedAccount={linkedAccount}
+                  handleDeleteAuth={() => {
+                    setActionInputRecord(defaultRecord)
+                    setComponentInput(null)
+                    actionMutation.reset()
+                  }}
+                />
+              </>
+            )}
+          </div>
         </div>
         <div className={cn("flex flex-col gap-3", !needsAuth && "p-3")}>
           {!linkedAccount && authType !== "None" ? (
