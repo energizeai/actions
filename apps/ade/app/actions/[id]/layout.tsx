@@ -45,7 +45,7 @@ export default async function ActionLayout({
         subtitle={actionData.getMetadata().description}
       >
         <Link
-          target="_blank"
+          target={env.NODE_ENV !== "development" ? "_blank" : "_self"}
           href={
             env.NODE_ENV !== "development"
               ? `https://github.com/energizeai/actions/blob/main/packages/registry/src/${fileName}.tsx`
