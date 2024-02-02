@@ -23,7 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-.sqlite.db
+sqlite.db
 
 # local env files
 .env.local
