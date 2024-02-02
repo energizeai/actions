@@ -25,6 +25,7 @@
     "./spinner": "./src/components/spinner.tsx",
     "./date-time-picker": "./src/components/date-time-picker/date-time-picker.tsx",
     "./card": "./src/components/card.tsx",
+    "./dialog": "./src/components/dialog.tsx",
     "./avatar": "./src/components/avatar.tsx",
     "./skeleton": "./src/components/skeleton.tsx"
   },
