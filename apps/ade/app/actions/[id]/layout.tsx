@@ -10,6 +10,7 @@ import React from "react"
 
 import { env } from "@/env/server.mjs"
 import { dashCase } from "@/lib/utils"
+import Link from "next/link"
 
 export default async function ActionLayout({
   params,
@@ -21,6 +22,8 @@ export default async function ActionLayout({
   const actionData = ActionsRegistry[params.id]
 
   if (!actionData) notFound()
+
+  const fileName = dashCase(params.id).substring(1).split("-action")[0]
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -41,9 +44,21 @@ export default async function ActionLayout({
         }
         subtitle={actionData.getMetadata().description}
       >
-        <pre className="max-w-[300px] text-wrap break-all">
-          @/packages/registry/src/{dashCase(params.id).substring(1)}.tsx
-        </pre>
+        <Link
+          target={env.NODE_ENV !== "development" ? "_blank" : "_self"}
+          href={
+            env.NODE_ENV !== "development"
+              ? `https://github.com/energizeai/actions/blob/main/packages/registry/src/${fileName}.tsx`
+              : `#`
+          }
+          className={cn(
+            env.NODE_ENV !== "development" ? "hover:underline" : ""
+          )}
+        >
+          <pre className="max-w-[300px] text-wrap break-all">
+            @/packages/registry/src/{fileName}.tsx
+          </pre>
+        </Link>
       </SectionHeader>
       <TabNav
         items={[
