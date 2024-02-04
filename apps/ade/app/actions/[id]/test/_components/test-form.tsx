@@ -124,7 +124,7 @@ const StatusBadge = ({
     )
   }
 
-  return <Badge className="opacity-0">hidden</Badge>
+  return null
 }
 
 export default function ActionTestForm({
@@ -287,6 +287,7 @@ export default function ActionTestForm({
               "Input"
             )}{" "}
           </p>
+          <div className="h-[22px]" />
           <div className="flex justify-end items-center gap-2">
             {!needsAuth && (
               <>
@@ -372,58 +373,41 @@ export default function ActionTestForm({
                   </Tooltip>
                 </h3>
                 {Object.keys(actionInputRecord).map((key) => (
-                  <div
-                    className="flex gap-4 justify-between"
-                    key={key + "-form"}
-                  >
-                    <div className="flex-1">
-                      <Label>Key</Label>
-                      <Input
-                        placeholder="Enter key..."
-                        name="key"
-                        disabled={true}
-                        value={key}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Label>
-                        Value
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-2">
-                              <Info className="h-3 w-3 inline-block" />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="right"
-                            className="max-w-[500px]"
-                          >
-                            <pre>
-                              {JSON.stringify(
-                                (
-                                  action.getInputJSONSchema() as {
-                                    properties: Record<string, unknown>
-                                  }
-                                )["properties"][key],
-                                null,
-                                2
-                              )}
-                            </pre>
-                          </TooltipContent>
-                        </Tooltip>
-                      </Label>
-                      <Input
-                        placeholder="Enter value..."
-                        name="value"
-                        value={actionInputRecord[key]}
-                        onChange={(e) =>
-                          setActionInputRecord({
-                            ...actionInputRecord,
-                            [key]: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
+                  <div className="flex-1" key={key + "-form"}>
+                    <Label>
+                      {key}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="ml-2">
+                            <Info className="h-3 w-3 inline-block" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-[500px]">
+                          <pre>
+                            {JSON.stringify(
+                              (
+                                action.getInputJSONSchema() as {
+                                  properties: Record<string, unknown>
+                                }
+                              )["properties"][key],
+                              null,
+                              2
+                            )}
+                          </pre>
+                        </TooltipContent>
+                      </Tooltip>
+                    </Label>
+                    <Input
+                      placeholder="Enter value..."
+                      name="value"
+                      value={actionInputRecord[key]}
+                      onChange={(e) =>
+                        setActionInputRecord({
+                          ...actionInputRecord,
+                          [key]: e.target.value,
+                        })
+                      }
+                    />
                   </div>
                 ))}
                 <Separator className="my-2" />
@@ -443,6 +427,7 @@ export default function ActionTestForm({
       <div className="flex flex-col border-l">
         <div className="p-3 border-b font-bold text-sm flex items-center justify-between">
           <p>Output</p>
+          <div className="h-[22px]" />
           <StatusBadge
             isError={actionMutation.isError}
             isSuccess={actionMutation.isSuccess}

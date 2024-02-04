@@ -112,12 +112,14 @@ export default function ActionDetailsPage({
         This is the resulting output of the action.
       </p>
       {actionData.getComponent() !== null ? (
-        <ActionComponent
-          actionId={params.id}
-          inputDataAsString={undefined}
-          state="placeholder"
-          userData={undefined}
-        />
+        <div className="lg:max-w-screen-sm">
+          <ActionComponent
+            actionId={params.id}
+            inputDataAsString={undefined}
+            state="placeholder"
+            userData={undefined}
+          />
+        </div>
       ) : (
         <CodeBlock
           className="max-w-full overflow-x-hidden"

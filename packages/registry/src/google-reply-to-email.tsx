@@ -4,44 +4,38 @@ import {
   createActionMetadata,
 } from "@energizeai/types"
 import z from "zod"
-import { GoogleSendMailCard } from "./_components/google-send-mail-card"
+import { GoogleReplyToEmailCard } from "./_components/google-reply-to-email-card"
 
 const actionInputSchema = z.object({
-  subject: z.string().describe("The subject of the email"),
   body: z.string().describe("The body of the email"),
+  subject: z.string().describe("The subject of the email thread."),
   to: z
-    .array(
-      z.object({
-        email: z
-          .string()
-          .email()
-          .describe("The email address to send the email to"),
-      })
-    )
-    .describe("The email address to send the email to"),
+    .string()
+    .describe("The email address of the last sender in the thread."),
+  threadId: z.string().describe("The ID of the thread to reply to."),
 })
 
-export type TGoogleSendMailCard = TActionComponent<typeof actionInputSchema>
+export type TGoogleReplyToEmailCard = TActionComponent<typeof actionInputSchema>
 
-const GoogleSendMailAction = createAction({
+const GoogleReplyToEmailAction = createAction({
   metadata: createActionMetadata({
-    title: "Send Email",
+    title: "Reply To Email",
     description: "Send an email with the Gmail API",
     resource: "Google",
-    loadingMessage: "Generating email...",
-    chatMessage: "Please send an email",
+    loadingMessage: "Replying to email...",
+    chatMessage: "Please reply to email",
     avatar: {
       light: "/logos/google.svg",
       dark: "/logos/google.svg",
     },
-    defaultKeywords: ["send-email"],
+    defaultKeywords: ["reply-to-email"],
     apiReference:
-      "https://www.google.com/search?q=google+send+mail+api&sourceid=chrome&ie=UTF-8",
+      "https://developers.google.com/gmail/api/reference/rest/v1/users.messages/send",
   }),
 })
   .setInputSchema(actionInputSchema)
   .setOutputSchema(z.void())
-  .setOutputComponent(GoogleSendMailCard)
+  .setOutputComponent(GoogleReplyToEmailCard)
   .setAuthType("OAuth")
   .setOAuthData({
     humanReadableDescription: "Ability to send emails using Google's api",
@@ -83,11 +77,7 @@ const GoogleSendMailAction = createAction({
       Authorization: `Bearer ${auth.accessToken}`,
     }
 
-    const rawEmail = createEmail(
-      input.to.map((to) => to.email),
-      input.subject,
-      input.body
-    )
+    const rawEmail = createEmail([input.to], input.subject, input.body)
 
     const response = await fetch(
       `https://gmail.googleapis.com/gmail/v1/users/me/messages/send`,
@@ -96,6 +86,7 @@ const GoogleSendMailAction = createAction({
         headers,
         body: JSON.stringify({
           raw: rawEmail,
+          threadId: input.threadId,
         }),
       }
     ).then((res) => res.json())
@@ -103,4 +94,4 @@ const GoogleSendMailAction = createAction({
     return
   })
 
-export { GoogleSendMailAction }
+export { GoogleReplyToEmailAction }

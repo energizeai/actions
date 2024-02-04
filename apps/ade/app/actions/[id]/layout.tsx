@@ -10,7 +10,41 @@ import React from "react"
 
 import { env } from "@/env/server.mjs"
 import { dashCase } from "@/lib/utils"
+import { Metadata } from "next"
 import Link from "next/link"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: TActionId }
+}): Promise<Metadata> {
+  const action = ActionsRegistry[params.id]
+  if (!action) notFound()
+
+  const imageUrl = new URL(
+    `${
+      env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : "https://ade.energize.ai"
+    }/api/og`
+  )
+  imageUrl.searchParams.append("title", `${action.getMetadata().title}`)
+
+  return {
+    metadataBase: new URL(
+      env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : "https://ade.energize.ai"
+    ),
+    title: `ADE - ${action.getMetadata().title}`,
+    description: `${action.getMetadata().description}`,
+    openGraph: {
+      images: [imageUrl],
+      title: `ADE - ${action.getMetadata().title}`,
+      description: `${action.getMetadata().description}`,
+    },
+  }
+}
 
 export default async function ActionLayout({
   params,

@@ -3,6 +3,9 @@ import { ImageResponse } from "next/og"
 export const runtime = "edge"
 
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const title = searchParams.get("title") ?? "ADE"
+
   const energizeLogoWhiteImageData = await fetch(
     new URL("../../../public/logos/energize-white-square.png", import.meta.url)
   ).then((res) => res.arrayBuffer())
@@ -74,7 +77,7 @@ export async function GET(request: Request) {
           height="100"
           src={energizeLogoWhiteImageData as unknown as string}
         />
-        <p tw="mb-0">{"ADE"}</p>
+        <p tw="mb-0">{title}</p>
       </div>
     ),
     sharedOptions

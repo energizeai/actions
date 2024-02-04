@@ -22,16 +22,16 @@ const OutputSchema = z.object({
     .describe(`Token to retrieve the next page of results in the list.`),
 })
 
-const GoogleReadMailAction = createAction({
+const GoogleSearchEmailInboxAction = createAction({
   metadata: createActionMetadata({
-    title: "Read Email",
-    description: "List the messages in your Gmail inbox",
+    title: "Search Email Inbox",
+    description: "Query the messages in your Gmail inbox",
     resource: "Google",
     avatar: {
       light: "/logos/google.svg",
       dark: "/logos/google.svg",
     },
-    defaultKeywords: ["read-email"],
+    defaultKeywords: ["search-email-inbox"],
     apiReference:
       "https://developers.google.com/gmail/api/reference/rest/v1/users.messages/list",
     examples: ["what new messages do I have in my inbox?"],
@@ -126,12 +126,11 @@ const GoogleReadMailAction = createAction({
 
       const metadata = await metdataResponse.json()
 
-      console.log(JSON.stringify(metadata))
-
       const data = z
         .object({
           snippet: z.string().optional(),
           threadId: z.string(),
+          labelIds: z.array(z.string()),
           payload: z.object({
             headers: z.array(
               z.object({
@@ -193,4 +192,4 @@ const GoogleReadMailAction = createAction({
     }
   })
 
-export { GoogleReadMailAction }
+export { GoogleSearchEmailInboxAction }

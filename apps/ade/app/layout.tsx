@@ -17,6 +17,11 @@ import SideNav from "./_components/side-nav"
 import TopNav from "./_components/top-nav"
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://ade.energize.ai"
+  ),
   title: "ADE - Energize AI",
   description: "Open Sourced Action Development Environment by Energize AI",
   openGraph: {

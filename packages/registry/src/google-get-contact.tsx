@@ -52,7 +52,7 @@ const GoogleGetContactAction = createAction({
     humanReadableDescription: "Read-only access to your Google Contacts",
     humanReadableName: "Google Contacts",
     button: {
-      text: "Continue with google",
+      text: "Continue with Google",
     },
     discoveryEndpoint:
       "https://accounts.google.com/.well-known/openid-configuration",

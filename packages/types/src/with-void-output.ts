@@ -79,13 +79,16 @@ export type TActionComponentProps<
     }
 )
 
+export type TActionComponent<
+  TInput extends TActionInput,
+  TOnSubmitValues extends TActionOnSubmit = undefined,
+> = React.FC<TActionComponentProps<TInput, TOnSubmitValues>>
+
 export type TPassThroughComponent<
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TOnSubmitValues extends TActionOnSubmit = undefined,
-> = TOutput extends z.ZodVoid
-  ? React.FC<TActionComponentProps<TInput, TOnSubmitValues>>
-  : null
+> = TOutput extends z.ZodVoid ? TActionComponent<TInput, TOnSubmitValues> : null
 
 /**
  * For actions that do not return any data (i.e. POST actions), you need to specify a component to render in the chat after the action is invoked.
