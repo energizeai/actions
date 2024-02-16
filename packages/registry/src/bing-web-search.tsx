@@ -153,6 +153,7 @@ const BingWebSearchAction = createAction({
       })
       .describe(`Browse the web using Bing.`)
   )
+  .setActionType("GET")
   .setOutputSchema(BingWebSearchOutput)
   .setAuthType("Token")
   .setTokenData({

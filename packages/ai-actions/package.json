@@ -19,7 +19,8 @@
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "npm run build -- --watch"
+    "dev": "npm run build -- --watch",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf .next"
   },
   "devDependencies": {
     "@energizeai/eslint-config": "*",

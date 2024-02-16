@@ -6,6 +6,7 @@
     "ade:dev": "turbo dev --filter ade",
     "ade:typecheck": "turbo run typecheck --filter ade",
     "lint": "turbo run lint",
+    "dev": "turbo dev",
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "typecheck": "turbo run typecheck",
@@ -14,7 +15,8 @@
     "check": "turbo lint typecheck format:check",
     "generate:action": "turbo gen action-starter",
     "postinstall": "manypkg check",
-    "publish-packages": "turbo run build lint && changeset version && changeset publish"
+    "publish-packages": "turbo run build lint && changeset version && changeset publish",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf .next"
   },
   "dependencies": {
     "@changesets/cli": "^2.27.1",

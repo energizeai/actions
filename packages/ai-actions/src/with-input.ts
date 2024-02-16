@@ -1,8 +1,7 @@
-import z from "zod"
-import { TActionInput, TActionOutput } from "."
+import { TActionInput } from "."
 import { TActionData } from "./action-data"
-import { ActionBuilderWithOutput } from "./with-output"
-import { ActionBuilderWithVoidOutput } from "./with-void-output"
+import { ActionBuilderWithGet } from "./with-get"
+import { ActionBuilderWithPost } from "./with-post"
 
 export type TActionBuilderWithInputData<
   TId extends string,
@@ -11,6 +10,8 @@ export type TActionBuilderWithInputData<
   TActionData<TId, TInput, any, any, any>,
   "metadata" | "inputSchema" | "id"
 >
+
+type TActionType = "GET" | "POST"
 
 export class ActionBuilderWithInput<
   TId extends string,
@@ -27,29 +28,24 @@ export class ActionBuilderWithInput<
   }
 
   /**
-   * Spark has two options for outputs:
+   * Spark has two options for actions:
    *
    * 1.`JSON Data` that adheres to a specific Zod schema. This is typically the output for actions that `GET data`. If this is the case, you should specify the Zod schema for the output.
    *
    * 2.`React Component` that asks for confirmation for the action. This is typically the output for actions that `POST data`. If this is the case, you should specify a React component that asks for confirmation for the action. The output will be `void`.
    */
-  setOutputSchema(type: z.ZodVoid): ActionBuilderWithVoidOutput<TId, TInput> // eslint-disable-line @typescript-eslint/no-unused-vars
-  setOutputSchema<TOutput extends z.ZodObject<any>>(
-    type: TOutput // eslint-disable-line @typescript-eslint/no-unused-vars
-  ): ActionBuilderWithOutput<TId, TInput, TOutput>
+  setActionType(type: "GET"): ActionBuilderWithGet<TId, TInput>
+  setActionType(type: "POST"): ActionBuilderWithPost<TId, TInput>
 
-  setOutputSchema(output: TActionOutput) {
-    if (output instanceof z.ZodVoid) {
-      return new ActionBuilderWithVoidOutput({
+  setActionType(output: TActionType) {
+    if (output === "POST") {
+      return new ActionBuilderWithPost({
         actionData: this.actionData,
       })
     } else {
-      return new ActionBuilderWithOutput({
+      return new ActionBuilderWithGet({
         actionData: {
           ...this.actionData,
-          submissionSchema: undefined,
-          outputSchema: output,
-          component: null,
         },
       })
     }

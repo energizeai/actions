@@ -22,6 +22,7 @@ const HelloWorldAction = createAction({
       })
       .describe(`Get a greeting.`)
   )
+  .setActionType("GET")
   .setOutputSchema(
     z.object({
       greeting: z.string().describe(`The raw MYSQL schema for a table.`),

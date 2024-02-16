@@ -47,6 +47,7 @@ const GoogleGetContactAction = createAction({
         `Get a contact from the user's Google Contacts. This is useful to lookup someones email address if it wasn't already provided.`
       )
   )
+  .setActionType("GET")
   .setOutputSchema(outputSchema)
   .setAuthType("OAuth")
   .setOAuthData({

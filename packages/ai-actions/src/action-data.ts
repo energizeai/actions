@@ -7,7 +7,7 @@ import {
   TActionOnSubmit,
   TActionOutput,
 } from "."
-import { TPassThroughComponent } from "./with-void-output"
+import { TPassThroughComponent } from "./with-post"
 
 export type TActionData<
   TId extends string,

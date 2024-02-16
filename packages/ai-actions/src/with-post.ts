@@ -95,7 +95,7 @@ export type TPassThroughComponent<
  * For actions that do not return any data (i.e. POST actions), you need to specify a component to render in the chat after the action is invoked.
  * This component should be a form asking for confirmation to submit the input to the action function.
  */
-export class ActionBuilderWithVoidOutput<
+export class ActionBuilderWithPost<
   TId extends string,
   TInput extends TActionInput,
   TSubmission extends TActionOnSubmit = undefined,
@@ -116,8 +116,8 @@ export class ActionBuilderWithVoidOutput<
 
   setComponentSubmissionSchema<T extends TActionInput>(
     submissionSchema: T
-  ): ActionBuilderWithVoidOutput<TId, TInput, T> {
-    return new ActionBuilderWithVoidOutput({
+  ): ActionBuilderWithPost<TId, TInput, T> {
+    return new ActionBuilderWithPost({
       actionData: this.actionData,
       submissionSchema: submissionSchema,
     })

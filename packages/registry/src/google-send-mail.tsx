@@ -41,7 +41,7 @@ const GoogleSendMailAction = createAction({
   }),
 })
   .setInputSchema(actionInputSchema)
-  .setOutputSchema(z.void())
+  .setActionType("POST")
   .setOutputComponent(GoogleSendMailCard)
   .setAuthType("OAuth")
   .setOAuthData({

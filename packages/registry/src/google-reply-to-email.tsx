@@ -35,7 +35,7 @@ const GoogleReplyToEmailAction = createAction({
   }),
 })
   .setInputSchema(actionInputSchema)
-  .setOutputSchema(z.void())
+  .setActionType("POST")
   .setOutputComponent(GoogleReplyToEmailCard)
   .setAuthType("OAuth")
   .setOAuthData({

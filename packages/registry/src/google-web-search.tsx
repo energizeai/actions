@@ -55,6 +55,7 @@ const GoogleWebSearchAction = createAction({
       })
       .describe(`Browse the web using Google.`)
   )
+  .setActionType("GET")
   .setOutputSchema(GoogleWebSearchResponseSchema)
   .setAuthType("Token")
   .setTokenData({

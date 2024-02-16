@@ -53,6 +53,7 @@ const PlanetScaleGetBranchSchemaAction = createAction({
       })
       .describe(`Get the schema for the current branch in PlanetScale.`)
   )
+  .setActionType("GET")
   .setOutputSchema(
     z.object({
       rawTables: z.array(

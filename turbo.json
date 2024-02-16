@@ -11,6 +11,9 @@
       "persistent": true
     },
     "typecheck": {},
+    "clean": {
+      "cache": false
+    },
     "start": {
       "dependsOn": ["^build"]
     },

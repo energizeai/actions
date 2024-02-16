@@ -38,7 +38,7 @@ const GoogleMoveEmailToTrash = createAction({
   }),
 })
   .setInputSchema(actionInputSchema)
-  .setOutputSchema(z.void())
+  .setActionType("POST")
   .setOutputComponent(GoogleMoveEmailToTrashCard)
   .setAuthType("OAuth")
   .setOAuthData({

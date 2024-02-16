@@ -57,6 +57,7 @@ const GoogleSearchEmailInboxAction = createAction({
       })
       .describe(`List the messages in your Gmail inbox`)
   )
+  .setActionType("GET")
   .setOutputSchema(OutputSchema)
   .setAuthType("OAuth")
   .setOAuthData({

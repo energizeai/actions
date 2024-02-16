@@ -42,7 +42,7 @@ const LinearCreateIssueAction = createAction({
   }),
 })
   .setInputSchema(actionInputSchema)
-  .setOutputSchema(z.void())
+  .setActionType("POST")
   .setOutputComponent(LinearCreateIssueCard)
   .setAuthType("OAuth")
   .setOAuthData({

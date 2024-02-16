@@ -51,6 +51,7 @@ const DalleCreateImageAction = createAction({
       })
       .describe(`Create an image using DALL-E 3.`)
   )
+  .setActionType("GET")
   .setOutputSchema(
     z.object({
       generatedImageUrl: z

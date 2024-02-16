@@ -37,6 +37,7 @@ const GoogleReadEmailAction = createAction({
         `Read a specified email from the user's Gmail. This is useful to read an email that was not already provided.`
       )
   )
+  .setActionType("GET")
   .setOutputSchema(outputSchema)
   .setAuthType("OAuth")
   .setOAuthData({

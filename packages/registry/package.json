@@ -12,7 +12,8 @@
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "typecheck": "tsc --noEmit",
-    "generate:action": "turbo gen action-starter"
+    "generate:action": "turbo gen action-starter",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf .next"
   },
   "dependencies": {
     "@energizeai/shared": "*",
