@@ -90,7 +90,9 @@ export default function SideNav() {
                 />
               }
             />
-            {action.getMetadata().title}
+            <p className="text-ellipsis whitespace-nowrap overflow-x-hidden">
+              {action.getMetadata().title}
+            </p>
           </SideNavLink>
         )
       })}
