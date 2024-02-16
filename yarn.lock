@@ -448,7 +448,7 @@
     "@energizeai/ui" "*"
     "@hookform/resolvers" "^3.3.4"
     "@linear/sdk" "^13.0.0"
-    ai-actions "*"
+    ai-actions "^0.1.0"
     mailparser "^3.6.7"
     openai "^4.26.0"
     react-hook-form "^7.49.3"
@@ -3554,6 +3554,7 @@ acorn-walk@^8.1.1:
     "@trpc/react-query" "^10.45.0"
     "@trpc/server" "^10.45.0"
     "@types/mdx" "^2.0.10"
+    ai-actions "^0.1.0"
     better-sqlite3 "^9.3.0"
     date-fns "^3.3.1"
     date-fns-tz "^2.0.0"
@@ -3596,7 +3597,7 @@ aggregate-error@^3.0.0:
     clean-stack "^2.0.0"
     indent-string "^4.0.0"
 
-ai-actions@^0.1.0, "ai-actions@file:/Users/ido/Desktop/ENERGIZE AI/actions/packages/ai-actions":
+ai-actions@*, "ai-actions@file:/Users/ido/Desktop/ENERGIZE AI/actions/packages/ai-actions":
   version "0.1.0"
   resolved "file:packages/ai-actions"
   dependencies:

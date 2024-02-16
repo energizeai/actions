@@ -27,7 +27,7 @@
     "@trpc/react-query": "^10.45.0",
     "@trpc/server": "^10.45.0",
     "@types/mdx": "^2.0.10",
-    "ai-actions": "^0.1.0",
+    "ai-actions": "*",
     "better-sqlite3": "^9.3.0",
     "date-fns": "^3.3.1",
     "date-fns-tz": "^2.0.0",

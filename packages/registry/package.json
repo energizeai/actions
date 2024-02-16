@@ -19,7 +19,7 @@
     "@energizeai/ui": "*",
     "@hookform/resolvers": "^3.3.4",
     "@linear/sdk": "^13.0.0",
-    "ai-actions": "^0.1.0",
+    "ai-actions": "*",
     "mailparser": "^3.6.7",
     "openai": "^4.26.0",
     "react-hook-form": "^7.49.3",
