@@ -1,44 +1,46 @@
-import { ActionMetadata, TActionInput, TActionOnSubmit, TActionOutput } from "."
+import { TActionInput, TActionOnSubmit, TActionOutput } from "."
+import { TActionData } from "./action-data"
 import { AuthType, TAuthType } from "./auth"
 import { ActionBuilderWithAuth } from "./with-auth"
+import { TActionBuilderWithInputData } from "./with-input"
 import { ActionBuilderWithOAuthType } from "./with-oauth"
 import { ActionBuilderWithTokenType } from "./with-token"
-import { TPassThroughComponent } from "./with-void-output"
 
 type TNoAuth = {
   type: typeof AuthType.NONE
   config: undefined
 }
 
+export type TActionBuilderWithOutputData<
+  TId extends string,
+  TInput extends TActionInput,
+  TOutput extends TActionOutput,
+  TSubmission extends TActionOnSubmit = undefined,
+> = TActionBuilderWithInputData<TId, TInput> &
+  Pick<
+    TActionData<TId, TInput, TOutput, any, TSubmission>,
+    "outputSchema" | "component" | "submissionSchema"
+  >
+
 export class ActionBuilderWithOutput<
+  TId extends string,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  protected metadata: ActionMetadata
-  protected inputSchema: TInput
-  protected outputSchema: TOutput
-  protected component: TPassThroughComponent<TInput, TOutput, TSubmission>
-  protected submissionSchema?: TSubmission
+  private actionData: TActionBuilderWithOutputData<
+    TId,
+    TInput,
+    TOutput,
+    TSubmission
+  >
 
   constructor({
-    metadata,
-    inputSchema,
-    outputSchema,
-    component,
-    submissionSchema,
+    actionData,
   }: {
-    metadata: ActionMetadata
-    inputSchema: TInput
-    outputSchema: TOutput
-    component: TPassThroughComponent<TInput, TOutput, TSubmission>
-    submissionSchema?: TSubmission
+    actionData: TActionBuilderWithOutputData<TId, TInput, TOutput, TSubmission>
   }) {
-    this.metadata = metadata
-    this.inputSchema = inputSchema
-    this.outputSchema = outputSchema
-    this.component = component
-    this.submissionSchema = submissionSchema
+    this.actionData = actionData
   }
 
   /**
@@ -46,49 +48,39 @@ export class ActionBuilderWithOutput<
    */
   setAuthType(
     type: typeof AuthType.NONE
-  ): ActionBuilderWithAuth<TInput, TOutput, TNoAuth, TSubmission>
+  ): ActionBuilderWithAuth<TId, TInput, TOutput, TNoAuth, TSubmission>
   setAuthType(
     type: typeof AuthType.TOKEN
-  ): ActionBuilderWithTokenType<TInput, TOutput, TSubmission>
+  ): ActionBuilderWithTokenType<TId, TInput, TOutput, TSubmission>
   setAuthType(
     type: typeof AuthType.OAUTH
-  ): ActionBuilderWithOAuthType<TInput, TOutput, TSubmission>
+  ): ActionBuilderWithOAuthType<TId, TInput, TOutput, TSubmission>
 
   setAuthType(
     type: TAuthType
   ):
-    | ActionBuilderWithTokenType<TInput, TOutput, TSubmission>
-    | ActionBuilderWithAuth<TInput, TOutput, TNoAuth, TSubmission>
-    | ActionBuilderWithOAuthType<TInput, TOutput, TSubmission> {
+    | ActionBuilderWithTokenType<TId, TInput, TOutput, TSubmission>
+    | ActionBuilderWithAuth<TId, TInput, TOutput, TNoAuth, TSubmission>
+    | ActionBuilderWithOAuthType<TId, TInput, TOutput, TSubmission> {
     if (type === AuthType.NONE) {
       return new ActionBuilderWithAuth({
-        metadata: this.metadata,
-        inputSchema: this.inputSchema,
-        submissionSchema: this.submissionSchema,
-        outputSchema: this.outputSchema,
-        authConfig: {
-          type: AuthType.NONE,
-          config: undefined,
+        actionData: {
+          ...this.actionData,
+          authConfig: {
+            type: AuthType.NONE,
+            config: undefined,
+          },
         },
-        component: this.component,
       })
     }
     if (type === AuthType.TOKEN) {
       return new ActionBuilderWithTokenType({
-        metadata: this.metadata,
-        inputSchema: this.inputSchema,
-        submissionSchema: this.submissionSchema,
-        outputSchema: this.outputSchema,
-        component: this.component,
+        actionData: this.actionData,
       })
     }
     if (type === AuthType.OAUTH) {
       return new ActionBuilderWithOAuthType({
-        metadata: this.metadata,
-        inputSchema: this.inputSchema,
-        outputSchema: this.outputSchema,
-        submissionSchema: this.submissionSchema,
-        component: this.component,
+        actionData: this.actionData,
       })
     }
     throw new Error("Invalid authentication type")

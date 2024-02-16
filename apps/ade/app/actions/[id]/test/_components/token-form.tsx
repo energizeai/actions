@@ -34,9 +34,9 @@ import { z } from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
 
 export default function TokenForm({ actionId }: { actionId: TActionId }) {
-  const authConfig = ActionsRegistry[
-    actionId
-  ].getAuthConfig() as TTokenAction["authConfig"]
+  const authConfig = ActionsRegistry[actionId].getAuthConfig() as ReturnType<
+    TTokenAction["getAuthConfig"]
+  >
   const router = useRouter()
 
   const formSchema = z.object({

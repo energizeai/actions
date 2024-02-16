@@ -10,7 +10,8 @@
     "lint:fix": "eslint .",
     "typecheck": "tsc --noEmit",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
-    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache"
+    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
+    "build": "tsup src/index.ts --format cjs,esm --dts"
   },
   "devDependencies": {
     "@energizeai/eslint-config": "*",
@@ -26,6 +27,7 @@
     "zod": "^3.22.4"
   },
   "dependencies": {
+    "tsup": "^8.0.2",
     "zod-to-json-schema": "^3.22.4"
   }
 }

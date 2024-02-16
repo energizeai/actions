@@ -145,7 +145,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         type: "modify",
         path: "src/index.ts",
         pattern: /\/\/ <\|GENERATOR\|> add new action here/,
-        template: `{{properCase name}}Action: {{properCase name}}Action,\n  // <|GENERATOR|> add new action here`,
+        template: `{{properCase name}}Action,\n  // <|GENERATOR|> add new action here`,
       },
     ],
   })

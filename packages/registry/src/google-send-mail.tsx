@@ -24,6 +24,7 @@ const actionInputSchema = z.object({
 export type TGoogleSendMailCard = TActionComponent<typeof actionInputSchema>
 
 const GoogleSendMailAction = createAction({
+  id: "google-sendMail",
   metadata: createActionMetadata({
     title: "Send Email",
     description: "Send an email with the Gmail API",

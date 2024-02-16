@@ -12,11 +12,13 @@ export const ActionUserDataSchema = z.object({
 })
 export type TActionUserData = z.infer<typeof ActionUserDataSchema>
 
-export class ActionBuilder {
+export class ActionBuilder<TId extends string> {
   private metadata: ActionMetadata
+  private id: TId
 
-  constructor(input: { metadata: ActionMetadata }) {
+  constructor(input: { metadata: ActionMetadata; id: TId }) {
     this.metadata = input.metadata
+    this.id = input.id
   }
 
   /**
@@ -37,12 +39,39 @@ export class ActionBuilder {
    */
   setInputSchema<T extends TActionInput>(input: T) {
     return new ActionBuilderWithInput({
-      metadata: this.metadata,
-      inputSchema: input,
+      actionData: {
+        metadata: this.metadata,
+        id: this.id,
+        inputSchema: input,
+      },
     })
   }
 }
 
-export const createAction = (input: { metadata: ActionMetadata }) => {
+/**
+ * Create a new action.
+ */
+export const createAction = <TId extends string>(input: {
+  /**
+   * The metadata for the action. This includes the title, description, resource, and other details about the action.
+   */
+  metadata: ActionMetadata
+
+  /**
+   * The unique identifier for the action. This is used to reference the action in the registry.
+   *
+   * Guidelines for Creating IDs:
+   * Prefix with Service: Start with a prefix that identifies the service (e.g., Google, Bing).
+   * Action Description: Follow the service prefix with a short, descriptive action name.
+   * Use Hyphens: Separate words with hyphens (e.g., google-searchEmailInbox).
+   * Use Camel Case: Use camel case for action names (e.g., google-searchEmailInbox).
+   *
+   * @example
+   * ```
+   * id: "google-searchEmailInbox"
+   * ```
+   */
+  id: TId
+}) => {
   return new ActionBuilder(input)
 }

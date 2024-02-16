@@ -13,6 +13,7 @@ A heartwarming scene of a mama bear with her adorable cubs in a forest setting. 
 Required. Must be a non-empty string.`
 
 const DalleCreateImageAction = createAction({
+  id: "dalle-createImage",
   metadata: createActionMetadata({
     title: "Create Image w/ DALL-E 3",
     description: "Create an image using DALL-E 3",

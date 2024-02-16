@@ -14,6 +14,7 @@ const outputSchema = z.object({
 })
 
 const GoogleReadEmailAction = createAction({
+  id: "google-readEmail",
   metadata: createActionMetadata({
     title: "Read Email",
     description: "Read a specified email from the user's Gmail",

@@ -3,6 +3,7 @@ import { createAction, createActionMetadata } from "@energizeai/types"
 <|IMPORT_TEMPLATE|>
 
 const {{ properCase name }}Action = createAction({
+  id: "{{ camelCase resource }}-{{ camelCase name }}",
   // ==========================================================================
   // Define the metadata for your action
   // ==========================================================================

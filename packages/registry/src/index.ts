@@ -1,4 +1,4 @@
-import { ActionBuilderWithFunction } from "@energizeai/types"
+import { createActionsRegistry } from "@energizeai/types"
 import { BingWebSearchAction } from "./bing-web-search"
 import { DalleCreateImageAction } from "./dalle-create-image"
 import { GoogleGetContactAction } from "./google-get-contact"
@@ -13,23 +13,20 @@ import { LinearCreateIssueAction } from "./linear-create-issue"
 import { PlanetScaleGetBranchSchemaAction } from "./planet-scale-get-branch-schema"
 // <|GENERATOR|> import new action here
 
-const ActionsRegistry = {
-  HelloWorldAction: HelloWorldAction,
-  GoogleSendMailAction: GoogleSendMailAction,
-  GoogleReplyToEmailAction: GoogleReplyToEmailAction,
-  GoogleSearchEmailInboxAction: GoogleSearchEmailInboxAction,
-  GoogleReadEmailAction: GoogleReadEmailAction,
-  GoogleMoveEmailToTrashAction: GoogleMoveEmailToTrash,
-  GoogleGetContactAction: GoogleGetContactAction,
-  GoogleWebSearchAction: GoogleWebSearchAction,
-  DalleCreateImageAction: DalleCreateImageAction,
-  LinearCreateIssueAction: LinearCreateIssueAction,
-  BingWebSearchAction: BingWebSearchAction,
-  PlanetScaleGetBranchSchemaAction: PlanetScaleGetBranchSchemaAction,
+const ActionsRegistry = createActionsRegistry([
+  HelloWorldAction,
+  GoogleSendMailAction,
+  GoogleReplyToEmailAction,
+  GoogleSearchEmailInboxAction,
+  GoogleReadEmailAction,
+  GoogleMoveEmailToTrash,
+  GoogleGetContactAction,
+  GoogleWebSearchAction,
+  DalleCreateImageAction,
+  LinearCreateIssueAction,
+  BingWebSearchAction,
+  PlanetScaleGetBranchSchemaAction,
   // <|GENERATOR|> add new action here
-} as const satisfies Record<
-  string,
-  ActionBuilderWithFunction<any, any, any, any>
->
+])
 
 export { ActionsRegistry }

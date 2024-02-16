@@ -18,6 +18,7 @@ const outputSchema = z.object({
 })
 
 const GoogleGetContactAction = createAction({
+  id: "google-getContact",
   metadata: createActionMetadata({
     title: "Get Google Contact",
     description: "Query a Google Contact with the Google People API",

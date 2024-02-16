@@ -23,6 +23,7 @@ const OutputSchema = z.object({
 })
 
 const GoogleSearchEmailInboxAction = createAction({
+  id: "google-searchEmailInbox",
   metadata: createActionMetadata({
     title: "Search Email Inbox",
     description: "Query the messages in your Gmail inbox",

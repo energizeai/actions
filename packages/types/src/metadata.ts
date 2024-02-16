@@ -88,7 +88,7 @@ type TActionMetadata = {
    * "Please get my Google contact"
    * ```
    */
-  chatMessage?: string
+  chatMessage: string
 
   /**
    * The URL to the API reference for the action. This is used to generate the "Learn more" button in the action details page.
@@ -120,7 +120,7 @@ type TActionMetadata = {
    * ]
    * ```
    */
-  examples?: [string, ...string[]] | null
+  examples: [string, ...string[]] | null
 
   /**
    * The loading message to stream in the chat when the action gets invoked.
@@ -189,7 +189,18 @@ export class ActionMetadata {
     loadingMessage = "Loading",
     examples = null,
     runTimeDescriptionGenerator = undefined,
-  }: TActionMetadata) {
+  }: Omit<
+    TActionMetadata,
+    | "chatMessage"
+    | "loadingMessage"
+    | "examples"
+    | "runTimeDescriptionGenerator"
+  > & {
+    chatMessage?: string
+    loadingMessage?: string
+    examples?: TActionMetadata["examples"]
+    runTimeDescriptionGenerator?: TActionMetadata["runTimeDescriptionGenerator"]
+  }) {
     this.metadata = {
       title,
       description,
@@ -201,14 +212,6 @@ export class ActionMetadata {
       loadingMessage,
       examples,
       runTimeDescriptionGenerator,
-    }
-
-    if (!this.metadata.loadingMessage) {
-      this.metadata.loadingMessage = "Loading"
-    }
-
-    if (!this.metadata.chatMessage) {
-      this.metadata.chatMessage = "Please call my tool"
     }
   }
 

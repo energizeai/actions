@@ -18,6 +18,7 @@ const actionInputSchema = z.object({
 export type TGoogleReplyToEmailCard = TActionComponent<typeof actionInputSchema>
 
 const GoogleReplyToEmailAction = createAction({
+  id: "google-replyToEmail",
   metadata: createActionMetadata({
     title: "Reply To Email",
     description: "Send an email with the Gmail API",

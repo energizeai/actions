@@ -22,6 +22,7 @@ export type TGoogleMoveEmailToTrashCard = TActionComponent<
 >
 
 const GoogleMoveEmailToTrash = createAction({
+  id: "google-moveEmailToTrash",
   metadata: createActionMetadata({
     title: "Move Emails to Trash",
     description: "Move a list of specific emails to the trash.",

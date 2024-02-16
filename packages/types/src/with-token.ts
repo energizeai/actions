@@ -1,50 +1,38 @@
-import { ActionMetadata, TActionInput, TActionOnSubmit, TActionOutput } from "."
+import { TActionInput, TActionOnSubmit, TActionOutput } from "."
 import { TTokenAuthConfig, TTokenCustomData } from "./auth"
 import { ActionBuilderWithAuth } from "./with-auth"
-import { TPassThroughComponent } from "./with-void-output"
+import { TActionBuilderWithOutputData } from "./with-output"
 
 export class ActionBuilderWithTokenType<
+  TId extends string,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  protected metadata: ActionMetadata
-  protected inputSchema: TInput
-  protected outputSchema: TOutput
-  protected component: TPassThroughComponent<TInput, TOutput, TSubmission>
-  protected submissionSchema?: TSubmission
+  private actionData: TActionBuilderWithOutputData<
+    TId,
+    TInput,
+    TOutput,
+    TSubmission
+  >
 
   constructor({
-    metadata,
-    inputSchema,
-    outputSchema,
-    component,
-    submissionSchema = undefined,
+    actionData,
   }: {
-    metadata: ActionMetadata
-    inputSchema: TInput
-    outputSchema: TOutput
-    component: TPassThroughComponent<TInput, TOutput, TSubmission>
-    submissionSchema?: TSubmission
+    actionData: TActionBuilderWithOutputData<TId, TInput, TOutput, TSubmission>
   }) {
-    this.metadata = metadata
-    this.inputSchema = inputSchema
-    this.outputSchema = outputSchema
-    this.component = component
-    this.submissionSchema = submissionSchema
+    this.actionData = actionData
   }
 
   setTokenData = <T extends TTokenCustomData>(data: TTokenAuthConfig<T>) => {
     return new ActionBuilderWithAuth({
-      metadata: this.metadata,
-      inputSchema: this.inputSchema,
-      outputSchema: this.outputSchema,
-      submissionSchema: this.submissionSchema,
-      authConfig: {
-        type: "Token",
-        config: data,
+      actionData: {
+        ...this.actionData,
+        authConfig: {
+          type: "Token",
+          config: data,
+        },
       },
-      component: this.component,
     })
   }
 }

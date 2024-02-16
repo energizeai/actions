@@ -1,21 +1,29 @@
 import z from "zod"
-import { ActionMetadata, TActionInput, TActionOutput } from "."
+import { TActionInput, TActionOutput } from "."
+import { TActionData } from "./action-data"
 import { ActionBuilderWithOutput } from "./with-output"
 import { ActionBuilderWithVoidOutput } from "./with-void-output"
 
-export class ActionBuilderWithInput<TInput extends TActionInput> {
-  private metadata: ActionMetadata
-  private inputSchema: TInput
+export type TActionBuilderWithInputData<
+  TId extends string,
+  TInput extends TActionInput,
+> = Pick<
+  TActionData<TId, TInput, any, any, any>,
+  "metadata" | "inputSchema" | "id"
+>
+
+export class ActionBuilderWithInput<
+  TId extends string,
+  TInput extends TActionInput,
+> {
+  private actionData: TActionBuilderWithInputData<TId, TInput>
 
   constructor({
-    metadata,
-    inputSchema,
+    actionData,
   }: {
-    metadata: ActionMetadata
-    inputSchema: TInput
+    actionData: TActionBuilderWithInputData<TId, TInput>
   }) {
-    this.metadata = metadata
-    this.inputSchema = inputSchema
+    this.actionData = actionData
   }
 
   /**
@@ -25,23 +33,24 @@ export class ActionBuilderWithInput<TInput extends TActionInput> {
    *
    * 2.`React Component` that asks for confirmation for the action. This is typically the output for actions that `POST data`. If this is the case, you should specify a React component that asks for confirmation for the action. The output will be `void`.
    */
-  setOutputSchema(type: z.ZodVoid): ActionBuilderWithVoidOutput<TInput> // eslint-disable-line @typescript-eslint/no-unused-vars
+  setOutputSchema(type: z.ZodVoid): ActionBuilderWithVoidOutput<TId, TInput> // eslint-disable-line @typescript-eslint/no-unused-vars
   setOutputSchema<TOutput extends z.ZodObject<any>>(
     type: TOutput // eslint-disable-line @typescript-eslint/no-unused-vars
-  ): ActionBuilderWithOutput<TInput, TOutput>
+  ): ActionBuilderWithOutput<TId, TInput, TOutput>
 
   setOutputSchema(output: TActionOutput) {
     if (output instanceof z.ZodVoid) {
       return new ActionBuilderWithVoidOutput({
-        metadata: this.metadata,
-        inputSchema: this.inputSchema,
+        actionData: this.actionData,
       })
     } else {
       return new ActionBuilderWithOutput({
-        metadata: this.metadata,
-        inputSchema: this.inputSchema,
-        outputSchema: output,
-        component: null,
+        actionData: {
+          ...this.actionData,
+          submissionSchema: undefined,
+          outputSchema: output,
+          component: null,
+        },
       })
     }
   }

@@ -92,6 +92,7 @@ const BingWebSearchOutput = z.object({
 })
 
 const BingWebSearchAction = createAction({
+  id: "bing-webSearch",
   metadata: createActionMetadata({
     title: "Bing Web Search",
     description: "Search the web using Bing",

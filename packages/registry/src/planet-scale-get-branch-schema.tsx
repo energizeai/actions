@@ -20,6 +20,7 @@ function buildGetBranchSchemaEndpoint(customData: {
 }
 
 const PlanetScaleGetBranchSchemaAction = createAction({
+  id: "planetscale-getBranchSchema",
   metadata: createActionMetadata({
     title: "Get a Branch Schema",
     description: "Get a branch schema from a PlanetScale database",

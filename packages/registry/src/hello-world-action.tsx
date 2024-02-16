@@ -2,6 +2,7 @@ import { createAction, createActionMetadata } from "@energizeai/types"
 import z from "zod"
 
 const HelloWorldAction = createAction({
+  id: "energize-helloWorld",
   metadata: createActionMetadata({
     title: "Hello World",
     description: "Get a greeting",

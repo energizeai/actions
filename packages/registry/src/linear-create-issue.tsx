@@ -23,6 +23,7 @@ const actionInputSchema = z
 export type TLinearCreateIssueCard = TActionComponent<typeof actionInputSchema>
 
 const LinearCreateIssueAction = createAction({
+  id: "linear-createIssue",
   metadata: createActionMetadata({
     title: "Create Issue",
     description: "Create an issue in Linear",

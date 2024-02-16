@@ -1,14 +1,13 @@
 import z from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
 import {
-  ActionMetadata,
   TActionInput,
   TActionOnSubmit,
   TActionOutput,
   TActionUserData,
 } from "."
+import { TActionData } from "./action-data"
 import { TActionAuth, TAuthArg } from "./auth"
-import { TPassThroughComponent } from "./with-void-output"
 
 export type TActionFunction<
   TInput extends TActionInput,
@@ -22,87 +21,68 @@ export type TActionFunction<
 }) => Promise<z.infer<TOutput>>
 
 export class ActionBuilderWithFunction<
+  TId extends string,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  protected metadata: ActionMetadata
-  protected inputSchema: TInput
-  private submissionSchema?: TSubmission
-  protected outputSchema: TOutput
-  protected authConfig: TAuth
-  protected actionFunction: TActionFunction<TInput, TOutput, TAuth, TSubmission>
-  protected component: TPassThroughComponent<TInput, TOutput, TSubmission>
-  protected exampleInput: z.infer<TInput> | null
+  protected actionData: TActionData<TId, TInput, TOutput, TAuth, TSubmission>
 
   constructor({
-    metadata,
-    inputSchema,
-    outputSchema,
-    authConfig,
-    actionFunction,
-    component,
-    submissionSchema = undefined,
-    exampleInput = null,
+    actionData,
   }: {
-    metadata: ActionMetadata
-    inputSchema: TInput
-    outputSchema: TOutput
-    authConfig: TAuth
-    submissionSchema?: TSubmission
-    actionFunction: TActionFunction<TInput, TOutput, TAuth, TSubmission>
-    component: TPassThroughComponent<TInput, TOutput, TSubmission>
-    exampleInput?: z.infer<TInput> | null
+    actionData: TActionData<TId, TInput, TOutput, TAuth, TSubmission>
   }) {
-    this.metadata = metadata
-    this.inputSchema = inputSchema
-    this.outputSchema = outputSchema
-    this.authConfig = authConfig
-    this.actionFunction = actionFunction
-    this.component = component
-    this.exampleInput = exampleInput
-    this.submissionSchema = submissionSchema
+    this.actionData = actionData
   }
 
   setExampleInput(exampleInput: z.infer<TInput>) {
-    this.exampleInput = exampleInput
+    this.actionData.exampleInput = exampleInput
     return this
   }
 
+  getId(): TId {
+    return this.actionData.id
+  }
+
   getExampleInput() {
-    return this.exampleInput
+    return this.actionData.exampleInput
   }
 
   getMetadata() {
-    return this.metadata.getMetadata()
+    return this.actionData.metadata.getMetadata()
   }
 
   getAuthConfig() {
-    return this.authConfig
+    return this.actionData.authConfig
   }
 
   getInputSchema() {
-    return this.inputSchema
+    return this.actionData.inputSchema
+  }
+
+  getSubmissionSchema() {
+    return this.actionData.submissionSchema
   }
 
   getActionFunction() {
-    return this.actionFunction
+    return this.actionData.actionFunction
   }
 
   getOutputSchema() {
-    return this.outputSchema
+    return this.actionData.outputSchema
   }
 
   getInputJSONSchema() {
-    return zodToJsonSchema(this.inputSchema)
+    return zodToJsonSchema(this.actionData.inputSchema)
   }
 
   getOutputJSONSchema() {
-    return zodToJsonSchema(this.outputSchema)
+    return zodToJsonSchema(this.actionData.outputSchema)
   }
 
   getComponent() {
-    return this.component
+    return this.actionData.component
   }
 }

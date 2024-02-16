@@ -25,6 +25,7 @@ const GoogleWebSearchResponseSchema = z.object({
 })
 
 const GoogleWebSearchAction = createAction({
+  id: "google-webSearch",
   metadata: createActionMetadata({
     title: "Google Web Search",
     description: "Search the web using Google",
