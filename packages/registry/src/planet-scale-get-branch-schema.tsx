@@ -1,4 +1,4 @@
-import { createAction, createActionMetadata } from "@energizeai/types"
+import { createAction, createActionMetadata } from "ai-actions"
 import z from "zod"
 
 const PlanetScaleGetBranchTableSchema = z.object({
@@ -20,6 +20,7 @@ function buildGetBranchSchemaEndpoint(customData: {
 }
 
 const PlanetScaleGetBranchSchemaAction = createAction({
+  id: "planetscale-getBranchSchema",
   metadata: createActionMetadata({
     title: "Get a Branch Schema",
     description: "Get a branch schema from a PlanetScale database",
@@ -52,6 +53,7 @@ const PlanetScaleGetBranchSchemaAction = createAction({
       })
       .describe(`Get the schema for the current branch in PlanetScale.`)
   )
+  .setActionType("GET")
   .setOutputSchema(
     z.object({
       rawTables: z.array(

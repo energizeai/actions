@@ -1,7 +1,8 @@
-import { createAction, createActionMetadata } from "@energizeai/types"
+import { createAction, createActionMetadata } from "ai-actions"
 import z from "zod"
 
 const HelloWorldAction = createAction({
+  id: "energize-helloWorld",
   metadata: createActionMetadata({
     title: "Hello World",
     description: "Get a greeting",
@@ -21,6 +22,7 @@ const HelloWorldAction = createAction({
       })
       .describe(`Get a greeting.`)
   )
+  .setActionType("GET")
   .setOutputSchema(
     z.object({
       greeting: z.string().describe(`The raw MYSQL schema for a table.`),

@@ -1,4 +1,4 @@
-import { createAction, createActionMetadata } from "@energizeai/types"
+import { createAction, createActionMetadata } from "ai-actions"
 import z from "zod"
 
 const SearchContactsResponseSchema = z.object({
@@ -18,6 +18,7 @@ const outputSchema = z.object({
 })
 
 const GoogleGetContactAction = createAction({
+  id: "google-getContact",
   metadata: createActionMetadata({
     title: "Get Google Contact",
     description: "Query a Google Contact with the Google People API",
@@ -46,13 +47,14 @@ const GoogleGetContactAction = createAction({
         `Get a contact from the user's Google Contacts. This is useful to lookup someones email address if it wasn't already provided.`
       )
   )
+  .setActionType("GET")
   .setOutputSchema(outputSchema)
   .setAuthType("OAuth")
   .setOAuthData({
     humanReadableDescription: "Read-only access to your Google Contacts",
     humanReadableName: "Google Contacts",
     button: {
-      text: "Continue with google",
+      text: "Continue with Google",
     },
     discoveryEndpoint:
       "https://accounts.google.com/.well-known/openid-configuration",

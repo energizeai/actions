@@ -36,3 +36,5 @@ sqlite.db
 
 .contentlayer
 tsconfig.tsbuildinfo
+
+dist

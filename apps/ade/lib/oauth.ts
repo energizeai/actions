@@ -21,7 +21,7 @@ export const getClientSecretEnvKey = (
 
 export const getAuthorizationEndpoint = async (
   actionId: TActionId,
-  authConfig: TOAuthAction["authConfig"]
+  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
 ) => {
   let authorizationEndpoint = null
 
@@ -54,7 +54,7 @@ export const getAuthorizationEndpoint = async (
 }
 
 export const getTokenEndpoint = async (
-  authConfig: TOAuthAction["authConfig"]
+  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
 ) => {
   let tokenEndpoint = null
 
@@ -72,7 +72,7 @@ export const getTokenEndpoint = async (
 }
 
 export const getRevokeEndpoint = async (
-  authConfig: TOAuthAction["authConfig"]
+  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
 ) => {
   let revokeEndpoint = null
 
@@ -90,7 +90,7 @@ export const getRevokeEndpoint = async (
 }
 
 export const getRefreshEndpoint = async (
-  authConfig: TOAuthAction["authConfig"]
+  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
 ) => {
   let refreshEndpoint = null
 

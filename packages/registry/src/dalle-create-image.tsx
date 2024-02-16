@@ -1,4 +1,4 @@
-import { createAction, createActionMetadata } from "@energizeai/types"
+import { createAction, createActionMetadata } from "ai-actions"
 import { OpenAI } from "openai"
 import z from "zod"
 
@@ -13,6 +13,7 @@ A heartwarming scene of a mama bear with her adorable cubs in a forest setting. 
 Required. Must be a non-empty string.`
 
 const DalleCreateImageAction = createAction({
+  id: "dalle-createImage",
   metadata: createActionMetadata({
     title: "Create Image w/ DALL-E 3",
     description: "Create an image using DALL-E 3",
@@ -50,6 +51,7 @@ const DalleCreateImageAction = createAction({
       })
       .describe(`Create an image using DALL-E 3.`)
   )
+  .setActionType("GET")
   .setOutputSchema(
     z.object({
       generatedImageUrl: z

@@ -1,42 +1,45 @@
-import { ActionMetadata, TActionInput, TActionOnSubmit, TActionOutput } from "."
+import { TActionInput, TActionOnSubmit, TActionOutput } from "."
+import { TActionData } from "./action-data"
 import { TActionAuth } from "./auth"
 import { ActionBuilderWithFunction, TActionFunction } from "./with-function"
-import { TPassThroughComponent } from "./with-void-output"
+import { TActionBuilderWithOutputData } from "./with-output"
+
+export type TActionBuilderWithAuthData<
+  TId extends string,
+  TInput extends TActionInput,
+  TOutput extends TActionOutput,
+  TAuth extends TActionAuth,
+  TSubmission extends TActionOnSubmit = undefined,
+> = TActionBuilderWithOutputData<TId, TInput, TOutput, TSubmission> &
+  Pick<TActionData<TId, TInput, TOutput, TAuth, TSubmission>, "authConfig">
 
 export class ActionBuilderWithAuth<
+  TId extends string,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  protected metadata: ActionMetadata
-  protected inputSchema: TInput
-  protected outputSchema: TOutput
-  protected authConfig: TAuth
-  private submissionSchema?: TSubmission
-  protected component: TPassThroughComponent<TInput, TOutput, TSubmission>
+  protected actionData: TActionBuilderWithAuthData<
+    TId,
+    TInput,
+    TOutput,
+    TAuth,
+    TSubmission
+  >
 
   constructor({
-    metadata,
-    inputSchema,
-    outputSchema,
-    authConfig,
-    component,
-    submissionSchema = undefined,
+    actionData,
   }: {
-    metadata: ActionMetadata
-    inputSchema: TInput
-    outputSchema: TOutput
-    authConfig: TAuth
-    component: TPassThroughComponent<TInput, TOutput, TSubmission>
-    submissionSchema?: TSubmission
+    actionData: TActionBuilderWithAuthData<
+      TId,
+      TInput,
+      TOutput,
+      TAuth,
+      TSubmission
+    >
   }) {
-    this.metadata = metadata
-    this.inputSchema = inputSchema
-    this.outputSchema = outputSchema
-    this.authConfig = authConfig
-    this.component = component
-    this.submissionSchema = submissionSchema
+    this.actionData = actionData
   }
 
   /**
@@ -72,13 +75,11 @@ export class ActionBuilderWithAuth<
     actionFunction: TActionFunction<TInput, TOutput, TAuth, TSubmission>
   ) {
     return new ActionBuilderWithFunction({
-      metadata: this.metadata,
-      inputSchema: this.inputSchema,
-      submissionSchema: this.submissionSchema,
-      outputSchema: this.outputSchema,
-      authConfig: this.authConfig,
-      actionFunction,
-      component: this.component,
+      actionData: {
+        ...this.actionData,
+        actionFunction,
+        exampleInput: null,
+      },
     })
   }
 }

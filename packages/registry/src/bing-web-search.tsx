@@ -1,5 +1,5 @@
 import { newId } from "@energizeai/shared"
-import { createAction, createActionMetadata } from "@energizeai/types"
+import { createAction, createActionMetadata } from "ai-actions"
 import dedent from "dedent"
 import z from "zod"
 
@@ -92,6 +92,7 @@ const BingWebSearchOutput = z.object({
 })
 
 const BingWebSearchAction = createAction({
+  id: "bing-webSearch",
   metadata: createActionMetadata({
     title: "Bing Web Search",
     description: "Search the web using Bing",
@@ -152,6 +153,7 @@ const BingWebSearchAction = createAction({
       })
       .describe(`Browse the web using Bing.`)
   )
+  .setActionType("GET")
   .setOutputSchema(BingWebSearchOutput)
   .setAuthType("Token")
   .setTokenData({

@@ -49,7 +49,12 @@ export default function SideNav() {
   const pathname = usePathname()
 
   return (
-    <div className="flex-none h-fit w-[250px] hidden lg:flex flex-col gap-2 sticky top-24 left-0">
+    <div
+      className="flex-none w-[250px] hidden lg:flex flex-col gap-2 sticky top-24 left-0 -ml-3 pl-3 overflow-y-auto"
+      style={{
+        maxHeight: "calc(100vh - 8rem)",
+      }}
+    >
       <h1 className="text-sm font-semibold mb-2">Documentation</h1>
       <SideNavLink href={"/"}>
         <HandMetalIcon className="h-4 w-4" />
@@ -85,7 +90,9 @@ export default function SideNav() {
                 />
               }
             />
-            {action.getMetadata().title}
+            <p className="text-ellipsis whitespace-nowrap overflow-x-hidden">
+              {action.getMetadata().title}
+            </p>
           </SideNavLink>
         )
       })}

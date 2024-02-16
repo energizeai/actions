@@ -1,19 +1,25 @@
-import { TAuthType } from "@energizeai/types"
+import { TAuthType, filterActionRegistryByAuthType } from "ai-actions"
 import { ActionsRegistry } from "."
 
 type TActionId = keyof typeof ActionsRegistry
 
-type ActionIdKeysForAuthType<T extends TAuthType> = {
-  [key in TActionId]: ReturnType<
-    (typeof ActionsRegistry)[key]["getAuthConfig"]
-  >["type"] extends T
-    ? key
-    : never
-}[TActionId]
+const NoAuthActionsRegistry = filterActionRegistryByAuthType(
+  ActionsRegistry,
+  "None"
+)
 
-type TNoAuthActionId = ActionIdKeysForAuthType<"None">
-type TOAuthActionId = ActionIdKeysForAuthType<"OAuth">
-type TTokenActionId = ActionIdKeysForAuthType<"Token">
+const OAuthActionsRegistry = filterActionRegistryByAuthType(
+  ActionsRegistry,
+  "OAuth"
+)
+const TokenActionsRegistry = filterActionRegistryByAuthType(
+  ActionsRegistry,
+  "Token"
+)
+
+type TNoAuthActionId = keyof typeof NoAuthActionsRegistry
+type TOAuthActionId = keyof typeof OAuthActionsRegistry
+type TTokenActionId = keyof typeof TokenActionsRegistry
 
 type TAction = (typeof ActionsRegistry)[TActionId]
 type TNoAuthAction = (typeof ActionsRegistry)[TNoAuthActionId]

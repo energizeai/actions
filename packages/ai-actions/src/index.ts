@@ -1,6 +1,8 @@
 export * from "./action-builder"
 export * from "./auth"
 export * from "./metadata"
+export * from "./registry-builder"
 export * from "./scope"
 export * from "./utility"
 export * from "./with-function"
+export { type TActionComponent } from "./with-post"

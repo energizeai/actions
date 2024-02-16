@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate:sqlite",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
-    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache"
+    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf .next"
   },
   "dependencies": {
     "@energizeai/registry": "*",
@@ -27,6 +28,7 @@
     "@trpc/react-query": "^10.45.0",
     "@trpc/server": "^10.45.0",
     "@types/mdx": "^2.0.10",
+    "ai-actions": "*",
     "better-sqlite3": "^9.3.0",
     "date-fns": "^3.3.1",
     "date-fns-tz": "^2.0.0",
@@ -50,7 +52,6 @@
   "devDependencies": {
     "@energizeai/eslint-config": "*",
     "@energizeai/tailwindcss-config": "*",
-    "@energizeai/types": "*",
     "@energizeai/typescript-config": "*",
     "@next/eslint-plugin-next": "^14.0.4",
     "@tailwindcss/typography": "^0.5.10",

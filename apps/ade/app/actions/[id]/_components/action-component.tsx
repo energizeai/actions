@@ -3,7 +3,7 @@
 import { api } from "@/trpc/react"
 import { ActionsRegistry } from "@energizeai/registry"
 import { TActionId } from "@energizeai/registry/types"
-import { TActionUserData } from "@energizeai/types"
+import { TActionUserData } from "ai-actions"
 import React, { useEffect } from "react"
 import { toast } from "sonner"
 
@@ -104,18 +104,14 @@ function ActionComponent({
         input: inputSafeParsed.data,
 
         onSubmit: async (input) => {
-          const loader = toast.loading(actionData.getMetadata().loadingMessage)
           try {
             await caller.mutateAsync({
               actionId: actionId,
               inputDataAsString: JSON.stringify(input),
               userData,
             })
-            toast.success(`Successfully ran action.`)
           } catch {
             toast.error("Error running action.")
-          } finally {
-            toast.dismiss(loader)
           }
         },
       }}

@@ -6,6 +6,7 @@ import {
   TActionOutput,
   TActionUserData,
 } from "."
+import { TActionBuilderWithInputData } from "./with-input"
 import { ActionBuilderWithOutput } from "./with-output"
 
 type TActionComponentPropsData<
@@ -79,59 +80,59 @@ export type TActionComponentProps<
     }
 )
 
+export type TActionComponent<
+  TInput extends TActionInput,
+  TOnSubmitValues extends TActionOnSubmit = undefined,
+> = React.FC<TActionComponentProps<TInput, TOnSubmitValues>>
+
 export type TPassThroughComponent<
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TOnSubmitValues extends TActionOnSubmit = undefined,
-> = TOutput extends z.ZodVoid
-  ? React.FC<TActionComponentProps<TInput, TOnSubmitValues>>
-  : null
+> = TOutput extends z.ZodVoid ? TActionComponent<TInput, TOnSubmitValues> : null
 
 /**
  * For actions that do not return any data (i.e. POST actions), you need to specify a component to render in the chat after the action is invoked.
  * This component should be a form asking for confirmation to submit the input to the action function.
  */
-export class ActionBuilderWithVoidOutput<
+export class ActionBuilderWithPost<
+  TId extends string,
   TInput extends TActionInput,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  private metadata: ActionMetadata
-  private inputSchema: TInput
+  private actionData: TActionBuilderWithInputData<TId, TInput>
   private submissionSchema?: TSubmission
 
   constructor({
-    metadata,
-    inputSchema,
+    actionData,
     submissionSchema,
   }: {
-    metadata: ActionMetadata
-    inputSchema: TInput
+    actionData: TActionBuilderWithInputData<TId, TInput>
     submissionSchema?: TSubmission
   }) {
-    this.metadata = metadata
-    this.inputSchema = inputSchema
+    this.actionData = actionData
     this.submissionSchema = submissionSchema
   }
 
   setComponentSubmissionSchema<T extends TActionInput>(
     submissionSchema: T
-  ): ActionBuilderWithVoidOutput<TInput, T> {
-    return new ActionBuilderWithVoidOutput({
-      metadata: this.metadata,
-      inputSchema: this.inputSchema,
+  ): ActionBuilderWithPost<TId, TInput, T> {
+    return new ActionBuilderWithPost({
+      actionData: this.actionData,
       submissionSchema: submissionSchema,
     })
   }
 
   setOutputComponent(
     component: React.FC<TActionComponentProps<TInput, TSubmission>>
-  ): ActionBuilderWithOutput<TInput, z.ZodVoid, TSubmission> {
+  ): ActionBuilderWithOutput<TId, TInput, z.ZodVoid, TSubmission> {
     return new ActionBuilderWithOutput({
-      metadata: this.metadata,
-      inputSchema: this.inputSchema,
-      outputSchema: z.void(),
-      submissionSchema: this.submissionSchema,
-      component,
+      actionData: {
+        ...this.actionData,
+        submissionSchema: this.submissionSchema,
+        outputSchema: z.void(),
+        component,
+      },
     })
   }
 }
