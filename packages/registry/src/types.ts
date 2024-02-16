@@ -1,4 +1,4 @@
-import { TAuthType, filterActionRegistryByAuthType } from "@energizeai/types"
+import { TAuthType, filterActionRegistryByAuthType } from "ai-actions"
 import { ActionsRegistry } from "."
 
 type TActionId = keyof typeof ActionsRegistry

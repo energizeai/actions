@@ -3,7 +3,7 @@
 import { api } from "@/trpc/react"
 import { ActionsRegistry } from "@energizeai/registry"
 import { TActionId } from "@energizeai/registry/types"
-import { TActionUserData } from "@energizeai/types"
+import { TActionUserData } from "ai-actions"
 import React, { useEffect } from "react"
 import { toast } from "sonner"
 

@@ -2,7 +2,7 @@ import {
   TActionComponent,
   createAction,
   createActionMetadata,
-} from "@energizeai/types"
+} from "ai-actions"
 import z from "zod"
 import { GoogleMoveEmailToTrashCard } from "./_components/google-move-email-to-trash-card"
 

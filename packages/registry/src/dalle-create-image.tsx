@@ -1,4 +1,4 @@
-import { createAction, createActionMetadata } from "@energizeai/types"
+import { createAction, createActionMetadata } from "ai-actions"
 import { OpenAI } from "openai"
 import z from "zod"
 

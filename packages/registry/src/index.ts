@@ -1,4 +1,4 @@
-import { createActionsRegistry } from "@energizeai/types"
+import { createActionsRegistry } from "ai-actions"
 import { BingWebSearchAction } from "./bing-web-search"
 import { DalleCreateImageAction } from "./dalle-create-image"
 import { GoogleGetContactAction } from "./google-get-contact"

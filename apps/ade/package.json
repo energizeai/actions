@@ -45,12 +45,12 @@
     "sonner": "^1.3.1",
     "superjson": "^2.2.1",
     "zod": "^3.22.4",
-    "zod-to-json-schema": "^3.22.4"
+    "zod-to-json-schema": "^3.22.4",
+    "ai-actions": "^0.1.0"
   },
   "devDependencies": {
     "@energizeai/eslint-config": "*",
     "@energizeai/tailwindcss-config": "*",
-    "@energizeai/types": "*",
     "@energizeai/typescript-config": "*",
     "@next/eslint-plugin-next": "^14.0.4",
     "@tailwindcss/typography": "^0.5.10",

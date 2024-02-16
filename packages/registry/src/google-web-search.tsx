@@ -1,4 +1,4 @@
-import { createAction, createActionMetadata } from "@energizeai/types"
+import { createAction, createActionMetadata } from "ai-actions"
 import z from "zod"
 
 const GoogleWebSearchResponseSchema = z.object({

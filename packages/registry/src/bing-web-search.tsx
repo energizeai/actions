@@ -1,5 +1,5 @@
 import { newId } from "@energizeai/shared"
-import { createAction, createActionMetadata } from "@energizeai/types"
+import { createAction, createActionMetadata } from "ai-actions"
 import dedent from "dedent"
 import z from "zod"
 

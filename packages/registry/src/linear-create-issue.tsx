@@ -1,9 +1,9 @@
+import { LinearClient } from "@linear/sdk"
 import {
   TActionComponent,
   createAction,
   createActionMetadata,
-} from "@energizeai/types"
-import { LinearClient } from "@linear/sdk"
+} from "ai-actions"
 import z from "zod"
 import { LinearCreateIssueCard } from "./_components/linear-create-issue-card"
 
