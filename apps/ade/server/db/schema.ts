@@ -1,4 +1,4 @@
-import { TActionId, TAuthType } from "@energizeai/registry/types"
+import { TActionId, TAuthType } from "@/registry/_properties/types"
 import { sql } from "drizzle-orm"
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"

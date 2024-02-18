@@ -1,7 +1,7 @@
 "server-only"
 
-import { ActionsRegistry } from "@energizeai/registry"
-import { TAction, TActionId, TOAuthAction } from "@energizeai/registry/types"
+import { ActionsRegistry } from "@/registry"
+import { TAction, TActionId, TOAuthAction } from "@/registry/_properties/types"
 
 export const getResourceStringForOAuth = (resource: string) => {
   return resource.toUpperCase().replaceAll(" ", "_")

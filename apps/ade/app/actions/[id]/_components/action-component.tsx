@@ -1,9 +1,8 @@
 "use client"
 
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import { api } from "@/trpc/react"
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
-import { TActionUserData } from "ai-actions"
 import React, { useEffect } from "react"
 import { toast } from "sonner"
 
@@ -17,7 +16,10 @@ function ActionComponent({
 } & (
   | {
       inputDataAsString: string
-      userData: TActionUserData
+      userData: {
+        name: string
+        email: string
+      }
       state: "active"
     }
   | {
@@ -97,8 +99,6 @@ function ActionComponent({
         isLoading: caller.isLoading,
         isSuccess: caller.isSuccess,
         isError: caller.isError,
-
-        userData: userData,
 
         // @ts-ignore
         input: inputSafeParsed.data,

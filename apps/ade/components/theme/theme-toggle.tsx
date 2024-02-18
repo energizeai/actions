@@ -1,12 +1,12 @@
 "use client"
 
-import { Button } from "@energizeai/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@energizeai/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import { MoonIcon, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import * as React from "react"

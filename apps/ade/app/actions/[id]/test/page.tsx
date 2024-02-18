@@ -1,7 +1,7 @@
 import { env } from "@/env/server.mjs"
+import { TActionId } from "@/registry/_properties/types"
 import { db } from "@/server/db"
 import { linkedAccounts } from "@/server/db/schema"
-import { TActionId } from "@energizeai/registry/types"
 import { eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 import { ActionAuthForm } from "./_components/action-auth-form"

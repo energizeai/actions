@@ -1,6 +1,6 @@
 import { getAuthorizationEndpoint } from "@/lib/oauth"
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import OAuthForm from "./oauth-form"
 import TokenForm from "./token-form"
 

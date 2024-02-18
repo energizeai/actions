@@ -6,9 +6,7 @@ import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
-import { Button } from "@energizeai/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   CommandDialog,
   CommandEmpty,
@@ -17,8 +15,10 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@energizeai/ui/command"
-import { ThemedImage } from "@energizeai/ui/themed-image"
+} from "@/components/ui/command"
+import { ThemedImage } from "@/components/ui/themed-image"
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import {
   Fingerprint,
   HandMetalIcon,

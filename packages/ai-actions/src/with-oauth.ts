@@ -1,16 +1,28 @@
-import { TActionInput, TActionOnSubmit, TActionOutput } from "."
+import {
+  TActionFunctionExtras,
+  TActionInput,
+  TActionMetadata,
+  TActionOnSubmit,
+  TActionOutput,
+} from "./action-data"
 import { TOAuthConfig } from "./auth"
 import { ActionBuilderWithAuth } from "./with-auth"
 import { TActionBuilderWithOutputData } from "./with-output"
 
 export class ActionBuilderWithOAuthType<
   TId extends string,
+  TNamespace extends string,
+  TMetadata extends TActionMetadata,
+  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  protected actionData: TActionBuilderWithOutputData<
+  actionData: TActionBuilderWithOutputData<
     TId,
+    TNamespace,
+    TMetadata,
+    TExtras,
     TInput,
     TOutput,
     TSubmission
@@ -19,7 +31,15 @@ export class ActionBuilderWithOAuthType<
   constructor({
     actionData,
   }: {
-    actionData: TActionBuilderWithOutputData<TId, TInput, TOutput, TSubmission>
+    actionData: TActionBuilderWithOutputData<
+      TId,
+      TNamespace,
+      TMetadata,
+      TExtras,
+      TInput,
+      TOutput,
+      TSubmission
+    >
   }) {
     this.actionData = actionData
   }

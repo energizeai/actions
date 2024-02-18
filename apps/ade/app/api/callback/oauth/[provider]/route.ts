@@ -3,10 +3,10 @@ import {
   getClientSecretEnvKey,
   getTokenEndpoint,
 } from "@/lib/oauth"
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import { db } from "@/server/db"
 import { linkedAccounts } from "@/server/db/schema"
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
 import { NextResponse } from "next/server"
 import z from "zod"
 

@@ -1,8 +1,0 @@
-{
-  "extends": "@energizeai/typescript-config/nextjs.json",
-  "compilerOptions": {
-    "outDir": "dist",
-  },
-  "include": ["src", "../../apps/ade/lib/hooks/use-local-storage.ts"],
-  "exclude": ["node_modules", "dist"],
-}

@@ -1,8 +1,8 @@
 import "@/styles/globals.css"
 
-import { Toaster } from "@energizeai/ui/sonner"
-import { TooltipProvider } from "@energizeai/ui/tooltip"
-import { cn } from "@energizeai/ui/utils"
+import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 import { GeistMono } from "geist/font/mono"
 import { GeistSans } from "geist/font/sans"
 import type { Metadata } from "next"

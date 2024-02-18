@@ -1,12 +1,12 @@
 "use client"
 
-import { Button } from "@energizeai/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@energizeai/ui/dialog"
+} from "@/components/ui/dialog"
 import { Copy, ExpandIcon } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"

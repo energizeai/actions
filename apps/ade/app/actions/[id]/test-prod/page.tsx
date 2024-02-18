@@ -1,5 +1,5 @@
 import { env } from "@/env/server.mjs"
-import { TActionId } from "@energizeai/registry/types"
+import { TActionId } from "@/registry/_properties/types"
 import { redirect } from "next/navigation"
 import { ActionAuthForm } from "../test/_components/action-auth-form"
 import ActionTestForm from "../test/_components/test-form"

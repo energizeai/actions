@@ -1,15 +1,14 @@
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
-import { Avatar, AvatarFallback, AvatarImage } from "@energizeai/ui/avatar"
-import { SectionHeader } from "@energizeai/ui/section-header"
-import { TabNav } from "@energizeai/ui/tab-nav"
-import { ThemedImage } from "@energizeai/ui/themed-image"
-import { cn } from "@energizeai/ui/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SectionHeader } from "@/components/ui/section-header"
+import { TabNav } from "@/components/ui/tab-nav"
+import { ThemedImage } from "@/components/ui/themed-image"
+import { cn } from "@/lib/utils"
 import { notFound } from "next/navigation"
 import React from "react"
 
 import { env } from "@/env/server.mjs"
-import { dashCase } from "@/lib/utils"
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import { Metadata } from "next"
 import Link from "next/link"
 
@@ -57,8 +56,6 @@ export default async function ActionLayout({
 
   if (!actionData) notFound()
 
-  const fileName = dashCase(params.id).substring(1).split("-action")[0]
-
   return (
     <div className="w-full flex flex-col gap-4">
       <SectionHeader
@@ -82,7 +79,7 @@ export default async function ActionLayout({
           target={env.NODE_ENV !== "development" ? "_blank" : "_self"}
           href={
             env.NODE_ENV !== "development"
-              ? `https://github.com/energizeai/actions/blob/main/packages/registry/src/${fileName}.tsx`
+              ? `https://github.com/energizeai/actions/blob/main/apps/ade/registry/${actionData.getId()}.tsx`
               : `#`
           }
           className={cn(
@@ -90,7 +87,7 @@ export default async function ActionLayout({
           )}
         >
           <pre className="max-w-[300px] text-wrap break-all">
-            @/packages/registry/src/{fileName}.tsx
+            @/registry/{actionData.getId()}.tsx
           </pre>
         </Link>
       </SectionHeader>

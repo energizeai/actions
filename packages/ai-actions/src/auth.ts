@@ -1,5 +1,5 @@
 import z from "zod"
-import { ValuesOf } from "."
+import { ValuesOf } from "./utility"
 
 /**
  * The type of authentication.
@@ -251,4 +251,4 @@ export type TAuthArg<TAuth extends TActionAuth> =
       }
     : TAuth["config"] extends TOAuthConfig
       ? { accessToken: string }
-      : null
+      : never
