@@ -4,6 +4,7 @@
   "scripts": {
     "build": "turbo build",
     "ade:dev": "turbo dev --filter ade",
+    "ai-actions:dev": "turbo dev --filter ai-actions",
     "ade:typecheck": "turbo run typecheck --filter ade",
     "lint": "turbo run lint",
     "dev": "turbo dev",

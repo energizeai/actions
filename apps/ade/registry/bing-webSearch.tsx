@@ -122,7 +122,6 @@ const BingWebSearchAction = createADEAction({
           ),
         answerCount: z
           .number()
-          .optional()
           .default(8)
           .describe(
             `The number of search results to return. Optional. Defaults to 8.`

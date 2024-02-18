@@ -15,7 +15,7 @@ export type TActionFunction<
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
 > = (_: {
-  input: z.infer<TSubmission extends undefined ? TInput : TSubmission>
+  input: z.output<TSubmission extends undefined ? TInput : TSubmission>
   auth: TAuthArg<TAuth>
   extras: TExtras extends z.AnyZodObject ? z.infer<TExtras> : undefined
 }) => Promise<z.infer<TOutput>>
@@ -32,7 +32,7 @@ export type TActionData<
 > = {
   id: TId
   namespace: TNamespace
-  metadata: TMetadata extends z.AnyZodObject ? z.input<TMetadata> : undefined
+  metadata: TMetadata extends z.AnyZodObject ? z.output<TMetadata> : undefined
   actionFunctionExtrasSchema: TExtras
   inputSchema: TInput
   submissionSchema?: TSubmission
