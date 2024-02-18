@@ -1,0 +1,64 @@
+import { z } from "zod";
+import { createADEAction } from "./_properties/generators"
+<|IMPORT_TEMPLATE|>
+
+const {{ properCase name }}Action = createADEAction({
+  id: "{{ camelCase resource }}-{{ camelCase name }}",
+  // ==========================================================================
+  // Define the metadata for your action
+  // ==========================================================================
+  metadata: {
+    title: "{{ name }}",
+    description: "{{ description }}",
+    resource: "{{ titleCase resource }}",
+    avatar: {
+      light: "/logos/energize-black.svg",
+      dark: "/logos/energize-white.svg",
+    },
+    defaultKeywords: ["{{ dashCase defaultKeyword }}"],
+    apiReference: "{{ apiReference}}",
+    examples: ["{{ example }}"]
+  },
+})
+
+  // ==========================================================================
+  // Define the input schema for your action
+  // ==========================================================================
+
+  .setInputSchema(
+    z.object({
+      fieldOne: z.string().describe("This is a description of fieldOne"),
+      fieldTwo: z.string().describe("This is a description of fieldTwo"),
+    }).describe("This is a description of the input schema")
+  )
+
+  // ==========================================================================
+  // Define the output schema for your action
+  // ==========================================================================
+
+<|OUTPUT_TEMPLATE|>
+
+  // ==========================================================================
+  // Define the authentication configuration for your action
+  // ==========================================================================
+
+<|AUTH_TEMPLATE|>
+
+  // ==========================================================================
+  // Define the action function for your action
+  // ==========================================================================
+
+  .setActionFunction(async ({ input, auth, extras }) => {
+    // Add your action function logic here
+    console.log(auth)
+    console.log(input)
+    console.log(extras.userData)
+
+<|RETURN_TEMPLATE|>
+  })
+  .setExampleInput({
+    fieldOne: "hello",
+    fieldTwo: "world",
+  })
+
+export { {{ properCase name }}Action };

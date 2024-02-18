@@ -93,7 +93,7 @@ Here is what it would look like for the SendEmail action:
 In this example, the GetGoogleContact action is `GET`ting data from Google Contacts. The output is a JSON object that adheres to the Zod schema below. No React Component is specified.
 
 ```tsx
-.setActionType("GET)
+.setActionType("GET")
 .setOutputSchema(z.object({
   displayName: z.string().describe("The display name of the contact"),
   primaryEmailAddress: z

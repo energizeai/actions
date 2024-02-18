@@ -1,7 +1,7 @@
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
-import { Badge } from "@energizeai/ui/badge"
-import { CodeBlock } from "@energizeai/ui/codeblock"
+import { Badge } from "@/components/ui/badge"
+import { CodeBlock } from "@/components/ui/codeblock"
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import { ExternalLink } from "lucide-react"
 import Link from "next/link"
 

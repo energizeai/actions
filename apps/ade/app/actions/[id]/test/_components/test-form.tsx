@@ -1,12 +1,12 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/empty-state"
+import { Separator } from "@/components/ui/separator"
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import { LinkedAccount } from "@/server/db/schema"
 import { api } from "@/trpc/react"
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
-import { Button } from "@energizeai/ui/button"
-import { EmptyState } from "@energizeai/ui/empty-state"
-import { Separator } from "@energizeai/ui/separator"
 import {
   AlertTriangle,
   Beaker,
@@ -22,22 +22,25 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
-import { env } from "@/env/client.mjs"
-import useLocalStorage from "@/lib/hooks/use-local-storage"
-import { extractErrorMessage } from "@/trpc/shared"
-import { Badge } from "@energizeai/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@energizeai/ui/dropdown-menu"
-import { Input } from "@energizeai/ui/input"
-import { Label } from "@energizeai/ui/label"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@energizeai/ui/tooltip"
-import { cn } from "@energizeai/ui/utils"
-import { TActionUserData } from "ai-actions"
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { env } from "@/env/client.mjs"
+import useLocalStorage from "@/lib/hooks/use-local-storage"
+import { cn } from "@/lib/utils"
+import { extractErrorMessage } from "@/trpc/shared"
 import hjson from "hjson"
 import Link from "next/link"
 import { ActionComponent } from "../../_components/action-component"
@@ -143,13 +146,13 @@ export default function ActionTestForm({
   const action = ActionsRegistry[params.id]
   const authType = ActionsRegistry[params.id].getAuthConfig().type
 
-  const [userData, setUserData] = useLocalStorage<TActionUserData>(
-    `ADE-user-data`,
-    {
-      name: "",
-      email: "",
-    }
-  )
+  const [userData, setUserData] = useLocalStorage<{
+    name: string
+    email: string
+  }>(`ADE-user-data`, {
+    name: "",
+    email: "",
+  })
 
   const defaultRecord: Record<string, string> = {}
   const jsonSchema = action.getInputJSONSchema()

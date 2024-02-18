@@ -1,11 +1,11 @@
 import z from "zod"
 import {
-  ActionMetadata,
+  TActionFunctionExtras,
   TActionInput,
+  TActionMetadata,
   TActionOnSubmit,
   TActionOutput,
-  TActionUserData,
-} from "."
+} from "./action-data"
 import { TActionBuilderWithInputData } from "./with-input"
 import { ActionBuilderWithOutput } from "./with-output"
 
@@ -17,11 +17,6 @@ type TActionComponentPropsData<
    * The input to the action function. You can use this input to prepopulate the form so all the user has to do is click submit.
    */
   input: z.infer<TInput>
-
-  /**
-   * The user data for the action. This is the data that the user has provided to the LLM. You can use this data to prepopulate the form so all the user has to do is click submit.
-   */
-  userData: TActionUserData
 
   /**
    * Indicates whether the action function is currently running.
@@ -49,11 +44,12 @@ type TActionComponentPropsData<
 }
 
 export type TActionComponentProps<
+  TMetadata extends TActionMetadata,
   TInput extends TActionInput,
   TOnSubmitValues extends TActionOnSubmit = undefined,
 > = {
   inputSchema: TInput
-  metadata: ReturnType<ActionMetadata["getMetadata"]>
+  metadata: TMetadata extends z.AnyZodObject ? z.input<TMetadata> : undefined
 } & (
   | {
       /**
@@ -81,15 +77,19 @@ export type TActionComponentProps<
 )
 
 export type TActionComponent<
+  TMetadata extends TActionMetadata,
   TInput extends TActionInput,
   TOnSubmitValues extends TActionOnSubmit = undefined,
-> = React.FC<TActionComponentProps<TInput, TOnSubmitValues>>
+> = React.FC<TActionComponentProps<TMetadata, TInput, TOnSubmitValues>>
 
 export type TPassThroughComponent<
+  TMetadata extends TActionMetadata,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TOnSubmitValues extends TActionOnSubmit = undefined,
-> = TOutput extends z.ZodVoid ? TActionComponent<TInput, TOnSubmitValues> : null
+> = TOutput extends z.ZodVoid
+  ? TActionComponent<TMetadata, TInput, TOnSubmitValues>
+  : null
 
 /**
  * For actions that do not return any data (i.e. POST actions), you need to specify a component to render in the chat after the action is invoked.
@@ -97,26 +97,41 @@ export type TPassThroughComponent<
  */
 export class ActionBuilderWithPost<
   TId extends string,
+  TNamespace extends string,
+  TMetadata extends TActionMetadata,
+  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  private actionData: TActionBuilderWithInputData<TId, TInput>
-  private submissionSchema?: TSubmission
+  actionData: TActionBuilderWithInputData<
+    TId,
+    TNamespace,
+    TMetadata,
+    TExtras,
+    TInput
+  > & {
+    submissionSchema?: TSubmission
+  }
 
   constructor({
     actionData,
     submissionSchema,
   }: {
-    actionData: TActionBuilderWithInputData<TId, TInput>
+    actionData: TActionBuilderWithInputData<
+      TId,
+      TNamespace,
+      TMetadata,
+      TExtras,
+      TInput
+    >
     submissionSchema?: TSubmission
   }) {
-    this.actionData = actionData
-    this.submissionSchema = submissionSchema
+    this.actionData = { ...actionData, submissionSchema }
   }
 
   setComponentSubmissionSchema<T extends TActionInput>(
     submissionSchema: T
-  ): ActionBuilderWithPost<TId, TInput, T> {
+  ): ActionBuilderWithPost<TId, TNamespace, TMetadata, TExtras, TInput, T> {
     return new ActionBuilderWithPost({
       actionData: this.actionData,
       submissionSchema: submissionSchema,
@@ -124,12 +139,19 @@ export class ActionBuilderWithPost<
   }
 
   setOutputComponent(
-    component: React.FC<TActionComponentProps<TInput, TSubmission>>
-  ): ActionBuilderWithOutput<TId, TInput, z.ZodVoid, TSubmission> {
+    component: React.FC<TActionComponentProps<TMetadata, TInput, TSubmission>>
+  ): ActionBuilderWithOutput<
+    TId,
+    TNamespace,
+    TMetadata,
+    TExtras,
+    TInput,
+    z.ZodVoid,
+    TSubmission
+  > {
     return new ActionBuilderWithOutput({
       actionData: {
         ...this.actionData,
-        submissionSchema: this.submissionSchema,
         outputSchema: z.void(),
         component,
       },

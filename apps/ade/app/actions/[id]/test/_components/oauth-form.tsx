@@ -1,18 +1,22 @@
 "use client"
 
-import { getClientIdEnvKey, getClientSecretEnvKey } from "@/lib/oauth"
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId, TOAuthAction } from "@energizeai/registry/types"
-import { Badge } from "@energizeai/ui/badge"
-import { Button } from "@energizeai/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-} from "@energizeai/ui/card"
-import { ThemedImage } from "@energizeai/ui/themed-image"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@energizeai/ui/tooltip"
+} from "@/components/ui/card"
+import { ThemedImage } from "@/components/ui/themed-image"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { getClientIdEnvKey, getClientSecretEnvKey } from "@/lib/oauth"
+import { ActionsRegistry } from "@/registry"
+import { TActionId, TOAuthAction } from "@/registry/_properties/types"
 import { Cable, Copy } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"

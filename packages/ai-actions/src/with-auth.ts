@@ -1,27 +1,63 @@
-import { TActionInput, TActionOnSubmit, TActionOutput } from "."
-import { TActionData } from "./action-data"
+import {
+  TActionData,
+  TActionFunction,
+  TActionFunctionExtras,
+  TActionInput,
+  TActionMetadata,
+  TActionOnSubmit,
+  TActionOutput,
+} from "./action-data"
 import { TActionAuth } from "./auth"
-import { ActionBuilderWithFunction, TActionFunction } from "./with-function"
+import { ActionBuilderWithFunction } from "./with-function"
 import { TActionBuilderWithOutputData } from "./with-output"
 
 export type TActionBuilderWithAuthData<
   TId extends string,
+  TNamespace extends string,
+  TMetadata extends TActionMetadata,
+  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
-> = TActionBuilderWithOutputData<TId, TInput, TOutput, TSubmission> &
-  Pick<TActionData<TId, TInput, TOutput, TAuth, TSubmission>, "authConfig">
+> = TActionBuilderWithOutputData<
+  TId,
+  TNamespace,
+  TMetadata,
+  TExtras,
+  TInput,
+  TOutput,
+  TSubmission
+> &
+  Pick<
+    TActionData<
+      TId,
+      TNamespace,
+      TMetadata,
+      TExtras,
+      TInput,
+      TOutput,
+      TAuth,
+      TSubmission
+    >,
+    "authConfig"
+  >
 
 export class ActionBuilderWithAuth<
   TId extends string,
+  TNamespace extends string,
+  TMetadata extends TActionMetadata,
+  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  protected actionData: TActionBuilderWithAuthData<
+  actionData: TActionBuilderWithAuthData<
     TId,
+    TNamespace,
+    TMetadata,
+    TExtras,
     TInput,
     TOutput,
     TAuth,
@@ -33,6 +69,9 @@ export class ActionBuilderWithAuth<
   }: {
     actionData: TActionBuilderWithAuthData<
       TId,
+      TNamespace,
+      TMetadata,
+      TExtras,
       TInput,
       TOutput,
       TAuth,
@@ -72,7 +111,13 @@ export class ActionBuilderWithAuth<
    */
 
   setActionFunction(
-    actionFunction: TActionFunction<TInput, TOutput, TAuth, TSubmission>
+    actionFunction: TActionFunction<
+      TExtras,
+      TInput,
+      TOutput,
+      TAuth,
+      TSubmission
+    >
   ) {
     return new ActionBuilderWithFunction({
       actionData: {

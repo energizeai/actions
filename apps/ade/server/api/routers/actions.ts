@@ -1,10 +1,9 @@
 import { env } from "@/env/server.mjs"
 import { getAccessToken } from "@/lib/linked-accounts"
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import { linkedAccounts } from "@/server/db/schema"
 import { trpcAuthorizationError, trpcBadRequestError } from "@/trpc/shared"
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
-import { ActionUserDataSchema } from "ai-actions"
 import { eq } from "drizzle-orm"
 import { z } from "zod"
 import { createTRPCRouter, publicProcedure } from "../trpc"
@@ -17,7 +16,10 @@ export const actionsRouter = createTRPCRouter({
       z.object({
         inputDataAsString: z.string(),
         actionId: z.enum(ActionIds),
-        userData: ActionUserDataSchema,
+        userData: z.object({
+          email: z.string().email(),
+          name: z.string(),
+        }),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -83,8 +85,9 @@ export const actionsRouter = createTRPCRouter({
           input: inputData,
           // @ts-expect-error
           auth: authData,
-          // @ts-expect-error
-          userData: input.userData,
+          extras: {
+            userData: input.userData,
+          },
         })
 
         return {
@@ -98,8 +101,9 @@ export const actionsRouter = createTRPCRouter({
         input: inputData,
         // @ts-expect-error
         auth: authData,
-        // @ts-expect-error
-        userData: input.userData,
+        extras: {
+          userData: input.userData,
+        },
       })
 
       return {

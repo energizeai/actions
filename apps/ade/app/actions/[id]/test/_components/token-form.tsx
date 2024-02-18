@@ -1,17 +1,12 @@
 "use client"
 
-import { camelCaseToTitleCase } from "@/lib/utils"
-import { api } from "@/trpc/react"
-import { extractErrorMessage } from "@/trpc/shared"
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId, TTokenAction } from "@energizeai/registry/types"
-import { Button } from "@energizeai/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-} from "@energizeai/ui/card"
+} from "@/components/ui/card"
 import {
   Form,
   FormControl,
@@ -20,9 +15,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@energizeai/ui/form"
-import { Input } from "@energizeai/ui/input"
-import { Spinner } from "@energizeai/ui/spinner"
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Spinner } from "@/components/ui/spinner"
+import { camelCaseToTitleCase } from "@/lib/utils"
+import { ActionsRegistry } from "@/registry"
+import { TActionId, TTokenAction } from "@/registry/_properties/types"
+import { api } from "@/trpc/react"
+import { extractErrorMessage } from "@/trpc/shared"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Cable, ExternalLink } from "lucide-react"
 import Link from "next/link"

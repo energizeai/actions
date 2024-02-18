@@ -36,6 +36,7 @@
     "zod": "^3.22.4"
   },
   "dependencies": {
+    "openai": "^4.28.0",
     "tsup": "^8.0.2",
     "zod-to-json-schema": "^3.22.4"
   }

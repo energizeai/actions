@@ -1,3 +1,18 @@
+import clsx, { ClassValue } from "clsx"
+import { customAlphabet } from "nanoid"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+const nanoid = customAlphabet(
+  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+)
+export function newId(len: number = 16): string {
+  return nanoid(len)
+}
+
 export const LETTERS_LOWER = "abcdefghijklmnopqrstuvwxyz"
 export const LETTERS_UPPER = LETTERS_LOWER.toUpperCase()
 export const NUMBERS = Array.from(Array(1000).keys()).join("")

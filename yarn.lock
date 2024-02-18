@@ -440,27 +440,6 @@
   version "0.0.0"
   resolved "file:tools/eslint-config"
 
-"@energizeai/registry@*", "@energizeai/registry@file:/Users/ido/Desktop/ENERGIZE AI/actions/packages/registry":
-  version "0.0.0"
-  resolved "file:packages/registry"
-  dependencies:
-    "@energizeai/shared" "*"
-    "@energizeai/ui" "*"
-    "@hookform/resolvers" "^3.3.4"
-    "@linear/sdk" "^13.0.0"
-    ai-actions "*"
-    mailparser "^3.6.7"
-    openai "^4.26.0"
-    react-hook-form "^7.49.3"
-    sonner "^1.3.1"
-
-"@energizeai/shared@*", "@energizeai/shared@file:/Users/ido/Desktop/ENERGIZE AI/actions/packages/shared":
-  version "0.0.0"
-  resolved "file:packages/shared"
-  dependencies:
-    date-fns "^3.3.1"
-    date-fns-tz "^2.0.0"
-
 "@energizeai/tailwindcss-config@*", "@energizeai/tailwindcss-config@file:/Users/ido/Desktop/ENERGIZE AI/actions/tools/tailwindcss-config":
   version "0.0.0"
   resolved "file:tools/tailwindcss-config"
@@ -470,48 +449,6 @@
 "@energizeai/typescript-config@*", "@energizeai/typescript-config@file:/Users/ido/Desktop/ENERGIZE AI/actions/tools/typescript-config":
   version "0.0.0"
   resolved "file:tools/typescript-config"
-
-"@energizeai/ui@*", "@energizeai/ui@file:/Users/ido/Desktop/ENERGIZE AI/actions/packages/ui":
-  version "0.0.0"
-  resolved "file:packages/ui"
-  dependencies:
-    "@internationalized/date" "^3.5.1"
-    "@radix-ui/react-accordion" "^1.1.2"
-    "@radix-ui/react-alert-dialog" "^1.0.5"
-    "@radix-ui/react-aspect-ratio" "^1.0.3"
-    "@radix-ui/react-avatar" "^1.0.4"
-    "@radix-ui/react-checkbox" "^1.0.4"
-    "@radix-ui/react-collapsible" "^1.0.3"
-    "@radix-ui/react-context-menu" "^2.1.5"
-    "@radix-ui/react-dialog" "^1.0.4"
-    "@radix-ui/react-dropdown-menu" "^2.0.6"
-    "@radix-ui/react-hover-card" "^1.0.7"
-    "@radix-ui/react-label" "^2.0.2"
-    "@radix-ui/react-menubar" "^1.0.4"
-    "@radix-ui/react-navigation-menu" "^1.1.4"
-    "@radix-ui/react-popover" "^1.0.7"
-    "@radix-ui/react-progress" "^1.0.3"
-    "@radix-ui/react-radio-group" "^1.1.3"
-    "@radix-ui/react-scroll-area" "^1.0.5"
-    "@radix-ui/react-select" "^2.0.0"
-    "@radix-ui/react-separator" "^1.0.3"
-    "@radix-ui/react-slider" "^1.1.2"
-    "@radix-ui/react-slot" "^1.0.2"
-    "@radix-ui/react-switch" "^1.0.3"
-    "@radix-ui/react-tabs" "^1.0.4"
-    "@radix-ui/react-toast" "^1.1.5"
-    "@radix-ui/react-toggle" "^1.0.3"
-    "@radix-ui/react-tooltip" "^1.0.7"
-    class-variance-authority "^0.7.0"
-    clsx "^2.1.0"
-    lucide-react "^0.316.0"
-    next-themes "^0.2.1"
-    react-aria "^3.31.1"
-    react-hook-form "^7.49.3"
-    react-resizable-panels "^1.0.10"
-    react-stately "^3.29.1"
-    sonner "^1.3.1"
-    tailwind-merge "^2.2.1"
 
 "@esbuild-kit/core-utils@^3.3.2":
   version "3.3.2"
@@ -3099,9 +3036,9 @@
   integrity sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==
 
 "@types/node@^18.11.18":
-  version "18.19.13"
-  resolved "https://registry.npmjs.org/@types/node/-/node-18.19.13.tgz"
-  integrity sha512-kgnbRDj8ioDyGxoiaXsiu1Ybm/K14ajCgMOkwiqpHrnF7d7QiYRoRqHIpglMMs3DwXinlK4qJ8TZGlj4hfleJg==
+  version "18.19.17"
+  resolved "https://registry.npmjs.org/@types/node/-/node-18.19.17.tgz"
+  integrity sha512-SzyGKgwPzuWp2SHhlpXKzCX0pIOfcI4V2eF37nNBJOhwlegQ83omtVQ1XxZpDE06V/d6AQvfQdPfnw0tRC//Ng==
   dependencies:
     undici-types "~5.26.4"
 
@@ -3541,12 +3478,39 @@ acorn-walk@^8.1.1:
   version "1.0.0"
   resolved "file:apps/ade"
   dependencies:
-    "@energizeai/registry" "*"
-    "@energizeai/ui" "*"
+    "@hookform/resolvers" "^3.3.4"
+    "@internationalized/date" "^3.5.1"
+    "@linear/sdk" "^13.0.0"
     "@mdx-js/loader" "^3.0.0"
     "@mdx-js/react" "^3.0.0"
     "@next/mdx" "^14.1.0"
+    "@radix-ui/react-accordion" "^1.1.2"
+    "@radix-ui/react-alert-dialog" "^1.0.5"
+    "@radix-ui/react-aspect-ratio" "^1.0.3"
+    "@radix-ui/react-avatar" "^1.0.4"
+    "@radix-ui/react-checkbox" "^1.0.4"
+    "@radix-ui/react-collapsible" "^1.0.3"
+    "@radix-ui/react-context-menu" "^2.1.5"
+    "@radix-ui/react-dialog" "^1.0.4"
+    "@radix-ui/react-dropdown-menu" "^2.0.6"
+    "@radix-ui/react-hover-card" "^1.0.7"
     "@radix-ui/react-icons" "^1.3.0"
+    "@radix-ui/react-label" "^2.0.2"
+    "@radix-ui/react-menubar" "^1.0.4"
+    "@radix-ui/react-navigation-menu" "^1.1.4"
+    "@radix-ui/react-popover" "^1.0.7"
+    "@radix-ui/react-progress" "^1.0.3"
+    "@radix-ui/react-radio-group" "^1.1.3"
+    "@radix-ui/react-scroll-area" "^1.0.5"
+    "@radix-ui/react-select" "^2.0.0"
+    "@radix-ui/react-separator" "^1.0.3"
+    "@radix-ui/react-slider" "^1.1.2"
+    "@radix-ui/react-slot" "^1.0.2"
+    "@radix-ui/react-switch" "^1.0.3"
+    "@radix-ui/react-tabs" "^1.0.4"
+    "@radix-ui/react-toast" "^1.1.5"
+    "@radix-ui/react-toggle" "^1.0.3"
+    "@radix-ui/react-tooltip" "^1.0.7"
     "@t3-oss/env-nextjs" "^0.8.0"
     "@tanstack/react-query" "^4.36.1"
     "@trpc/client" "^10.45.0"
@@ -3556,8 +3520,10 @@ acorn-walk@^8.1.1:
     "@types/mdx" "^2.0.10"
     ai-actions "*"
     better-sqlite3 "^9.3.0"
+    class-variance-authority "^0.7.0"
+    clsx "^2.1.0"
+    cmdk "^0.2.1"
     date-fns "^3.3.1"
-    date-fns-tz "^2.0.0"
     dedent "^1.5.1"
     drizzle-orm "^0.29.3"
     drizzle-zod "^0.5.1"
@@ -3565,13 +3531,21 @@ acorn-walk@^8.1.1:
     hjson "^3.2.2"
     lodash "^4.17.21"
     lucide-react "^0.316.0"
+    mailparser "^3.6.7"
     next "^14.0.4"
+    next-themes "^0.2.1"
     react "^18.2.0"
+    react-aria "^3.31.1"
+    react-day-picker "^8.10.0"
     react-dom "^18.2.0"
     react-hook-form "^7.49.3"
+    react-resizable-panels "^1.0.10"
+    react-stately "^3.29.1"
+    react-syntax-highlighter "^15.5.0"
     remark-gfm "^4.0.0"
     sonner "^1.3.1"
     superjson "^2.2.1"
+    tailwind-merge "^2.2.1"
     zod "^3.22.4"
     zod-to-json-schema "^3.22.4"
 
@@ -3601,6 +3575,7 @@ ai-actions@*, "ai-actions@file:/Users/ido/Desktop/ENERGIZE AI/actions/packages/a
   version "0.1.0"
   resolved "file:packages/ai-actions"
   dependencies:
+    openai "^4.28.0"
     tsup "^8.0.2"
     zod-to-json-schema "^3.22.4"
 
@@ -4318,13 +4293,12 @@ clsx@2.0.0:
   resolved "https://registry.npmjs.org/clsx/-/clsx-2.0.0.tgz"
   integrity sha512-rQ1+kcj+ttHG0MKVGBUXwayCCF1oh39BF5COIpRzuCEv8Mwjv0XucrI2ExNTOn9IlLifGClWQcU9BrZORvtw6Q==
 
-cmdk@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.npmjs.org/cmdk/-/cmdk-0.2.0.tgz"
-  integrity sha512-JQpKvEOb86SnvMZbYaFKYhvzFntWBeSZdyii0rZPhKJj9uwJBxu4DaVYDrRN7r3mPop56oPhRw+JYWTKs66TYw==
+cmdk@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.npmjs.org/cmdk/-/cmdk-0.2.1.tgz"
+  integrity sha512-U6//9lQ6JvT47+6OF6Gi8BvkxYQ8SCRRSKIJkthIMsFsLZRG0cKvTtuTaefyIKMQb8rvvXy0wGdpTNq/jPtm+g==
   dependencies:
     "@radix-ui/react-dialog" "1.0.0"
-    command-score "0.1.2"
 
 collapse-white-space@^2.0.0:
   version "2.1.0"
@@ -4371,11 +4345,6 @@ comma-separated-tokens@^2.0.0:
   version "2.0.3"
   resolved "https://registry.npmjs.org/comma-separated-tokens/-/comma-separated-tokens-2.0.3.tgz"
   integrity sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==
-
-command-score@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.npmjs.org/command-score/-/command-score-0.1.2.tgz"
-  integrity sha512-VtDvQpIJBvBatnONUsPzXYFVKQQAhuf3XTNOAsdBxCNO/QCtUUd8LSgjn0GVarBkCad6aJCZfXgrjYbl/KRr7w==
 
 commander@^10.0.0:
   version "10.0.1"
@@ -4534,12 +4503,7 @@ data-uri-to-buffer@^6.0.0:
   resolved "https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-6.0.1.tgz"
   integrity sha512-MZd3VlchQkp8rdend6vrx7MmVDJzSNTBvghvKjirLkD+WTChA3KUf0jkE68Q4UyctNqI11zZO9/x2Yx+ub5Cvg==
 
-date-fns-tz@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/date-fns-tz/-/date-fns-tz-2.0.0.tgz"
-  integrity sha512-OAtcLdB9vxSXTWHdT8b398ARImVwQMyjfYGkKD2zaGpHseG2UPHbHjXELReErZFxWdSLph3c2zOaaTyHfOhERQ==
-
-"date-fns@^2.28.0 || ^3.0.0", date-fns@^3.3.1, date-fns@>=2.0.0:
+"date-fns@^2.28.0 || ^3.0.0", date-fns@^3.3.1:
   version "3.3.1"
   resolved "https://registry.npmjs.org/date-fns/-/date-fns-3.3.1.tgz"
   integrity sha512-y8e109LYGgoQDveiEBD3DYXKba1jWf5BA8YU1FL5Tvm0BTdEfy54WLCwnuYWZNnzzvALy/QQ4Hov+Q9RVRv+Zw==
@@ -8316,10 +8280,10 @@ onetime@^5.1.0, onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
-openai@^4.26.0:
-  version "4.26.0"
-  resolved "https://registry.npmjs.org/openai/-/openai-4.26.0.tgz"
-  integrity sha512-HPC7tgYdeP38F3uHA5WgnoXZyGbAp9jgcIo23p6It+q/07u4C+NZ8xHKlMShsPbDDmFRpPsa3vdbXYpbhJH3eg==
+openai@^4.28.0:
+  version "4.28.0"
+  resolved "https://registry.npmjs.org/openai/-/openai-4.28.0.tgz"
+  integrity sha512-JM8fhcpmpGN0vrUwGquYIzdcEQHtFuom6sRCbbCM6CfzZXNuRk33G7KfeRAIfnaCxSpzrP5iHtwJzIm6biUZ2Q==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -10751,9 +10715,9 @@ web-namespaces@^2.0.0:
   integrity sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==
 
 web-streams-polyfill@^3.2.1:
-  version "3.3.2"
-  resolved "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.2.tgz"
-  integrity sha512-3pRGuxRF5gpuZc0W+EpwQRmCD7gRqcDOMt688KmdlDAgAyaB1XlN0zq2njfDNm44XVdIouE7pZ6GzbdyH47uIQ==
+  version "3.3.3"
+  resolved "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz"
+  integrity sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==
 
 web-streams-polyfill@4.0.0-beta.3:
   version "4.0.0-beta.3"

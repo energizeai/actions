@@ -1,4 +1,4 @@
-import { CodeBlock } from "@energizeai/ui/codeblock"
+import { CodeBlock } from "@/components/ui/codeblock"
 import type { MDXComponents } from "mdx/types"
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {

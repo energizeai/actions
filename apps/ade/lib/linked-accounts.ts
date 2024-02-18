@@ -1,8 +1,8 @@
 "server-only"
 
+import { ActionsRegistry } from "@/registry"
 import { db } from "@/server/db"
 import { LinkedAccount, linkedAccounts } from "@/server/db/schema"
-import { ActionsRegistry } from "@energizeai/registry"
 import { and, eq } from "drizzle-orm"
 import z from "zod"
 import {

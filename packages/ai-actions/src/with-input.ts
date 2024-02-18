@@ -1,28 +1,50 @@
-import { TActionInput } from "."
-import { TActionData } from "./action-data"
+import {
+  TActionData,
+  TActionFunctionExtras,
+  TActionInput,
+  TActionMetadata,
+} from "./action-data"
 import { ActionBuilderWithGet } from "./with-get"
 import { ActionBuilderWithPost } from "./with-post"
 
 export type TActionBuilderWithInputData<
   TId extends string,
+  TNamespace extends string,
+  TMetadata extends TActionMetadata,
+  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
 > = Pick<
-  TActionData<TId, TInput, any, any, any>,
-  "metadata" | "inputSchema" | "id"
+  TActionData<TId, TNamespace, TMetadata, TExtras, TInput, any, any, any>,
+  "metadata" | "inputSchema" | "id" | "actionFunctionExtrasSchema" | "namespace"
 >
 
 type TActionType = "GET" | "POST"
 
 export class ActionBuilderWithInput<
   TId extends string,
+  TNamespace extends string,
+  TMetadata extends TActionMetadata,
+  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
 > {
-  private actionData: TActionBuilderWithInputData<TId, TInput>
+  actionData: TActionBuilderWithInputData<
+    TId,
+    TNamespace,
+    TMetadata,
+    TExtras,
+    TInput
+  >
 
   constructor({
     actionData,
   }: {
-    actionData: TActionBuilderWithInputData<TId, TInput>
+    actionData: TActionBuilderWithInputData<
+      TId,
+      TNamespace,
+      TMetadata,
+      TExtras,
+      TInput
+    >
   }) {
     this.actionData = actionData
   }
@@ -34,8 +56,12 @@ export class ActionBuilderWithInput<
    *
    * 2.`React Component` that asks for confirmation for the action. This is typically the output for actions that `POST data`. If this is the case, you should specify a React component that asks for confirmation for the action. The output will be `void`.
    */
-  setActionType(type: "GET"): ActionBuilderWithGet<TId, TInput>
-  setActionType(type: "POST"): ActionBuilderWithPost<TId, TInput>
+  setActionType(
+    type: "GET"
+  ): ActionBuilderWithGet<TId, TNamespace, TMetadata, TExtras, TInput>
+  setActionType(
+    type: "POST"
+  ): ActionBuilderWithPost<TId, TNamespace, TMetadata, TExtras, TInput>
 
   setActionType(output: TActionType) {
     if (output === "POST") {

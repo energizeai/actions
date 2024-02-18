@@ -1,10 +1,10 @@
 "use client"
 
-import { ActionsRegistry } from "@energizeai/registry"
-import { TActionId } from "@energizeai/registry/types"
-import { Button } from "@energizeai/ui/button"
-import { ThemedImage } from "@energizeai/ui/themed-image"
-import { cn } from "@energizeai/ui/utils"
+import { Button } from "@/components/ui/button"
+import { ThemedImage } from "@/components/ui/themed-image"
+import { cn } from "@/lib/utils"
+import { ActionsRegistry } from "@/registry"
+import { TActionId } from "@/registry/_properties/types"
 import {
   Fingerprint,
   HandMetalIcon,

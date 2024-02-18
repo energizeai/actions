@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
-  transpilePackages: ["@energizeai/ui", "@energizeai/shared", "@energizeai/registry", "@energizeai/types"],
+  transpilePackages: ["@/components/ui", "@energizeai/shared", "@/registry", "@energizeai/types"],
   webpack: (config) => {
     config.optimization.minimize = false;
     return config
