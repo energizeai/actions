@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -45,8 +45,9 @@ const GoogleReplyToEmailCard: TGoogleReplyToEmailCard = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
+          <Avatar className="h-5 w-5">
             <AvatarImage src={metadata.avatar.light} alt="Google logo" />
+            <AvatarFallback className="bg-muted" />
           </Avatar>
           {metadata.title}
         </CardTitle>

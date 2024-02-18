@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -54,15 +54,12 @@ const GoogleSendMailCard: TGoogleSendMailCard = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarImage
-              src={metadata.avatar.light}
-              alt="Google logo"
-              className="h-6 w-6"
-            />
+        <CardTitle className="flex items-center gap-2 relative">
+          <Avatar className="h-5 w-5">
+            <AvatarImage src={metadata.avatar.light} alt="Google logo" />
+            <AvatarFallback className="bg-muted" />
           </Avatar>
-          {metadata.title}
+          <p className="flex-1">{metadata.title}</p>
         </CardTitle>
         <CardDescription>
           Let&apos;s confirm that you want to send this email.

@@ -22,6 +22,8 @@ import { Input } from "@/components/ui/input"
 import { ConditionalSkeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
+import { ThemedImage } from "@/components/ui/themed-image"
+import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import z from "zod"
@@ -45,8 +47,14 @@ const LinearCreateIssueCard: TLinearCreateIssueCard = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={metadata.avatar.light} alt="Linear logo" />
+          <Avatar className="h-5 w-5">
+            <ThemedImage
+              srcLight={metadata.avatar.light}
+              srcDark={metadata.avatar.dark}
+              ImageComponent={
+                <AvatarImage className={cn("bg-background")} src={""} />
+              }
+            />
           </Avatar>
           {metadata.title}
         </CardTitle>
