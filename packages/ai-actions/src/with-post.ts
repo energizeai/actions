@@ -49,7 +49,7 @@ export type TActionComponentProps<
   TOnSubmitValues extends TActionOnSubmit = undefined,
 > = {
   inputSchema: TInput
-  metadata: TMetadata extends z.AnyZodObject ? z.infer<TMetadata> : undefined
+  metadata: TMetadata extends z.AnyZodObject ? z.input<TMetadata> : undefined
 } & (
   | {
       /**
