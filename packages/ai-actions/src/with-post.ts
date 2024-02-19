@@ -1,10 +1,10 @@
 import z from "zod"
 import {
-  TActionFunctionExtras,
   TActionInput,
   TActionMetadata,
   TActionOnSubmit,
   TActionOutput,
+  TAnyRegistryData,
 } from "./action-data"
 import { TActionBuilderWithInputData } from "./with-input"
 import { ActionBuilderWithOutput } from "./with-output"
@@ -16,7 +16,7 @@ type TActionComponentPropsData<
   /**
    * The input to the action function. You can use this input to prepopulate the form so all the user has to do is click submit.
    */
-  input: z.infer<TInput>
+  input: z.output<TInput>
 
   /**
    * Indicates whether the action function is currently running.
@@ -49,7 +49,7 @@ export type TActionComponentProps<
   TOnSubmitValues extends TActionOnSubmit = undefined,
 > = {
   inputSchema: TInput
-  metadata: TMetadata extends z.AnyZodObject ? z.input<TMetadata> : undefined
+  metadata: TMetadata extends z.AnyZodObject ? z.output<TMetadata> : undefined
 } & (
   | {
       /**
@@ -96,20 +96,12 @@ export type TPassThroughComponent<
  * This component should be a form asking for confirmation to submit the input to the action function.
  */
 export class ActionBuilderWithPost<
+  TRegistry extends TAnyRegistryData,
   TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  actionData: TActionBuilderWithInputData<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput
-  > & {
+  actionData: TActionBuilderWithInputData<TRegistry, TId, TInput> & {
     submissionSchema?: TSubmission
   }
 
@@ -117,13 +109,7 @@ export class ActionBuilderWithPost<
     actionData,
     submissionSchema,
   }: {
-    actionData: TActionBuilderWithInputData<
-      TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      TInput
-    >
+    actionData: TActionBuilderWithInputData<TRegistry, TId, TInput>
     submissionSchema?: TSubmission
   }) {
     this.actionData = { ...actionData, submissionSchema }
@@ -131,7 +117,7 @@ export class ActionBuilderWithPost<
 
   setComponentSubmissionSchema<T extends TActionInput>(
     submissionSchema: T
-  ): ActionBuilderWithPost<TId, TNamespace, TMetadata, TExtras, TInput, T> {
+  ): ActionBuilderWithPost<TRegistry, TId, TInput, T> {
     return new ActionBuilderWithPost({
       actionData: this.actionData,
       submissionSchema: submissionSchema,
@@ -139,16 +125,10 @@ export class ActionBuilderWithPost<
   }
 
   setOutputComponent(
-    component: React.FC<TActionComponentProps<TMetadata, TInput, TSubmission>>
-  ): ActionBuilderWithOutput<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput,
-    z.ZodVoid,
-    TSubmission
-  > {
+    component: React.FC<
+      TActionComponentProps<TRegistry["metadataSchema"], TInput, TSubmission>
+    >
+  ): ActionBuilderWithOutput<TRegistry, TId, TInput, z.ZodVoid, TSubmission> {
     return new ActionBuilderWithOutput({
       actionData: {
         ...this.actionData,

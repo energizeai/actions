@@ -2,48 +2,27 @@ import z from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
 import {
   TActionData,
-  TActionFunctionExtras,
   TActionInput,
-  TActionMetadata,
   TActionOnSubmit,
   TActionOutput,
+  TAnyRegistryData,
 } from "./action-data"
 import { TActionAuth } from "./auth"
 
 export class ActionBuilderWithFunction<
+  TRegistry extends TAnyRegistryData,
   TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
 > {
-  actionData: TActionData<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput,
-    TOutput,
-    TAuth,
-    TSubmission
-  >
+  actionData: TActionData<TRegistry, TId, TInput, TOutput, TAuth, TSubmission>
 
   constructor({
     actionData,
   }: {
-    actionData: TActionData<
-      TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      TInput,
-      TOutput,
-      TAuth,
-      TSubmission
-    >
+    actionData: TActionData<TRegistry, TId, TInput, TOutput, TAuth, TSubmission>
   }) {
     this.actionData = actionData
   }
@@ -62,7 +41,7 @@ export class ActionBuilderWithFunction<
   }
 
   getNamespace() {
-    return this.actionData.namespace
+    return this.actionData.registryData.namespace
   }
 
   getMetadata() {

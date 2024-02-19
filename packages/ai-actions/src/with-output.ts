@@ -1,10 +1,9 @@
 import {
   TActionData,
-  TActionFunctionExtras,
   TActionInput,
-  TActionMetadata,
   TActionOnSubmit,
   TActionOutput,
+  TAnyRegistryData,
 } from "./action-data"
 import { AuthType, TAuthType } from "./auth"
 import { ActionBuilderWithAuth } from "./with-auth"
@@ -18,42 +17,27 @@ type TNoAuth = {
 }
 
 export type TActionBuilderWithOutputData<
+  TRegistry extends TAnyRegistryData,
   TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TSubmission extends TActionOnSubmit = undefined,
-> = TActionBuilderWithInputData<TId, TNamespace, TMetadata, TExtras, TInput> &
+> = TActionBuilderWithInputData<TRegistry, TId, TInput> &
   Pick<
-    TActionData<
-      TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      TInput,
-      TOutput,
-      any,
-      TSubmission
-    >,
+    TActionData<TRegistry, TId, TInput, TOutput, any, TSubmission>,
     "outputSchema" | "component" | "submissionSchema"
   >
 
 export class ActionBuilderWithOutput<
+  TRegistry extends TAnyRegistryData,
   TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TSubmission extends TActionOnSubmit = undefined,
 > {
   actionData: TActionBuilderWithOutputData<
+    TRegistry,
     TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
     TInput,
     TOutput,
     TSubmission
@@ -63,10 +47,8 @@ export class ActionBuilderWithOutput<
     actionData,
   }: {
     actionData: TActionBuilderWithOutputData<
+      TRegistry,
       TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
       TInput,
       TOutput,
       TSubmission
@@ -81,10 +63,8 @@ export class ActionBuilderWithOutput<
   setAuthType(
     type: typeof AuthType.NONE
   ): ActionBuilderWithAuth<
+    TRegistry,
     TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
     TInput,
     TOutput,
     TNoAuth,
@@ -92,26 +72,10 @@ export class ActionBuilderWithOutput<
   >
   setAuthType(
     type: typeof AuthType.TOKEN
-  ): ActionBuilderWithTokenType<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput,
-    TOutput,
-    TSubmission
-  >
+  ): ActionBuilderWithTokenType<TRegistry, TId, TInput, TOutput, TSubmission>
   setAuthType(
     type: typeof AuthType.OAUTH
-  ): ActionBuilderWithOAuthType<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput,
-    TOutput,
-    TSubmission
-  >
+  ): ActionBuilderWithOAuthType<TRegistry, TId, TInput, TOutput, TSubmission>
 
   setAuthType(type: TAuthType) {
     if (type === AuthType.NONE) {

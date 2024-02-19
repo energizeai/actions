@@ -2,55 +2,24 @@ import OpenAI from "openai"
 import z from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
 import { ActionBuilder } from "./action-builder"
-import {
-  TActionFunctionExtras,
-  TActionInput,
-  TActionMetadata,
-  TActionOnSubmit,
-} from "./action-data"
+import { TActionInput, TActionOnSubmit, TAnyRegistryData } from "./action-data"
 import { TAuthType } from "./auth"
 import { ActionBuilderWithFunction } from "./with-function"
 import { TActionComponent } from "./with-post"
 
 type TActionsRegistry<
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
-  T extends Array<
-    ActionBuilderWithFunction<
-      any,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      any,
-      any,
-      any,
-      any
-    >
-  >,
+  TRegistry extends TAnyRegistryData,
+  T extends Array<ActionBuilderWithFunction<TRegistry, any, any, any, any>>,
 > = T extends [infer A, ...infer R]
   ? A extends ActionBuilderWithFunction<
+      infer TInferRegistry,
       infer Id,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      any,
       any,
       any,
       any
     >
-    ? R extends ActionBuilderWithFunction<
-        any,
-        TNamespace,
-        TMetadata,
-        TExtras,
-        any,
-        any,
-        any,
-        any
-      >[]
-      ? Readonly<{ [K in Id]: A }> &
-          TActionsRegistry<TNamespace, TMetadata, TExtras, R>
+    ? R extends ActionBuilderWithFunction<TInferRegistry, any, any, any, any>[]
+      ? Readonly<{ [K in Id]: A }> & TActionsRegistry<TInferRegistry, R>
       : never
     : never
   : Readonly<{}>
@@ -65,7 +34,7 @@ type TActionsRegistry<
  */
 export const filterActionRegistryByAuthType = <
   const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any, any, any, any, any, any, any>
+    [key: string]: ActionBuilderWithFunction<any, any, any, any, any>
   }>,
   U extends TAuthType,
 >(
@@ -96,7 +65,7 @@ export const filterActionRegistryByAuthType = <
  */
 export const generateLLMTools = <
   const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any, any, any, any, any, any, any>
+    [key: string]: ActionBuilderWithFunction<any, any, any, any, any>
   }>,
   U extends [keyof T, ...(keyof T)[]] | keyof T,
 >(
@@ -138,54 +107,33 @@ export const generateLLMTools = <
 type TCreateActionsRegistry<T extends string> = `create${T}ActionsRegistry`
 type TCreateAction<T extends string> = `create${T}Action`
 
-type TCreateActionsRegistryFunction<
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
-> = <
+type TCreateActionsRegistryFunction<TRegistry extends TAnyRegistryData> = <
   const T extends Array<
-    ActionBuilderWithFunction<
-      string,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      any,
-      any,
-      any,
-      any
-    >
+    ActionBuilderWithFunction<TRegistry, string, any, any, any, any>
   >,
 >(
   registry: T
-) => TActionsRegistry<TNamespace, TMetadata, TExtras, T>
+) => TActionsRegistry<TRegistry, T>
 
-type TCreateActionFunction<
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
-> = <TId extends string>(
+type TCreateActionFunction<TRegistry extends TAnyRegistryData> = <
+  TId extends string,
+>(
   input: {
     id: TId
-  } & (TMetadata extends z.AnyZodObject ? { metadata: z.input<TMetadata> } : {})
-) => ActionBuilder<TId, TNamespace, TMetadata, TExtras>
+  } & (TRegistry["metadataSchema"] extends z.AnyZodObject
+    ? { metadata: z.input<TRegistry["metadataSchema"]> }
+    : {})
+) => ActionBuilder<TRegistry, TId>
 
-type TGenerateFunctionsRet<
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
-> = Readonly<
+type TGenerateFunctionsRet<TRegistry extends TAnyRegistryData> = Readonly<
   {
-    [K in TCreateActionsRegistry<TNamespace>]: TCreateActionsRegistryFunction<
-      TNamespace,
-      TMetadata,
-      TExtras
-    >
+    [K in TCreateActionsRegistry<
+      TRegistry["namespace"]
+    >]: TCreateActionsRegistryFunction<TRegistry>
   } & {
-    [K in TCreateAction<TNamespace>]: TCreateActionFunction<
-      TNamespace,
-      TMetadata,
-      TExtras
-    >
+    [K in TCreateAction<
+      TRegistry["namespace"]
+    >]: TCreateActionFunction<TRegistry>
   }
 >
 
@@ -213,64 +161,18 @@ type TGenerateFunctionsRet<
  * ```
  */
 export const generateActionRegistryFunctions = <
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
->(args: {
-  /**
-   * The namespace for the actions registry. Useful if you have multiple action registries.
-   *
-   * @example "ADE"
-   */
-  namespace: TNamespace
-  /**
-   * The schema for the metadata of the action. This is used to validate the metadata passed to the action.
-   *
-   * If you don't have metadata, you can pass `undefined`.
-   *
-   * @example
-   * ```typescript
-   * z.object({
-   *   title: z.string(),
-   *   description: z.string(),
-   * })
-   * ```
-   */
-  metadataSchema: TMetadata
-  /**
-   * Sometimes you may want to pass extra data to each action function (on top of input and auth). This is useful for things like user data, local time zone, etc.
-   *
-   * If you don't have any extra data, you can pass `undefined`.
-   *
-   * @example
-   * ```typescript
-   * z.object({
-   *  userData: z.object({
-   *   email: z.string().email(),
-   *   name: z.string(),
-   *  })
-   * })
-   * ```
-   */
-  actionFunctionExtras: TExtras
-}): TGenerateFunctionsRet<TNamespace, TMetadata, TExtras> => {
+  const TRegistry extends TAnyRegistryData,
+>(
+  args: TRegistry
+): TGenerateFunctionsRet<TRegistry> => {
   return {
     [`create${args.namespace}ActionsRegistry`]: <
       const T extends Array<
-        ActionBuilderWithFunction<
-          string,
-          TNamespace,
-          TMetadata,
-          TExtras,
-          any,
-          any,
-          any,
-          any
-        >
+        ActionBuilderWithFunction<TRegistry, string, any, any, any, any>
       >,
     >(
       registry: T
-    ): TActionsRegistry<TNamespace, TMetadata, TExtras, T> => {
+    ): TActionsRegistry<TRegistry, T> => {
       type TId = ReturnType<T[number]["getId"]>
       return Object.freeze(
         registry.reduce((acc, action) => {
@@ -283,13 +185,15 @@ export const generateActionRegistryFunctions = <
           acc[id] = action
           return acc
         }, {} as any)
-      ) as TActionsRegistry<TNamespace, TMetadata, TExtras, T>
+      ) as TActionsRegistry<TRegistry, T>
     },
     [`create${args.namespace}Action`]: <TId extends string>(input: {
       /**
        * The metadata for the action. This is used to validate the arguments passed to the action.
        */
-      metadata: TMetadata extends z.AnyZodObject ? z.input<TMetadata> : never
+      metadata: typeof args.metadataSchema extends z.AnyZodObject
+        ? z.input<typeof args.metadataSchema>
+        : never
       /**
        * The unique identifier for the action. This is used to reference the action in the registry.
        *
@@ -306,44 +210,52 @@ export const generateActionRegistryFunctions = <
        */
       id: TId
     }) => {
-      if (!args.metadataSchema) {
+      const { metadataSchema, namespace, actionFunctionExtrasSchema } = args
+      if (!metadataSchema) {
         return new ActionBuilder({
           id: input.id,
-          namespace: args.namespace,
+          registryData: {
+            namespace: namespace,
+            metadataSchema: undefined,
+            actionFunctionExtrasSchema: actionFunctionExtrasSchema,
+          },
           metadata: undefined,
-          actionFunctionExtrasSchema: args.actionFunctionExtras,
         })
       }
 
-      const parsed = args.metadataSchema.safeParse(input.metadata)
+      const parsed = metadataSchema.safeParse(input.metadata)
       if (!parsed.success) {
         throw new Error(parsed.error.message)
       }
+
       return new ActionBuilder({
         id: input.id,
-        namespace: args.namespace,
+        registryData: {
+          namespace: namespace,
+          metadataSchema: metadataSchema,
+          actionFunctionExtrasSchema: actionFunctionExtrasSchema,
+        },
         metadata: parsed.data,
-        actionFunctionExtrasSchema: args.actionFunctionExtras,
       })
     },
-  } as TGenerateFunctionsRet<TNamespace, TMetadata, TExtras>
+  } as TGenerateFunctionsRet<TRegistry>
 }
 
 const { createActionsRegistry, createAction } = generateActionRegistryFunctions(
   {
     namespace: "",
     metadataSchema: undefined,
-    actionFunctionExtras: undefined,
+    actionFunctionExtrasSchema: undefined,
   }
 )
 
 export type inferActionComponent<
-  T extends TCreateActionFunction<any, any, any>,
+  T extends TCreateActionFunction<any>,
   TInput extends TActionInput,
   TOnSubmitValues extends TActionOnSubmit = undefined,
 > =
-  T extends TCreateActionFunction<any, infer TMetadata, any>
-    ? TActionComponent<TMetadata, TInput, TOnSubmitValues>
+  T extends TCreateActionFunction<infer TRegistry>
+    ? TActionComponent<TRegistry["metadataSchema"], TInput, TOnSubmitValues>
     : never
 
 export { createAction, createActionsRegistry }

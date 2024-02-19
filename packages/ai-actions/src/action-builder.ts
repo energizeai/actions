@@ -1,38 +1,29 @@
-import {
-  TActionFunctionExtras,
-  TActionInput,
-  TActionMetadata,
-} from "./action-data"
+import { TActionInput, TAnyRegistryData } from "./action-data"
 import { ActionBuilderWithInput } from "./with-input"
 
 export class ActionBuilder<
+  TRegistry extends TAnyRegistryData,
   TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
 > {
   actionData: {
-    metadata: TMetadata extends Zod.AnyZodObject
-      ? Zod.input<TMetadata>
-      : undefined
-    actionFunctionExtrasSchema: TExtras
     id: TId
-    namespace: TNamespace
+    registryData: TRegistry
+    metadata: TRegistry["metadataSchema"] extends Zod.AnyZodObject
+      ? Zod.input<TRegistry["metadataSchema"]>
+      : undefined
   }
 
   constructor(input: {
-    namespace: TNamespace
-    metadata: TMetadata extends Zod.AnyZodObject
-      ? Zod.input<TMetadata>
+    registryData: TRegistry
+    metadata: TRegistry["metadataSchema"] extends Zod.AnyZodObject
+      ? Zod.input<TRegistry["metadataSchema"]>
       : undefined
-    actionFunctionExtrasSchema: TExtras
     id: TId
   }) {
     this.actionData = {
       metadata: input.metadata,
-      namespace: input.namespace,
+      registryData: input.registryData,
       id: input.id,
-      actionFunctionExtrasSchema: input.actionFunctionExtrasSchema,
     }
   }
 

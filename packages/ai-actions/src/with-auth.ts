@@ -1,63 +1,39 @@
 import {
   TActionData,
   TActionFunction,
-  TActionFunctionExtras,
   TActionInput,
-  TActionMetadata,
   TActionOnSubmit,
   TActionOutput,
+  TAnyRegistryData,
 } from "./action-data"
 import { TActionAuth } from "./auth"
 import { ActionBuilderWithFunction } from "./with-function"
 import { TActionBuilderWithOutputData } from "./with-output"
 
 export type TActionBuilderWithAuthData<
+  TRegistry extends TAnyRegistryData,
   TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
-> = TActionBuilderWithOutputData<
-  TId,
-  TNamespace,
-  TMetadata,
-  TExtras,
-  TInput,
-  TOutput,
-  TSubmission
-> &
+> = TActionBuilderWithOutputData<TRegistry, TId, TInput, TOutput, TSubmission> &
   Pick<
-    TActionData<
-      TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      TInput,
-      TOutput,
-      TAuth,
-      TSubmission
-    >,
+    TActionData<TRegistry, TId, TInput, TOutput, TAuth, TSubmission>,
     "authConfig"
   >
 
 export class ActionBuilderWithAuth<
+  TRegistry extends TAnyRegistryData,
   TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TActionAuth,
   TSubmission extends TActionOnSubmit = undefined,
 > {
   actionData: TActionBuilderWithAuthData<
+    TRegistry,
     TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
     TInput,
     TOutput,
     TAuth,
@@ -68,10 +44,8 @@ export class ActionBuilderWithAuth<
     actionData,
   }: {
     actionData: TActionBuilderWithAuthData<
+      TRegistry,
       TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
       TInput,
       TOutput,
       TAuth,
@@ -112,7 +86,7 @@ export class ActionBuilderWithAuth<
 
   setActionFunction(
     actionFunction: TActionFunction<
-      TExtras,
+      TRegistry["actionFunctionExtrasSchema"],
       TInput,
       TOutput,
       TAuth,

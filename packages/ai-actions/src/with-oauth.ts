@@ -1,28 +1,23 @@
 import {
-  TActionFunctionExtras,
   TActionInput,
-  TActionMetadata,
   TActionOnSubmit,
   TActionOutput,
+  TAnyRegistryData,
 } from "./action-data"
 import { TOAuthConfig } from "./auth"
 import { ActionBuilderWithAuth } from "./with-auth"
 import { TActionBuilderWithOutputData } from "./with-output"
 
 export class ActionBuilderWithOAuthType<
+  TRegistry extends TAnyRegistryData,
   TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TSubmission extends TActionOnSubmit = undefined,
 > {
   actionData: TActionBuilderWithOutputData<
+    TRegistry,
     TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
     TInput,
     TOutput,
     TSubmission
@@ -32,10 +27,8 @@ export class ActionBuilderWithOAuthType<
     actionData,
   }: {
     actionData: TActionBuilderWithOutputData<
+      TRegistry,
       TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
       TInput,
       TOutput,
       TSubmission
