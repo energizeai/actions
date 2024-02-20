@@ -192,33 +192,3 @@ export default function OAuthForm({
     </>
   )
 }
-
-// Since this action requires OAuth, you must first setup an application on
-// the resource.
-// <br />
-// <br />1{")"} First you must create an application on the resource. You
-// can do so{" "}
-// <Link
-//   href={authConfig.config.oauthAppGenerationURL || "#"}
-//   target="_blank"
-//   className="text-primary font-semibold hover:underline"
-// >
-//   here
-// </Link>{" "}
-// .
-// <br />
-// <br />2{")"} It must have the following scopes:{" "}
-// <code className="text-sm font-semibold inline-block">
-//   `{authConfig.config.scopes.join(" ")}`
-// </code>
-// .
-// <br />
-// <br />3{")"} Please make sure you have the following environment
-// variables set in{" "}
-// <code className="text-sm font-semibold">`ade/.env.local`</code>
-// <pre className="block bg-muted text-muted-foreground rounded-sm p-1 px-2 mt-4">
-//   <code>{`${clientIdKey}`}</code>
-// </pre>
-// <pre className="block bg-muted text-muted-foreground rounded-sm p-1 px-2 mt-2">
-//   <code>{`${clientSecretKey}`}</code>
-// </pre>

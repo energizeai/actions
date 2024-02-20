@@ -1,13 +1,7 @@
-import {
-  TActionData,
-  TActionInput,
-  TActionOnSubmit,
-  TActionOutput,
-  TAnyRegistryData,
-} from "./action-data"
+import { TActionData, TActionOnSubmit, TActionOutput } from "./action-data"
 import { AuthType, TAuthType } from "./auth"
-import { ActionBuilderWithAuth } from "./with-auth"
-import { TActionBuilderWithInputData } from "./with-input"
+import { ActionBuilderWithAuth, TActionBuilderWithAuthData } from "./with-auth"
+import { TActionDataWithInput } from "./with-input"
 import { ActionBuilderWithOAuthType } from "./with-oauth"
 import { ActionBuilderWithTokenType } from "./with-token"
 
@@ -17,65 +11,52 @@ type TNoAuth = {
 }
 
 export type TActionBuilderWithOutputData<
-  TRegistry extends TAnyRegistryData,
-  TId extends string,
-  TInput extends TActionInput,
+  TInputActionData extends TActionDataWithInput,
   TOutput extends TActionOutput,
-  TSubmission extends TActionOnSubmit = undefined,
-> = TActionBuilderWithInputData<TRegistry, TId, TInput> &
+  TSubmission extends TActionOnSubmit,
+> = TInputActionData &
   Pick<
-    TActionData<TRegistry, TId, TInput, TOutput, any, TSubmission>,
+    TActionData<
+      TInputActionData["registryData"],
+      TInputActionData["id"],
+      TInputActionData["inputSchema"],
+      TOutput,
+      any,
+      TSubmission
+    >,
     "outputSchema" | "component" | "submissionSchema"
   >
 
-export class ActionBuilderWithOutput<
-  TRegistry extends TAnyRegistryData,
-  TId extends string,
-  TInput extends TActionInput,
-  TOutput extends TActionOutput,
-  TSubmission extends TActionOnSubmit = undefined,
-> {
-  actionData: TActionBuilderWithOutputData<
-    TRegistry,
-    TId,
-    TInput,
-    TOutput,
-    TSubmission
-  >
+export type TActionDataWithOutput = TActionBuilderWithOutputData<
+  TActionDataWithInput,
+  TActionOutput,
+  TActionOnSubmit
+>
 
-  constructor({
-    actionData,
-  }: {
-    actionData: TActionBuilderWithOutputData<
-      TRegistry,
-      TId,
-      TInput,
-      TOutput,
-      TSubmission
-    >
-  }) {
+export class ActionBuilderWithOutput<
+  TLocalActionData extends TActionDataWithOutput,
+> {
+  actionData: TLocalActionData
+
+  constructor({ actionData }: { actionData: TLocalActionData }) {
     this.actionData = actionData
   }
 
   /**
-   * The authentication type for the action. This is used to generate the authentication page for the action and get users authenticated.
+   * The authentication type for the action. This is used to generate the authentication page
+   * for the action and get users authenticated.
    */
   setAuthType(
     type: typeof AuthType.NONE
   ): ActionBuilderWithAuth<
-    TRegistry,
-    TId,
-    TInput,
-    TOutput,
-    TNoAuth,
-    TSubmission
+    TActionBuilderWithAuthData<TLocalActionData, TNoAuth>
   >
   setAuthType(
     type: typeof AuthType.TOKEN
-  ): ActionBuilderWithTokenType<TRegistry, TId, TInput, TOutput, TSubmission>
+  ): ActionBuilderWithTokenType<TLocalActionData>
   setAuthType(
     type: typeof AuthType.OAUTH
-  ): ActionBuilderWithOAuthType<TRegistry, TId, TInput, TOutput, TSubmission>
+  ): ActionBuilderWithOAuthType<TLocalActionData>
 
   setAuthType(type: TAuthType) {
     if (type === AuthType.NONE) {

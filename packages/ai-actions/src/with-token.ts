@@ -1,50 +1,46 @@
 import {
-  TActionInput,
-  TActionOnSubmit,
-  TActionOutput,
-  TAnyRegistryData,
-} from "./action-data"
-import { TTokenAuthConfig, TTokenCustomData } from "./auth"
+  TTokenAuth,
+  TTokenAuthConfigWithInputMetadata,
+  TTokenCustomData,
+} from "./auth"
 import { ActionBuilderWithAuth } from "./with-auth"
-import { TActionBuilderWithOutputData } from "./with-output"
+import { TActionDataWithOutput } from "./with-output"
 
 export class ActionBuilderWithTokenType<
-  TRegistry extends TAnyRegistryData,
-  TId extends string,
-  TInput extends TActionInput,
-  TOutput extends TActionOutput,
-  TSubmission extends TActionOnSubmit = undefined,
+  TLocalActionData extends TActionDataWithOutput,
 > {
-  actionData: TActionBuilderWithOutputData<
-    TRegistry,
-    TId,
-    TInput,
-    TOutput,
-    TSubmission
-  >
+  actionData: TLocalActionData
 
-  constructor({
-    actionData,
-  }: {
-    actionData: TActionBuilderWithOutputData<
-      TRegistry,
-      TId,
-      TInput,
-      TOutput,
-      TSubmission
-    >
-  }) {
+  constructor({ actionData }: { actionData: TLocalActionData }) {
     this.actionData = actionData
   }
 
-  setTokenData = <T extends TTokenCustomData>(data: TTokenAuthConfig<T>) => {
+  setTokenData = <T extends TTokenCustomData>(
+    data: TTokenAuthConfigWithInputMetadata<T, TLocalActionData["registryData"]>
+  ) => {
+    let base = { ...data }
+
+    const schema = this.actionData.registryData.tokenAuthMetadataSchema
+    if (schema) {
+      const safeParsed = schema.safeParse(base)
+      if (!safeParsed.success) {
+        throw new Error(
+          `Invalid token data: ${JSON.stringify(safeParsed.error, null, 2)}`
+        )
+      }
+
+      base = { ...base, ...safeParsed.data }
+    }
+
+    const authConfig = {
+      type: "Token",
+      config: base,
+    } as TTokenAuth<T, TLocalActionData["registryData"]>
+
     return new ActionBuilderWithAuth({
       actionData: {
         ...this.actionData,
-        authConfig: {
-          type: "Token",
-          config: data,
-        },
+        authConfig,
       },
     })
   }

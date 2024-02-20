@@ -1,30 +1,24 @@
-import { TActionInput, TAnyRegistryData } from "./action-data"
+import { TActionData, TActionInput, TAnyRegistryData } from "./action-data"
 import { ActionBuilderWithInput } from "./with-input"
 
-export class ActionBuilder<
+export type TActionBuilderConstructorData<
   TRegistry extends TAnyRegistryData,
   TId extends string,
-> {
-  actionData: {
-    id: TId
-    registryData: TRegistry
-    metadata: TRegistry["metadataSchema"] extends Zod.AnyZodObject
-      ? Zod.input<TRegistry["metadataSchema"]>
-      : undefined
-  }
+> = Pick<
+  TActionData<TRegistry, TId, any, any, any, any>,
+  "metadata" | "id" | "registryData"
+>
 
-  constructor(input: {
-    registryData: TRegistry
-    metadata: TRegistry["metadataSchema"] extends Zod.AnyZodObject
-      ? Zod.input<TRegistry["metadataSchema"]>
-      : undefined
-    id: TId
-  }) {
-    this.actionData = {
-      metadata: input.metadata,
-      registryData: input.registryData,
-      id: input.id,
-    }
+export type TActionBuilderData = TActionBuilderConstructorData<
+  TAnyRegistryData,
+  string
+>
+
+export class ActionBuilder<TLocalActionData extends TActionBuilderData> {
+  actionData: TLocalActionData
+
+  constructor(input: TLocalActionData) {
+    this.actionData = input
   }
 
   /**

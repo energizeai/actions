@@ -1,5 +1,5 @@
 import z from "zod"
-import { TActionAuth, TAuthArg } from "./auth"
+import { TActionAuth, TAnyActionAuth, TAuthArg, TTokenCustomData } from "./auth"
 import { TPassThroughComponent } from "./with-post"
 
 export type TActionMetadata = z.ZodObject<any> | undefined
@@ -7,23 +7,31 @@ export type TActionFunctionExtras = z.ZodObject<any> | undefined
 export type TActionInput = z.ZodObject<any>
 export type TActionOutput = z.ZodObject<any> | z.ZodVoid
 export type TActionOnSubmit = z.ZodObject<any> | undefined
+export type TTokenAuthMetadata = z.ZodObject<any> | undefined
+export type TOAuthMetadata = z.ZodObject<any> | undefined
 
 export type TActionFunction<
-  TExtras extends TActionFunctionExtras,
+  TRegistry extends TAnyRegistryData,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
-  TAuth extends TActionAuth,
-  TSubmission extends TActionOnSubmit = undefined,
+  TAuth extends TAnyActionAuth,
+  TSubmission extends TActionOnSubmit,
 > = (_: {
   input: z.output<TSubmission extends undefined ? TInput : TSubmission>
   auth: TAuthArg<TAuth>
-  extras: TExtras extends z.AnyZodObject ? z.infer<TExtras> : undefined
+  extras: TRegistry["actionFunctionExtrasSchema"] extends infer U
+    ? U extends z.AnyZodObject
+      ? z.infer<U>
+      : undefined
+    : undefined
 }) => Promise<z.infer<TOutput>>
 
 export type TRegistryData<
   TNamespace extends string,
   TMetadata extends TActionMetadata,
   TExtras extends TActionFunctionExtras,
+  TToken extends TTokenAuthMetadata,
+  TOAuth extends TOAuthMetadata,
 > = {
   /**
    * The namespace for the actions registry. Useful if you have multiple action registries.
@@ -45,7 +53,7 @@ export type TRegistryData<
    * })
    * ```
    */
-  metadataSchema: TMetadata
+  metadataSchema?: TMetadata
 
   /**
    * Sometimes you may want to pass extra data to each action function (on top of input and auth). This is useful for things like user data, local time zone, etc.
@@ -62,13 +70,35 @@ export type TRegistryData<
    * })
    * ```
    */
-  actionFunctionExtrasSchema: TExtras
+  actionFunctionExtrasSchema?: TExtras
+
+  /**
+   * The schema for the token auth metadata. Useful if you want to store some extra data with the token.
+   *
+   * ```typescript
+   * z.object({
+   *  tokenGenerationDocumentationURL: z.string().url(),
+   * })
+   */
+  tokenAuthMetadataSchema?: TToken
+
+  /**
+   * The schema for the OAuth metadata. Useful if you want to store some extra data with the OAuth token.
+   *
+   * ```typescript
+   * z.object({
+   *   tokenGenerationDocumentationURL: z.string().url(),
+   * })
+   */
+  oAuthMetadataSchema?: TOAuth
 }
 
 export type TAnyRegistryData = TRegistryData<
   string,
   TActionMetadata,
-  TActionFunctionExtras
+  TActionFunctionExtras,
+  TTokenAuthMetadata,
+  TOAuthMetadata
 >
 
 export type TActionData<
@@ -76,30 +106,40 @@ export type TActionData<
   TId extends string,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
-  TAuth extends TActionAuth,
-  TSubmission extends TActionOnSubmit = undefined,
+  TAuth extends TAnyActionAuth,
+  TSubmission extends TActionOnSubmit,
 > = {
   registryData: TRegistry
   id: TId
-  metadata: TRegistry["metadataSchema"] extends z.AnyZodObject
-    ? z.output<TRegistry["metadataSchema"]>
+  metadata: TRegistry["metadataSchema"] extends infer U
+    ? U extends z.AnyZodObject
+      ? z.output<U>
+      : undefined
     : undefined
   inputSchema: TInput
   submissionSchema?: TSubmission
   outputSchema: TOutput
   authConfig: TAuth
   actionFunction: TActionFunction<
-    TRegistry["actionFunctionExtrasSchema"],
+    TRegistry,
     TInput,
     TOutput,
     TAuth,
     TSubmission
   >
-  component: TPassThroughComponent<
-    TRegistry["metadataSchema"],
-    TInput,
-    TOutput,
-    TSubmission
-  >
-  exampleInput: z.infer<TInput> | null
+  component: TRegistry["metadataSchema"] extends infer U
+    ? U extends TActionMetadata
+      ? TPassThroughComponent<U, TInput, TOutput, TSubmission>
+      : never
+    : never
+  exampleInput: z.input<TInput> | null
 }
+
+export type TAnyActionData = TActionData<
+  TAnyRegistryData,
+  string,
+  TActionInput,
+  TActionOutput,
+  TActionAuth<TAnyRegistryData, TTokenCustomData>,
+  TActionOnSubmit
+>

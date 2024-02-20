@@ -1,20 +1,13 @@
 import z from "zod"
-import { TActionInput, TAnyRegistryData } from "./action-data"
-import { TActionBuilderWithInputData } from "./with-input"
+import { TActionDataWithInput } from "./with-input"
 import { ActionBuilderWithOutput } from "./with-output"
 
 export class ActionBuilderWithGet<
-  TRegistry extends TAnyRegistryData,
-  TId extends string,
-  TInput extends TActionInput,
+  TLocalActionData extends TActionDataWithInput,
 > {
-  actionData: TActionBuilderWithInputData<TRegistry, TId, TInput>
+  actionData: TLocalActionData
 
-  constructor({
-    actionData,
-  }: {
-    actionData: TActionBuilderWithInputData<TRegistry, TId, TInput>
-  }) {
+  constructor({ actionData }: { actionData: TLocalActionData }) {
     this.actionData = actionData
   }
 
@@ -28,7 +21,7 @@ export class ActionBuilderWithGet<
         ...this.actionData,
         submissionSchema: undefined,
         outputSchema: output,
-        component: null!,
+        component: null,
       },
     })
   }

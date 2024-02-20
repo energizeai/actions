@@ -1,31 +1,30 @@
-import { TActionData, TActionInput, TAnyRegistryData } from "./action-data"
+import { TActionBuilderData } from "./action-builder"
+import { TActionData, TActionInput } from "./action-data"
 import { ActionBuilderWithGet } from "./with-get"
 import { ActionBuilderWithPost } from "./with-post"
 
-export type TActionBuilderWithInputData<
-  TRegistry extends TAnyRegistryData,
-  TId extends string,
+type TActionBuilderWithInputData<
+  TBuilderData extends TActionBuilderData,
   TInput extends TActionInput,
-> = Pick<
-  TActionData<TRegistry, TId, TInput, any, any, any>,
-  "metadata" | "inputSchema" | "id" | "registryData"
+> = TBuilderData &
+  Pick<TActionData<any, any, TInput, any, any, any>, "inputSchema">
+
+export type TActionDataWithInput = TActionBuilderWithInputData<
+  TActionBuilderData,
+  TActionInput
 >
 
-type TActionType = "GET" | "POST"
+export type TActionType = "GET" | "POST"
 
 export class ActionBuilderWithInput<
-  TRegistry extends TAnyRegistryData,
-  TId extends string,
-  TInput extends TActionInput,
+  TLocalActionData extends TActionDataWithInput,
 > {
-  actionData: TActionBuilderWithInputData<TRegistry, TId, TInput>
+  actionData: TLocalActionData
 
-  constructor({
-    actionData,
-  }: {
-    actionData: TActionBuilderWithInputData<TRegistry, TId, TInput>
-  }) {
-    this.actionData = actionData
+  constructor({ actionData }: { actionData: TLocalActionData }) {
+    this.actionData = {
+      ...actionData,
+    }
   }
 
   /**
@@ -35,13 +34,16 @@ export class ActionBuilderWithInput<
    *
    * 2.`React Component` that asks for confirmation for the action. This is typically the output for actions that `POST data`. If this is the case, you should specify a React component that asks for confirmation for the action. The output will be `void`.
    */
-  setActionType(type: "GET"): ActionBuilderWithGet<TRegistry, TId, TInput>
-  setActionType(type: "POST"): ActionBuilderWithPost<TRegistry, TId, TInput>
+  setActionType(type: "GET"): ActionBuilderWithGet<TLocalActionData>
+  setActionType(
+    type: "POST"
+  ): ActionBuilderWithPost<TLocalActionData, undefined>
 
   setActionType(output: TActionType) {
     if (output === "POST") {
       return new ActionBuilderWithPost({
         actionData: this.actionData,
+        submissionSchema: undefined,
       })
     } else {
       return new ActionBuilderWithGet({
