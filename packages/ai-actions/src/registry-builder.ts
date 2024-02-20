@@ -130,7 +130,7 @@ type TCreateActionsRegistryFunction<TRegistry extends TAnyRegistryData> = <
 // function to create an action
 type TCreateActionFunction<TRegistry extends TAnyRegistryData> =
   TRegistry["metadataSchema"] extends infer TMetadataSchema
-    ? TMetadataSchema extends TActionMetadata
+    ? TMetadataSchema extends TActionMetadata | unknown
       ? <TId extends string>(
           input: {
             id: TId
