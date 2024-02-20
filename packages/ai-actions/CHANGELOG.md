@@ -1,5 +1,15 @@
 # ai-actions
 
+## 0.3.0
+
+### Minor Changes
+
+- 16baf06: New helper methods `setupActionCaller` and `setupFunctionCalling`
+
+### Patch Changes
+
+- 6fd18a6: fixed bug where metadata couldn't be omitted from the object
+
 ## 0.2.1
 
 ### Patch Changes
