@@ -167,3 +167,104 @@ export const ActionsRegistryMetadataSchema = z.object({
    * ```
    */
 })
+
+/**
+ * Base type for configuring authentication.
+ */
+const AuthConfigBase = z.object({
+  /**
+   * A configuration object for the button users will see before authenticating.
+   */
+  button: z.object({
+    /**
+     * The text to display on the button.
+     *
+     * @example
+     * The following text is used for the `Google Calendar` authentication button.
+     * ```
+     * "Continue with Google"
+     * ```
+     *
+     * @example
+     * The following text is used for the `Linear` authentication button.
+     * ```
+     * "Continue with Linear"
+     * ```
+     */
+    text: z.string(),
+  }),
+
+  /**
+   * The URL to the privacy policy for the authentication.
+   *
+   * @example
+   * The following URL is used for the `Google People API` authentication.
+   * ```
+   * "https://developers.google.com/people/v1/getting-started"
+   * ```
+   */
+  policyReferenceURL: z.string().default(""),
+
+  /**
+   * A human readable name for the scope of the authentication.
+   *
+   * @example
+   * The following name is used for the `Google Calendar` read scope authentication.
+   * ```
+   * "Google Calendar"
+   * ```
+   *
+   * @example
+   * The following name is used for the `Google Contacts` read scope authentication.
+   * ```
+   * "Google Contacts"
+   * ```
+   */
+  humanReadableName: z.string(),
+
+  /**
+   * A human readable description for the scope of the authentication.
+   *
+   * @example
+   * The following description is used for the `Google Calendar` read scope authentication.
+   * ```
+   * "Read-only access to your Google Calendar"
+   * ```
+   *
+   * @example
+   * The following description is used for the `Google Calendar` write scope authentication.
+   * ```
+   * "Read and write access to your Google Calendar"
+   * ```
+   */
+  humanReadableDescription: z.string(),
+})
+
+/**
+ * Configuration for authenticating with an access token that users must generate themselves.
+ *
+ * This is useful for resources that don't support OAuth, but do support API keys.
+ */
+export const TokenAuthMetadataSchema = AuthConfigBase.extend({
+  /**
+   * The URL for documentation on how to generate an access token from the provider.
+   *
+   * This will be displayed for users when they are configuring the action to help them get setup.
+   */
+  generatingTokenReferenceURL: z.string(),
+})
+
+/**
+ * Configuration for OAuth-based authentication.
+ */
+export const OAuth2AuthMetadataSchema = AuthConfigBase.extend({
+  /**
+   * A URL that will take the user to where they can generate their own OAuth app to obtain a client ID and client secret.
+   */
+  oauthAppGenerationURL: z.string(),
+
+  /**
+   * A URL to documentation that helps users understand the OAuth process or set it up.
+   */
+  documentationURL: z.string().optional(),
+})

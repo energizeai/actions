@@ -1,22 +1,22 @@
 import z from "zod"
 import {
-  TActionFunctionExtras,
   TActionInput,
   TActionMetadata,
   TActionOnSubmit,
   TActionOutput,
+  TAnyRegistryData,
 } from "./action-data"
-import { TActionBuilderWithInputData } from "./with-input"
+import { TActionDataWithInput } from "./with-input"
 import { ActionBuilderWithOutput } from "./with-output"
 
 type TActionComponentPropsData<
   TInput extends TActionInput,
-  TOnSubmitValues extends TActionOnSubmit = undefined,
+  TOnSubmitValues extends TActionOnSubmit,
 > = {
   /**
    * The input to the action function. You can use this input to prepopulate the form so all the user has to do is click submit.
    */
-  input: z.infer<TInput>
+  input: z.output<TInput>
 
   /**
    * Indicates whether the action function is currently running.
@@ -46,10 +46,10 @@ type TActionComponentPropsData<
 export type TActionComponentProps<
   TMetadata extends TActionMetadata,
   TInput extends TActionInput,
-  TOnSubmitValues extends TActionOnSubmit = undefined,
+  TOnSubmitValues extends TActionOnSubmit,
 > = {
   inputSchema: TInput
-  metadata: TMetadata extends z.AnyZodObject ? z.input<TMetadata> : undefined
+  metadata: TMetadata extends z.AnyZodObject ? z.output<TMetadata> : undefined
 } & (
   | {
       /**
@@ -79,14 +79,14 @@ export type TActionComponentProps<
 export type TActionComponent<
   TMetadata extends TActionMetadata,
   TInput extends TActionInput,
-  TOnSubmitValues extends TActionOnSubmit = undefined,
+  TOnSubmitValues extends TActionOnSubmit,
 > = React.FC<TActionComponentProps<TMetadata, TInput, TOnSubmitValues>>
 
 export type TPassThroughComponent<
   TMetadata extends TActionMetadata,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
-  TOnSubmitValues extends TActionOnSubmit = undefined,
+  TOnSubmitValues extends TActionOnSubmit,
 > = TOutput extends z.ZodVoid
   ? TActionComponent<TMetadata, TInput, TOnSubmitValues>
   : null
@@ -96,62 +96,53 @@ export type TPassThroughComponent<
  * This component should be a form asking for confirmation to submit the input to the action function.
  */
 export class ActionBuilderWithPost<
-  TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
-  TInput extends TActionInput,
-  TSubmission extends TActionOnSubmit = undefined,
+  TLocalActionData extends TActionDataWithInput,
+  TSubmission extends TActionOnSubmit,
 > {
-  actionData: TActionBuilderWithInputData<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput
-  > & {
-    submissionSchema?: TSubmission
-  }
+  actionData: TLocalActionData
+  submissionSchema: TSubmission
 
   constructor({
     actionData,
     submissionSchema,
   }: {
-    actionData: TActionBuilderWithInputData<
-      TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      TInput
-    >
-    submissionSchema?: TSubmission
+    actionData: TLocalActionData
+    submissionSchema: TSubmission
   }) {
-    this.actionData = { ...actionData, submissionSchema }
+    this.actionData = actionData
+    this.submissionSchema = submissionSchema
   }
 
   setComponentSubmissionSchema<T extends TActionInput>(
     submissionSchema: T
-  ): ActionBuilderWithPost<TId, TNamespace, TMetadata, TExtras, TInput, T> {
+  ): ActionBuilderWithPost<TLocalActionData, T> {
     return new ActionBuilderWithPost({
       actionData: this.actionData,
-      submissionSchema: submissionSchema,
+      submissionSchema,
     })
   }
 
   setOutputComponent(
-    component: React.FC<TActionComponentProps<TMetadata, TInput, TSubmission>>
-  ): ActionBuilderWithOutput<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput,
-    z.ZodVoid,
-    TSubmission
-  > {
+    component: TLocalActionData["registryData"] extends infer TRegistry
+      ? TRegistry extends TAnyRegistryData
+        ? TLocalActionData["inputSchema"] extends infer TInput
+          ? TRegistry["metadataSchema"] extends infer TMetadata
+            ? TInput extends TActionInput
+              ? TMetadata extends TActionMetadata
+                ? React.FC<
+                    TActionComponentProps<TMetadata, TInput, TSubmission>
+                  >
+                : never
+              : never
+            : never
+          : never
+        : never
+      : never
+  ) {
     return new ActionBuilderWithOutput({
       actionData: {
         ...this.actionData,
+        submissionSchema: this.submissionSchema,
         outputSchema: z.void(),
         component,
       },

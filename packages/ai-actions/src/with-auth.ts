@@ -1,83 +1,27 @@
-import {
-  TActionData,
-  TActionFunction,
-  TActionFunctionExtras,
-  TActionInput,
-  TActionMetadata,
-  TActionOnSubmit,
-  TActionOutput,
-} from "./action-data"
-import { TActionAuth } from "./auth"
+import { TActionFunction } from "./action-data"
+import { TActionAuth, TAnyActionAuth, TTokenCustomData } from "./auth"
 import { ActionBuilderWithFunction } from "./with-function"
-import { TActionBuilderWithOutputData } from "./with-output"
+import { TActionDataWithOutput } from "./with-output"
 
 export type TActionBuilderWithAuthData<
-  TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
-  TInput extends TActionInput,
-  TOutput extends TActionOutput,
-  TAuth extends TActionAuth,
-  TSubmission extends TActionOnSubmit = undefined,
-> = TActionBuilderWithOutputData<
-  TId,
-  TNamespace,
-  TMetadata,
-  TExtras,
-  TInput,
-  TOutput,
-  TSubmission
-> &
-  Pick<
-    TActionData<
-      TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      TInput,
-      TOutput,
-      TAuth,
-      TSubmission
-    >,
-    "authConfig"
-  >
+  TOutputActionData extends TActionDataWithOutput,
+  TAuth extends TActionAuth<
+    TOutputActionData["registryData"],
+    TTokenCustomData
+  >,
+> = TOutputActionData & { authConfig: TAuth }
+
+export type TActionDataWithAuth = TActionBuilderWithAuthData<
+  TActionDataWithOutput,
+  TAnyActionAuth
+>
 
 export class ActionBuilderWithAuth<
-  TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
-  TInput extends TActionInput,
-  TOutput extends TActionOutput,
-  TAuth extends TActionAuth,
-  TSubmission extends TActionOnSubmit = undefined,
+  TLocalActionData extends TActionDataWithAuth,
 > {
-  actionData: TActionBuilderWithAuthData<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput,
-    TOutput,
-    TAuth,
-    TSubmission
-  >
+  actionData: TLocalActionData
 
-  constructor({
-    actionData,
-  }: {
-    actionData: TActionBuilderWithAuthData<
-      TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      TInput,
-      TOutput,
-      TAuth,
-      TSubmission
-    >
-  }) {
+  constructor({ actionData }: { actionData: TLocalActionData }) {
     this.actionData = actionData
   }
 
@@ -112,11 +56,11 @@ export class ActionBuilderWithAuth<
 
   setActionFunction(
     actionFunction: TActionFunction<
-      TExtras,
-      TInput,
-      TOutput,
-      TAuth,
-      TSubmission
+      TLocalActionData["registryData"],
+      TLocalActionData["inputSchema"],
+      TLocalActionData["outputSchema"],
+      TLocalActionData["authConfig"],
+      TLocalActionData["submissionSchema"]
     >
   ) {
     return new ActionBuilderWithFunction({

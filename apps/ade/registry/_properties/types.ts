@@ -1,4 +1,4 @@
-import { filterActionRegistryByAuthType } from "ai-actions"
+import { filterActionRegistryByAuthType, generateActionIdMap } from "ai-actions"
 import { ActionsRegistry } from ".."
 
 type TActionId = keyof typeof ActionsRegistry
@@ -28,6 +28,8 @@ type TAction = (typeof ActionsRegistry)[TActionId]
 type TNoAuthAction = (typeof ActionsRegistry)[TNoAuthActionId]
 type TOAuthAction = (typeof ActionsRegistry)[TOAuthActionId]
 type TTokenAction = (typeof ActionsRegistry)[TTokenActionId]
+
+export const ActionIds = generateActionIdMap(ActionsRegistry)
 
 export {
   type TAction,

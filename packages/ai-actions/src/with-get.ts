@@ -1,38 +1,13 @@
 import z from "zod"
-import {
-  TActionFunctionExtras,
-  TActionInput,
-  TActionMetadata,
-} from "./action-data"
-import { TActionBuilderWithInputData } from "./with-input"
+import { TActionDataWithInput } from "./with-input"
 import { ActionBuilderWithOutput } from "./with-output"
 
 export class ActionBuilderWithGet<
-  TId extends string,
-  TNamespace extends string,
-  TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
-  TInput extends TActionInput,
+  TLocalActionData extends TActionDataWithInput,
 > {
-  actionData: TActionBuilderWithInputData<
-    TId,
-    TNamespace,
-    TMetadata,
-    TExtras,
-    TInput
-  >
+  actionData: TLocalActionData
 
-  constructor({
-    actionData,
-  }: {
-    actionData: TActionBuilderWithInputData<
-      TId,
-      TNamespace,
-      TMetadata,
-      TExtras,
-      TInput
-    >
-  }) {
+  constructor({ actionData }: { actionData: TLocalActionData }) {
     this.actionData = actionData
   }
 
@@ -46,7 +21,7 @@ export class ActionBuilderWithGet<
         ...this.actionData,
         submissionSchema: undefined,
         outputSchema: output,
-        component: null!,
+        component: null,
       },
     })
   }

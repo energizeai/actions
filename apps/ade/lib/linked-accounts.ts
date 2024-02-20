@@ -90,8 +90,14 @@ export const getAccessToken = async (linkedAccount: LinkedAccount) => {
   const authConfig = ActionsRegistry[linkedAccount.actionId].getAuthConfig()
 
   if (authConfig.type === "None") {
-    return null
+    throw new Error("Action does not require authentication")
   }
 
-  return await refreshTokenIfNeeded(linkedAccount)
+  const token = await refreshTokenIfNeeded(linkedAccount)
+
+  if (!token) {
+    throw new Error("Could not get access token for action")
+  }
+
+  return token
 }
