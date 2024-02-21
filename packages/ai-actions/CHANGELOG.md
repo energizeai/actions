@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.3.3
+
+### Patch Changes
+
+- fb9c0ec: Added both unparsed and parsed arguments to the caller results (successes and errors)
+
 ## 0.3.2
 
 ### Patch Changes
