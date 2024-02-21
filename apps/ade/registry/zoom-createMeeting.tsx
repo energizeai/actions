@@ -77,7 +77,7 @@ const CreateMeetingAction = createADEAction({
     tokenEndpoint: "https://zoom.us/oauth/token",
     revokeEndpoint: "https://zoom.us/oauth/revoke",
     codeChallengeMethod: null,
-    scopes: ["meeting:write:admin", "user:read:admin", "meeting:master"],
+    scopes: ["meeting:write:admin", "user:read:admin"],
     oauthAppGenerationURL: "https://marketplace.zoom.us/develop/create",
   })
 
@@ -90,6 +90,8 @@ const CreateMeetingAction = createADEAction({
 
     // Get Zoom userID
     var url = `https://api.zoom.us/v2/users/${userData.email}`
+
+    console.log(url)
 
     const headers = {
       'Authorization': `Bearer ${auth.accessToken}`,
@@ -128,7 +130,7 @@ const CreateMeetingAction = createADEAction({
       }
     }
 
-    url = `https://api.zoom.us/v2/accounts/me/users/${userId}/meetings`
+    url = `https://api.zoom.us/v2/users/${userId}/meetings`
   
     const response2 = await fetch(url, {
       method: 'POST',

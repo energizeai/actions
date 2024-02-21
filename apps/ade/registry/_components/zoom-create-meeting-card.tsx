@@ -222,7 +222,8 @@ const ZoomCreateMeetingCard: TZoomCreateMeetingCard = ({ data, displayState, inp
                 </FormItem>
               )}
             />
-            <FormField
+            {/* IDO TODO: Raising an error for some reason on the onChange */}
+            {/* <FormField
               control={form.control}
               name="settings.meeting_invitees"
               render={({ field: { onChange, value, ...restField } }) => (
@@ -269,7 +270,7 @@ const ZoomCreateMeetingCard: TZoomCreateMeetingCard = ({ data, displayState, inp
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
           </CardContent>
           <CardFooter className="justify-end gap-2">
             <Button
