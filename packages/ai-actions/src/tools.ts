@@ -148,7 +148,7 @@ export const setupFunctionCalling = <
 
       const message: OpenAI.Chat.Completions.ChatCompletionToolMessageParam = {
         role: "tool",
-        tool_call_id: result.inputId,
+        tool_call_id: result.id,
         content:
           result.status === "error"
             ? JSON.stringify({
