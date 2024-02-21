@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.3.1
+
+### Patch Changes
+
+- 4bcc45c: Optimize setup action caller types to avoid recursion errors.
+
 ## 0.3.0
 
 ### Minor Changes
