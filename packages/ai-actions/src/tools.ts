@@ -134,6 +134,7 @@ export const setupFunctionCalling = <
             ({
               actionId: toolCall.function.name,
               arguments: JSON.parse(toolCall.function.arguments),
+              id: toolCall.id,
             }) as TActionCallerInput<T, TActionRegistrySubset<T, U>>
         )
     )
@@ -141,16 +142,13 @@ export const setupFunctionCalling = <
     const toolCallMessages: OpenAI.Chat.Completions.ChatCompletionToolMessageParam[] =
       []
 
-    for (const [ix, result] of results.entries()) {
+    for (const result of results) {
       if (result.status === "error" && !includeErrorsInToolCallMessages)
         continue
 
-      const toolCall = toolCalls[ix]
-      if (!toolCall) continue // should never happen
-
       const message: OpenAI.Chat.Completions.ChatCompletionToolMessageParam = {
         role: "tool",
-        tool_call_id: toolCall.id,
+        tool_call_id: result.inputId,
         content:
           result.status === "error"
             ? JSON.stringify({
