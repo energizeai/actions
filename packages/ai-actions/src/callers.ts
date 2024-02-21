@@ -18,6 +18,7 @@ export type TActionCallerInput<
   [K in TId]: {
     actionId: K
     arguments: z.input<ReturnType<TRegistry[K]["getInputSchema"]>>
+    id?: string
   }
 }>
 
@@ -225,7 +226,7 @@ export const setupActionCaller = <
         continue
       }
 
-      const inputId = Math.random().toString(36).substring(7) // generate a random ID for ordering the results
+      const inputId = input.id || Math.random().toString(36).substring(7)
       inputIdOrdered.push(inputId)
 
       if (!registry[actionId]) {
