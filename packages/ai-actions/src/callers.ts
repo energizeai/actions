@@ -28,7 +28,9 @@ export type TCallerSuccessResult<
   status: "success"
   data: z.output<ReturnType<TAction["getOutputSchema"]>>
   actionId: ReturnType<TAction["getId"]>
-  inputId: string
+  id: string
+  arguments: z.input<ReturnType<TAction["getInputSchema"]>>
+  parsedArguments: z.output<ReturnType<TAction["getInputSchema"]>>
 }
 
 export type TCallerErrorResult<TAction extends ActionBuilderWithFunction<any>> =
@@ -37,7 +39,11 @@ export type TCallerErrorResult<TAction extends ActionBuilderWithFunction<any>> =
     message: string
     cause?: Error
     actionId: ReturnType<TAction["getId"]>
-    inputId: string
+    id: string
+    failedArguments: z.input<ReturnType<TAction["getInputSchema"]>>
+    failedParsedArguments: z.output<
+      ReturnType<TAction["getInputSchema"]>
+    > | null
   }
 
 export type TActionRegistrySubset<
@@ -237,7 +243,9 @@ export const setupActionCaller = <
             `The action with the ID ${JSON.stringify(actionId)} does not exist.`
           ),
           actionId,
-          inputId,
+          id: inputId,
+          failedArguments: input.arguments,
+          failedParsedArguments: null,
         })
         continue
       }
@@ -259,7 +267,9 @@ export const setupActionCaller = <
           cause: functionArgs.error,
           message: functionArgs.error.message,
           actionId,
-          inputId,
+          id: inputId,
+          failedArguments: input.arguments,
+          failedParsedArguments: null,
         })
         continue
       }
@@ -278,7 +288,9 @@ export const setupActionCaller = <
                 status: "error",
                 message: `The action with the ID ${JSON.stringify(actionId)} requires OAuth authentication, but no fetchOAuthAccessToken function was provided.`,
                 actionId,
-                inputId,
+                id: inputId,
+                failedArguments: input.arguments,
+                failedParsedArguments: functionArgs.data,
               })
               return
             }
@@ -295,7 +307,9 @@ export const setupActionCaller = <
                 status: "error",
                 message: `The action with the ID ${JSON.stringify(actionId)} requires Token authentication, but no fetchTokenAuthData function was provided.`,
                 actionId,
-                inputId,
+                id: inputId,
+                failedArguments: input.arguments,
+                failedParsedArguments: functionArgs.data,
               })
               return
             }
@@ -332,14 +346,18 @@ export const setupActionCaller = <
               status: "success",
               data: parsed,
               actionId,
-              inputId,
+              id: inputId,
+              parsedArguments: functionArgs.data,
+              arguments: input.arguments,
             })
           } else {
             results.push({
               status: "success",
               data: undefined,
               actionId,
-              inputId,
+              id: inputId,
+              parsedArguments: functionArgs.data,
+              arguments: input.arguments,
             })
           }
         } catch (error: unknown) {
@@ -351,7 +369,9 @@ export const setupActionCaller = <
                 ? (error as unknown as { message: string })["message"]
                 : "Unknown error",
             actionId,
-            inputId,
+            id: inputId,
+            failedParsedArguments: functionArgs.data,
+            failedArguments: input.arguments,
           })
         }
       }
@@ -370,8 +390,8 @@ export const setupActionCaller = <
 
     // sort the results by the input order
     results.sort((a, b) => {
-      const aIndex = inputIdOrdered.indexOf(a.inputId)
-      const bIndex = inputIdOrdered.indexOf(b.inputId)
+      const aIndex = inputIdOrdered.indexOf(a.id)
+      const bIndex = inputIdOrdered.indexOf(b.id)
       return aIndex - bIndex
     })
 
