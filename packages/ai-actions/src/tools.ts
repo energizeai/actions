@@ -2,6 +2,7 @@ import OpenAI from "openai"
 import { zodToJsonSchema } from "zod-to-json-schema"
 import {
   TActionCallerInput,
+  TActionRegistrySubset,
   TCallerResults,
   TFunctionCallingArgs,
   setupActionCaller,
@@ -74,6 +75,18 @@ export const generateLLMTools = <
   return tools
 }
 
+type TToolCallHandler<
+  T extends Readonly<{
+    [key: string]: ActionBuilderWithFunction<any>
+  }>,
+  U extends (keyof T)[] | undefined,
+> = (
+  toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
+) => Promise<{
+  toolCallMessages: OpenAI.Chat.Completions.ChatCompletionToolMessageParam[]
+  results: TCallerResults<T, TActionRegistrySubset<T, U>>
+}>
+
 export const setupFunctionCalling = <
   TActionData extends TActionDataWithFunction,
   const T extends Readonly<{
@@ -94,17 +107,14 @@ export const setupFunctionCalling = <
   }
 ): {
   tools: OpenAI.Chat.Completions.ChatCompletionTool[]
-  toolCallsHandler: (
-    toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
-  ) => Promise<{
-    toolCallMessages: OpenAI.Chat.Completions.ChatCompletionToolMessageParam[]
-    results: TCallerResults<T, U>
-  }>
+  toolCallsHandler: TToolCallHandler<T, U>
 } => {
   const { inArray } = args
 
   const actionIds: (keyof T)[] =
     inArray || (Object.keys(registry) as (keyof T)[])
+
+  const validActionIds = new Set(actionIds)
 
   const tools = generateLLMTools(registry, {
     inArray: actionIds,
@@ -113,19 +123,19 @@ export const setupFunctionCalling = <
   const includeErrorsInToolCallMessages =
     args.includeErrorsInToolCallMessages || false
 
-  const toolCallsHandler = async (
-    toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
-  ) => {
+  const toolCallsHandler: TToolCallHandler<T, U> = async (toolCalls) => {
     const { actionCaller } = setupActionCaller(registry, args)
 
     const results = await actionCaller(
-      toolCalls.map(
-        (toolCall) =>
-          ({
-            actionId: toolCall.function.name,
-            arguments: JSON.parse(toolCall.function.arguments),
-          }) as TActionCallerInput<T, U>
-      )
+      toolCalls
+        .filter((toolCall) => validActionIds.has(toolCall.function.name))
+        .map(
+          (toolCall) =>
+            ({
+              actionId: toolCall.function.name,
+              arguments: JSON.parse(toolCall.function.arguments),
+            }) as TActionCallerInput<T, TActionRegistrySubset<T, U>>
+        )
     )
 
     const toolCallMessages: OpenAI.Chat.Completions.ChatCompletionToolMessageParam[] =

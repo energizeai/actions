@@ -12,46 +12,45 @@ type TAnyActionRegistry = Readonly<{
 }>
 
 export type TActionCallerInput<
-  T extends TAnyActionRegistry,
-  U extends (keyof T)[] | undefined = undefined,
+  TRegistry extends TAnyActionRegistry,
+  TId extends keyof TRegistry,
 > = ValuesOf<{
-  [K in keyof T as U extends undefined
-    ? K
-    : U extends (keyof T)[]
-      ? K extends U[number]
-        ? K
-        : never
-      : never]: {
+  [K in TId]: {
     actionId: K
-    arguments: z.input<ReturnType<T[K]["getInputSchema"]>>
+    arguments: z.input<ReturnType<TRegistry[K]["getInputSchema"]>>
   }
 }>
 
-export type TCallerSuccessResult<T extends ActionBuilderWithFunction<any>> = {
+export type TCallerSuccessResult<
+  TAction extends ActionBuilderWithFunction<any>,
+> = {
   status: "success"
-  data: z.output<ReturnType<T["getOutputSchema"]>>
-  actionId: ReturnType<T["getId"]>
+  data: z.output<ReturnType<TAction["getOutputSchema"]>>
+  actionId: ReturnType<TAction["getId"]>
   inputId: string
 }
 
-export type TCallerErrorResult<T extends ActionBuilderWithFunction<any>> = {
-  status: "error"
-  message: string
-  cause?: Error
-  actionId: ReturnType<T["getId"]>
-  inputId: string
-}
+export type TCallerErrorResult<TAction extends ActionBuilderWithFunction<any>> =
+  {
+    status: "error"
+    message: string
+    cause?: Error
+    actionId: ReturnType<TAction["getId"]>
+    inputId: string
+  }
 
-type KeySubset<
-  T extends TAnyActionRegistry,
-  U extends (keyof T)[] | undefined = undefined,
-> = U extends (keyof T)[] ? U[number] : keyof T
+export type TActionRegistrySubset<
+  TRegistry extends TAnyActionRegistry,
+  TSubset extends (keyof TRegistry)[] | undefined = undefined,
+> = TSubset extends (keyof TRegistry)[] ? TSubset[number] : keyof TRegistry
 
 export type TCallerResults<
-  T extends TAnyActionRegistry,
-  U extends (keyof T)[] | undefined = undefined,
+  TRegistry extends TAnyActionRegistry,
+  TId extends keyof TRegistry,
 > = ValuesOf<{
-  [K in KeySubset<T, U>]: TCallerErrorResult<T[K]> | TCallerSuccessResult<T[K]>
+  [K in TId]:
+    | TCallerSuccessResult<TRegistry[K]>
+    | TCallerErrorResult<TRegistry[K]>
 }>[]
 
 // infer the function extras needed based on the action registry
@@ -75,29 +74,41 @@ type inferExtras<
 type filterByAuthType<
   T extends TAnyActionRegistry,
   U extends TAuthType,
-  TSubset extends (keyof T)[] | undefined,
+  TId extends keyof T,
   TSuccess,
 > = {
-  [K in keyof T as ReturnType<T[K]["getAuthConfig"]>["type"] extends U
-    ? TSubset extends undefined
-      ? K
-      : TSubset extends (keyof T)[]
-        ? K extends TSubset[number]
-          ? K
-          : never
-        : never
+  [K in TId as ReturnType<T[K]["getAuthConfig"]>["type"] extends U
+    ? K
     : never]: TSuccess
 }
 
+/**
+ * A function that fetches the OAuth access token for an action.
+ *
+ * @param actionId The ID of the action to fetch the OAuth access token for.
+ * @returns A promise that resolves to the OAuth access token as { accessToken: string }.
+ *
+ * @throws An error if the OAuth access token could not be fetched.
+ *
+ * @example
+ * ```ts
+ * async fetchOAuthAccessToken(actionId) {
+ *    ...fetch the OAuth access token...
+ *    return {
+ *        accessToken: "the access token"
+ *    }
+ * }
+ *
+ */
 type TFetchOAuthAccessToken<T> = (
   actionId: T
 ) => Promise<{ accessToken: string }>
 
 type inferOAuthFunction<
-  T extends TAnyActionRegistry,
-  U extends (keyof T)[] | undefined,
+  TRegistry extends TAnyActionRegistry,
+  TId extends keyof TRegistry,
 > =
-  filterByAuthType<T, "OAuth", U, 1> extends infer A
+  filterByAuthType<TRegistry, "OAuth", TId, 1> extends infer A
     ? keyof A extends never
       ? {}
       : {
@@ -111,10 +122,10 @@ type TFetchTokenAuthData<T> = (actionId: T) => Promise<{
 }>
 
 type inferTokenFunction<
-  T extends TAnyActionRegistry,
-  U extends (keyof T)[] | undefined,
+  TRegistry extends TAnyActionRegistry,
+  TId extends keyof TRegistry,
 > =
-  filterByAuthType<T, "Token", U, 1> extends infer A
+  filterByAuthType<TRegistry, "Token", TId, 1> extends infer A
     ? keyof A extends never
       ? {}
       : {
@@ -123,28 +134,38 @@ type inferTokenFunction<
     : {}
 
 export type TFunctionCallingArgs<
-  T extends TAnyActionRegistry,
-  U extends (keyof T)[] | undefined = undefined,
+  TRegistry extends TAnyActionRegistry,
+  U extends (keyof TRegistry)[] | undefined = undefined,
 > = {
   inArray?: U
   runInParallel?: boolean
-} & inferExtras<TActionDataWithFunction, T> &
-  inferOAuthFunction<T, U> &
-  inferTokenFunction<T, U>
+} & inferExtras<TActionDataWithFunction, TRegistry> &
+  inferOAuthFunction<TRegistry, TActionRegistrySubset<TRegistry, U>> &
+  inferTokenFunction<TRegistry, TActionRegistrySubset<TRegistry, U>>
+
+type TActionCaller<
+  TActionData extends TActionDataWithFunction,
+  TRegistry extends Readonly<{
+    [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
+  }>,
+  U extends (keyof TRegistry)[] | undefined = undefined,
+> = (
+  inputs: TActionCallerInput<TRegistry, TActionRegistrySubset<TRegistry, U>>[]
+) => Promise<TCallerResults<TRegistry, TActionRegistrySubset<TRegistry, U>>>
 
 export const setupActionCaller = <
   TActionData extends TActionDataWithFunction,
-  const T extends Readonly<{
+  const TRegistry extends Readonly<{
     [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
   }>,
-  U extends (keyof T)[] | undefined = undefined,
+  U extends (keyof TRegistry)[] | undefined = undefined,
 >(
   /**
    * The registry of actions.
    */
-  registry: T,
+  registry: TRegistry,
 
-  args: TFunctionCallingArgs<T, U>
+  args: TFunctionCallingArgs<TRegistry, U>
 ): {
   /**
    * A function that calls the actions.
@@ -154,14 +175,15 @@ export const setupActionCaller = <
    * @param inputs The inputs to the actions.
    * @returns The results of the actions.
    */
-  actionCaller: (
-    inputs: TActionCallerInput<T, U>[]
-  ) => Promise<TCallerResults<T, U>>
+  actionCaller: TActionCaller<TActionData, TRegistry, U>
 } => {
   const { inArray } = args
 
-  const actionIds: (keyof T)[] =
-    inArray || (Object.keys(registry) as (keyof T)[])
+  const actionIds: (keyof TRegistry)[] =
+    inArray || (Object.keys(registry) as (keyof TRegistry)[])
+
+  const validActionIds = new Set(actionIds)
+
   const runInParallel = args.runInParallel || false
 
   // get the extras
@@ -185,8 +207,10 @@ export const setupActionCaller = <
     }
   }
 
-  const actionCaller = async (inputs: TActionCallerInput<T, U>[]) => {
-    const results: TCallerResults<T, U> = []
+  type ActionCaller = TActionCaller<TActionData, TRegistry, U>
+
+  const actionCaller: ActionCaller = async (inputs) => {
+    const results: Awaited<ReturnType<ActionCaller>> = []
     const promises: Promise<void>[] = []
 
     const inputIdOrdered: string[] = []
@@ -195,6 +219,11 @@ export const setupActionCaller = <
     for (const input of inputs) {
       const actionId =
         input.actionId as unknown as (typeof results)[number]["actionId"]
+
+      // ignore the input if the action ID is not valid
+      if (!validActionIds.has(actionId)) {
+        continue
+      }
 
       const inputId = Math.random().toString(36).substring(7) // generate a random ID for ordering the results
       inputIdOrdered.push(inputId)
