@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.3.2
+
+### Patch Changes
+
+- ba644e5: Added ability to pass an ID alongside TActionCallerInput
+
 ## 0.3.1
 
 ### Patch Changes
