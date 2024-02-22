@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.4.0
+
+### Minor Changes
+
+- 3ae3232: Ability to set function names for each action that will take the place of the Action ID. This is useful when you want your IDs to be slugs and the function names to be camel case.
+
 ## 0.3.3
 
 ### Patch Changes
