@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.4.1
+
+### Patch Changes
+
+- ca70872: filterActionRegistryByActionType was working backwards, filtering for POST when asking for GET and vice versa. This should be fixed now.
+
 ## 0.4.0
 
 ### Minor Changes
