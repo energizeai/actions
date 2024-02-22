@@ -64,7 +64,7 @@ export const actionsRouter = createTRPCRouter({
 
       const results = await actionCaller([
         {
-          actionId: input.actionId,
+          name: ActionsRegistry[input.actionId].getFunctionName(),
           arguments: JSON.parse(input.inputDataAsString),
         },
       ])
