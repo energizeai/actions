@@ -105,9 +105,9 @@ export const filterActionRegistryByActionType = <
       : never]: T[K]
 } => {
   return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (actionType === "GET" && action.getOutputSchema() === z.void()) {
+    if (actionType === "GET" && action.getOutputSchema() !== z.void()) {
       acc[id] = action
-    } else if (actionType === "POST" && action.getOutputSchema() !== z.void()) {
+    } else if (actionType === "POST" && action.getOutputSchema() === z.void()) {
       acc[id] = action
     }
     return acc
