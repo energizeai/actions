@@ -87,7 +87,7 @@ export type TRegistryData<
    *
    * ```typescript
    * z.object({
-   *   tokenGenerationDocumentationURL: z.string().url(),
+   *   oauthAppGenerationDocumentationURL: z.string().url(),
    * })
    */
   oAuthMetadataSchema?: TOAuth
@@ -104,6 +104,7 @@ export type TAnyRegistryData = TRegistryData<
 export type TActionData<
   TRegistry extends TAnyRegistryData,
   TId extends string,
+  TFunctionName extends string,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TAnyActionAuth,
@@ -111,6 +112,7 @@ export type TActionData<
 > = {
   registryData: TRegistry
   id: TId
+  functionName: TFunctionName
   metadata: TRegistry["metadataSchema"] extends infer U
     ? U extends z.AnyZodObject
       ? z.output<U>
@@ -137,6 +139,7 @@ export type TActionData<
 
 export type TAnyActionData = TActionData<
   TAnyRegistryData,
+  string,
   string,
   TActionInput,
   TActionOutput,

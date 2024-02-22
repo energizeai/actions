@@ -1,5 +1,4 @@
 import OpenAI from "openai"
-import { zodToJsonSchema } from "zod-to-json-schema"
 import {
   TActionCallerInput,
   TActionRegistrySubset,
@@ -52,24 +51,7 @@ export const generateLLMTools = <
     const action = registry[id]
     if (!action) continue // should never happen
 
-    const jsonSchema = zodToJsonSchema(action.getInputSchema()) as any
-    let description = `${
-      jsonSchema["description"] || "No description was provided."
-    }`
-
-    delete jsonSchema["$schema"]
-    delete jsonSchema["$ref"]
-    delete jsonSchema["additionalProperties"]
-    delete jsonSchema["description"]
-
-    tools.push({
-      type: "function",
-      function: {
-        name: action.getId(),
-        description,
-        parameters: jsonSchema,
-      },
-    })
+    tools.push(action.getChatCompletionTool())
   }
 
   return tools
@@ -116,6 +98,13 @@ export const setupFunctionCalling = <
 
   const validActionIds = new Set(actionIds)
 
+  const functionNameToActionIdMap: Record<string, keyof T> = {}
+  for (const actionId of actionIds) {
+    const action = registry[actionId]
+    if (!action) continue
+    functionNameToActionIdMap[action.getFunctionName()] = actionId
+  }
+
   const tools = generateLLMTools(registry, {
     inArray: actionIds,
   })
@@ -128,11 +117,14 @@ export const setupFunctionCalling = <
 
     const results = await actionCaller(
       toolCalls
-        .filter((toolCall) => validActionIds.has(toolCall.function.name))
+        .filter((toolCall) => {
+          const actionId = functionNameToActionIdMap[toolCall.function.name]
+          return actionId && validActionIds.has(actionId)
+        })
         .map(
           (toolCall) =>
             ({
-              actionId: toolCall.function.name,
+              name: toolCall.function.name,
               arguments: JSON.parse(toolCall.function.arguments),
               id: toolCall.id,
             }) as TActionCallerInput<T, TActionRegistrySubset<T, U>>

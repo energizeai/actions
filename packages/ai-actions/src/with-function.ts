@@ -1,3 +1,4 @@
+import OpenAI from "openai"
 import z from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
 import { TActionData } from "./action-data"
@@ -13,6 +14,7 @@ export type TActionBuilderWithFunctionData<
           TActionData<
             TAuthActionData["registryData"],
             TAuthActionData["id"],
+            TAuthActionData["functionName"],
             TAuthActionData["inputSchema"],
             TAuthActionData["outputSchema"],
             U,
@@ -90,5 +92,30 @@ export class ActionBuilderWithFunction<
 
   getRegistryData(): TLocalActionData["registryData"] {
     return this.actionData.registryData
+  }
+
+  getFunctionName(): TLocalActionData["functionName"] {
+    return this.actionData.functionName
+  }
+
+  getChatCompletionTool(): OpenAI.Chat.Completions.ChatCompletionTool {
+    const jsonSchema = zodToJsonSchema(this.getInputSchema()) as any
+    let description = `${
+      jsonSchema["description"] || "No description was provided."
+    }`
+
+    delete jsonSchema["$schema"]
+    delete jsonSchema["$ref"]
+    delete jsonSchema["additionalProperties"]
+    delete jsonSchema["description"]
+
+    return {
+      type: "function",
+      function: {
+        name: this.getFunctionName(),
+        description,
+        parameters: jsonSchema,
+      },
+    }
   }
 }

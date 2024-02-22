@@ -131,13 +131,16 @@ type TCreateActionsRegistryFunction<TRegistry extends TAnyRegistryData> = <
 type TCreateActionFunction<TRegistry extends TAnyRegistryData> =
   TRegistry["metadataSchema"] extends infer TMetadataSchema
     ? TMetadataSchema extends TActionMetadata | unknown
-      ? <TId extends string>(
+      ? <TId extends string, TFunctionName extends string = TId>(
           input: {
             id: TId
+            functionName?: TFunctionName
           } & (TMetadataSchema extends z.AnyZodObject
             ? { metadata: z.input<TMetadataSchema> }
             : {})
-        ) => ActionBuilder<TActionBuilderConstructorData<TRegistry, TId>>
+        ) => ActionBuilder<
+          TActionBuilderConstructorData<TRegistry, TId, TFunctionName>
+        >
       : never
     : never
 
@@ -203,7 +206,10 @@ export const generateActionRegistryFunctions = <
         }, {} as any)
       ) as TActionsRegistry<TRegistry, T>
     },
-    [`create${args.namespace}Action`]: <TId extends string>(input: {
+    [`create${args.namespace}Action`]: <
+      TId extends string,
+      TFunctionName extends string = TId,
+    >(input: {
       /**
        * The metadata for the action. This is used to validate the arguments passed to the action.
        */
@@ -225,11 +231,24 @@ export const generateActionRegistryFunctions = <
        * ```
        */
       id: TId
+
+      /**
+       * The name of the function to call for the action. This is used to reference the function in the registry.
+       *
+       * If you don't provide a function name, the action id will be used as the function name.
+       *
+       * @example
+       * ```
+       * functionName: "searchEmailInbox"
+       * ```
+       */
+      functionName?: TFunctionName
     }) => {
       const { metadataSchema, ...rest } = args
       if (!metadataSchema) {
         return new ActionBuilder({
           id: input.id,
+          functionName: input.functionName || input.id,
           registryData: {
             metadataSchema: undefined,
             ...rest,
@@ -250,6 +269,7 @@ export const generateActionRegistryFunctions = <
           ...rest,
         },
         metadata: parsed.data,
+        functionName: input.functionName || input.id,
       })
     },
   } as TGenerateFunctionsRet<TRegistry>
