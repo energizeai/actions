@@ -1,4 +1,3 @@
-import z from "zod"
 import { TActionBuilderData } from "./action-builder"
 import { TActionData, TActionInput, TActionOutput } from "./action-data"
 import { TNoAuth } from "./auth"
@@ -77,16 +76,19 @@ export class ActionBuilderWithInput<
       })
     } else {
       // ECHO
-      return new ActionBuilderWithGet({
-        actionData: {
-          ...this.actionData,
-        },
-      })
-        .setOutputSchema(this.actionData.inputSchema)
-        .setAuthType("None")
-        .setActionFunction(async ({ input }) => {
-          return input as z.input<TEcho<TLocalActionData>>
+      return (
+        new ActionBuilderWithGet({
+          actionData: {
+            ...this.actionData,
+          },
         })
+          .setOutputSchema(this.actionData.inputSchema)
+          .setAuthType("None")
+          // @ts-expect-error - This is a valid action function
+          .setActionFunction(async ({ input }) => {
+            return input
+          })
+      )
     }
   }
 }
