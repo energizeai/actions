@@ -169,7 +169,7 @@ export type TTokenAuthConfigWithOutputMetadata<
 > = TTokenAuthConfig<TCustomData> &
   TAuthOutputMetadata<TRegistry, "tokenAuthMetadataSchema">
 
-type TNoAuth = {
+export type TNoAuth = {
   type: typeof AuthType.NONE
   config: undefined
 }

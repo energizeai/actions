@@ -1,14 +1,9 @@
 import { TActionData, TActionOnSubmit, TActionOutput } from "./action-data"
-import { AuthType, TAuthType } from "./auth"
+import { AuthType, TAuthType, TNoAuth } from "./auth"
 import { ActionBuilderWithAuth, TActionBuilderWithAuthData } from "./with-auth"
 import { TActionDataWithInput } from "./with-input"
 import { ActionBuilderWithOAuthType } from "./with-oauth"
 import { ActionBuilderWithTokenType } from "./with-token"
-
-type TNoAuth = {
-  type: typeof AuthType.NONE
-  config: undefined
-}
 
 export type TActionBuilderWithOutputData<
   TInputActionData extends TActionDataWithInput,

@@ -21,10 +21,10 @@ export type TActionFunction<
   auth: TAuthArg<TAuth>
   extras: TRegistry["actionFunctionExtrasSchema"] extends infer U
     ? U extends z.AnyZodObject
-      ? z.infer<U>
+      ? z.output<U>
       : undefined
     : undefined
-}) => Promise<z.infer<TOutput>>
+}) => Promise<z.input<TOutput>>
 
 export type TRegistryData<
   TNamespace extends string,
