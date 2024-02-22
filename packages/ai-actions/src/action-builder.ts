@@ -4,13 +4,15 @@ import { ActionBuilderWithInput } from "./with-input"
 export type TActionBuilderConstructorData<
   TRegistry extends TAnyRegistryData,
   TId extends string,
+  TFunctionName extends string,
 > = Pick<
-  TActionData<TRegistry, TId, any, any, any, any>,
-  "metadata" | "id" | "registryData"
+  TActionData<TRegistry, TId, TFunctionName, any, any, any, any>,
+  "metadata" | "id" | "registryData" | "functionName"
 >
 
 export type TActionBuilderData = TActionBuilderConstructorData<
   TAnyRegistryData,
+  string,
   string
 >
 

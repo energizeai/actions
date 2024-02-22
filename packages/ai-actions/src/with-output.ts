@@ -19,6 +19,7 @@ export type TActionBuilderWithOutputData<
     TActionData<
       TInputActionData["registryData"],
       TInputActionData["id"],
+      TInputActionData["functionName"],
       TInputActionData["inputSchema"],
       TOutput,
       any,

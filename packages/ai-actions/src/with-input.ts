@@ -7,7 +7,7 @@ type TActionBuilderWithInputData<
   TBuilderData extends TActionBuilderData,
   TInput extends TActionInput,
 > = TBuilderData &
-  Pick<TActionData<any, any, TInput, any, any, any>, "inputSchema">
+  Pick<TActionData<any, any, any, TInput, any, any, any>, "inputSchema">
 
 export type TActionDataWithInput = TActionBuilderWithInputData<
   TActionBuilderData,

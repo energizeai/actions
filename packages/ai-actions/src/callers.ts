@@ -16,7 +16,7 @@ export type TActionCallerInput<
   TId extends keyof TRegistry,
 > = ValuesOf<{
   [K in TId]: {
-    actionId: K
+    name: ReturnType<TRegistry[K]["getFunctionName"]>
     arguments: z.input<ReturnType<TRegistry[K]["getInputSchema"]>>
     id?: string
   }
@@ -28,6 +28,7 @@ export type TCallerSuccessResult<
   status: "success"
   data: z.output<ReturnType<TAction["getOutputSchema"]>>
   actionId: ReturnType<TAction["getId"]>
+  functionName: ReturnType<TAction["getFunctionName"]>
   id: string
   arguments: z.input<ReturnType<TAction["getInputSchema"]>>
   parsedArguments: z.output<ReturnType<TAction["getInputSchema"]>>
@@ -41,6 +42,7 @@ export type TCallerErrorResult<TAction extends ActionBuilderWithFunction<any>> =
     actionId: ReturnType<TAction["getId"]>
     id: string
     failedArguments: z.input<ReturnType<TAction["getInputSchema"]>>
+    functionName: ReturnType<TAction["getFunctionName"]>
     failedParsedArguments: z.output<
       ReturnType<TAction["getInputSchema"]>
     > | null
@@ -189,6 +191,13 @@ export const setupActionCaller = <
   const actionIds: (keyof TRegistry)[] =
     inArray || (Object.keys(registry) as (keyof TRegistry)[])
 
+  const functionNameToActionIdMap: Record<string, keyof TRegistry> = {}
+  for (const actionId of actionIds) {
+    const action = registry[actionId]
+    if (!action) continue
+    functionNameToActionIdMap[action.getFunctionName()] = actionId
+  }
+
   const validActionIds = new Set(actionIds)
 
   const runInParallel = args.runInParallel || false
@@ -224,11 +233,13 @@ export const setupActionCaller = <
     const actionIdToAuthDataCache: Record<string, unknown> = {}
 
     for (const input of inputs) {
-      const actionId =
-        input.actionId as unknown as (typeof results)[number]["actionId"]
+      const functionName = input.name
+      const actionId = functionNameToActionIdMap[
+        functionName
+      ] as (typeof results)[number]["actionId"]
 
       // ignore the input if the action ID is not valid
-      if (!validActionIds.has(actionId)) {
+      if (!actionId || !validActionIds.has(actionId)) {
         continue
       }
 
@@ -236,17 +247,6 @@ export const setupActionCaller = <
       inputIdOrdered.push(inputId)
 
       if (!registry[actionId]) {
-        results.push({
-          status: "error",
-          message: `The action with the ID ${JSON.stringify(actionId)} does not exist.`,
-          cause: new Error(
-            `The action with the ID ${JSON.stringify(actionId)} does not exist.`
-          ),
-          actionId,
-          id: inputId,
-          failedArguments: input.arguments,
-          failedParsedArguments: null,
-        })
         continue
       }
 
@@ -267,6 +267,7 @@ export const setupActionCaller = <
           cause: functionArgs.error,
           message: functionArgs.error.message,
           actionId,
+          functionName,
           id: inputId,
           failedArguments: input.arguments,
           failedParsedArguments: null,
@@ -288,6 +289,7 @@ export const setupActionCaller = <
                 status: "error",
                 message: `The action with the ID ${JSON.stringify(actionId)} requires OAuth authentication, but no fetchOAuthAccessToken function was provided.`,
                 actionId,
+                functionName,
                 id: inputId,
                 failedArguments: input.arguments,
                 failedParsedArguments: functionArgs.data,
@@ -307,6 +309,7 @@ export const setupActionCaller = <
                 status: "error",
                 message: `The action with the ID ${JSON.stringify(actionId)} requires Token authentication, but no fetchTokenAuthData function was provided.`,
                 actionId,
+                functionName,
                 id: inputId,
                 failedArguments: input.arguments,
                 failedParsedArguments: functionArgs.data,
@@ -347,6 +350,7 @@ export const setupActionCaller = <
               data: parsed,
               actionId,
               id: inputId,
+              functionName,
               parsedArguments: functionArgs.data,
               arguments: input.arguments,
             })
@@ -356,6 +360,7 @@ export const setupActionCaller = <
               data: undefined,
               actionId,
               id: inputId,
+              functionName,
               parsedArguments: functionArgs.data,
               arguments: input.arguments,
             })
@@ -370,6 +375,7 @@ export const setupActionCaller = <
                 : "Unknown error",
             actionId,
             id: inputId,
+            functionName,
             failedParsedArguments: functionArgs.data,
             failedArguments: input.arguments,
           })
