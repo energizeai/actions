@@ -1,15 +1,13 @@
 import z from "zod"
 import { ActionBuilder, TActionBuilderConstructorData } from "./action-builder"
 import {
-  TActionInput,
   TActionMetadata,
-  TActionOnSubmit,
+  TActionType,
   TAnyRegistryData,
+  ValidZodSchema,
 } from "./action-data"
 import { TAuthType } from "./auth"
 import { ActionBuilderWithFunction } from "./with-function"
-import { TActionType } from "./with-input"
-import { TActionComponent } from "./with-post"
 
 type TActionsArray<TRegistry extends TAnyRegistryData> = Array<
   ReturnType<
@@ -96,18 +94,12 @@ export const filterActionRegistryByActionType = <
   registry: T,
   actionType: U
 ): {
-  [K in keyof T as U extends "POST"
-    ? ReturnType<T[K]["getOutputSchema"]> extends z.ZodVoid
-      ? K
-      : never
-    : ReturnType<T[K]["getOutputSchema"]> extends z.AnyZodObject
-      ? K
-      : never]: T[K]
+  [K in keyof T as ReturnType<T[K]["getActionType"]> extends U
+    ? K
+    : never]: T[K]
 } => {
   return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (actionType === "GET" && action.getOutputSchema() !== z.void()) {
-      acc[id] = action
-    } else if (actionType === "POST" && action.getOutputSchema() === z.void()) {
+    if (action.getActionType() === actionType) {
       acc[id] = action
     }
     return acc
@@ -135,7 +127,7 @@ type TCreateActionFunction<TRegistry extends TAnyRegistryData> =
           input: {
             id: TId
             functionName?: TFunctionName
-          } & (TMetadataSchema extends z.AnyZodObject
+          } & (TMetadataSchema extends ValidZodSchema
             ? { metadata: z.input<TMetadataSchema> }
             : {})
         ) => ActionBuilder<
@@ -213,7 +205,7 @@ export const generateActionRegistryFunctions = <
       /**
        * The metadata for the action. This is used to validate the arguments passed to the action.
        */
-      metadata: typeof args.metadataSchema extends z.AnyZodObject
+      metadata: typeof args.metadataSchema extends ValidZodSchema
         ? z.input<typeof args.metadataSchema>
         : never
       /**
@@ -285,21 +277,5 @@ const { createActionsRegistry, createAction } = generateActionRegistryFunctions(
     oAuthMetadataSchema: undefined,
   }
 )
-
-type inferMetadataSchema<T> =
-  T extends TCreateActionFunction<infer TRegistry>
-    ? TRegistry["metadataSchema"] extends infer TMetadata
-      ? TMetadata extends TActionMetadata
-        ? TMetadata
-        : never
-      : never
-    : never
-
-// helper type to infer the action component
-export type inferActionComponent<
-  T,
-  TInput extends TActionInput,
-  TOnSubmitValues extends TActionOnSubmit = undefined,
-> = TActionComponent<inferMetadataSchema<T>, TInput, TOnSubmitValues>
 
 export { createAction, createActionsRegistry }

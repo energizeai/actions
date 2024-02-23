@@ -1,4 +1,4 @@
-import { TActionData, TActionOnSubmit, TActionOutput } from "./action-data"
+import { TActionData, TActionOutput, TActionType } from "./action-data"
 import { AuthType, TAuthType, TNoAuth } from "./auth"
 import { ActionBuilderWithAuth, TActionBuilderWithAuthData } from "./with-auth"
 import { TActionDataWithInput } from "./with-input"
@@ -8,7 +8,7 @@ import { ActionBuilderWithTokenType } from "./with-token"
 export type TActionBuilderWithOutputData<
   TInputActionData extends TActionDataWithInput,
   TOutput extends TActionOutput,
-  TSubmission extends TActionOnSubmit,
+  TType extends TActionType,
 > = TInputActionData &
   Pick<
     TActionData<
@@ -18,15 +18,15 @@ export type TActionBuilderWithOutputData<
       TInputActionData["inputSchema"],
       TOutput,
       any,
-      TSubmission
+      TType
     >,
-    "outputSchema" | "component" | "submissionSchema"
+    "outputSchema" | "actionType"
   >
 
 export type TActionDataWithOutput = TActionBuilderWithOutputData<
   TActionDataWithInput,
   TActionOutput,
-  TActionOnSubmit
+  TActionType
 >
 
 export class ActionBuilderWithOutput<

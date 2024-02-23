@@ -59,8 +59,7 @@ export class ActionBuilderWithAuth<
       TLocalActionData["registryData"],
       TLocalActionData["inputSchema"],
       TLocalActionData["outputSchema"],
-      TLocalActionData["authConfig"],
-      TLocalActionData["submissionSchema"]
+      TLocalActionData["authConfig"]
     >
   ) {
     return new ActionBuilderWithFunction({

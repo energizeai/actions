@@ -1,23 +1,23 @@
 import z from "zod"
 import { TActionAuth, TAnyActionAuth, TAuthArg, TTokenCustomData } from "./auth"
-import { TPassThroughComponent } from "./with-post"
 
-export type TActionMetadata = z.ZodObject<any> | undefined
+export type ValidZodSchema = z.ZodString | z.ZodNumber | z.AnyZodObject
+
+export type TActionMetadata = ValidZodSchema | undefined
 export type TActionFunctionExtras = z.ZodObject<any> | undefined
 export type TActionInput = z.ZodObject<any>
-export type TActionOutput = z.ZodObject<any> | z.ZodVoid
-export type TActionOnSubmit = z.ZodObject<any> | undefined
+export type TActionOutput = ValidZodSchema | z.ZodVoid
 export type TTokenAuthMetadata = z.ZodObject<any> | undefined
 export type TOAuthMetadata = z.ZodObject<any> | undefined
+export type TActionType = "CLIENT" | "SERVER" | "ECHO"
 
 export type TActionFunction<
   TRegistry extends TAnyRegistryData,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TAnyActionAuth,
-  TSubmission extends TActionOnSubmit,
 > = (_: {
-  input: z.output<TSubmission extends undefined ? TInput : TSubmission>
+  input: z.output<TInput>
   auth: TAuthArg<TAuth>
   extras: TRegistry["actionFunctionExtrasSchema"] extends infer U
     ? U extends z.AnyZodObject
@@ -108,32 +108,21 @@ export type TActionData<
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TAnyActionAuth,
-  TSubmission extends TActionOnSubmit,
+  TType extends TActionType,
 > = {
   registryData: TRegistry
   id: TId
+  actionType: TType
   functionName: TFunctionName
   metadata: TRegistry["metadataSchema"] extends infer U
-    ? U extends z.AnyZodObject
+    ? U extends ValidZodSchema
       ? z.output<U>
       : undefined
     : undefined
   inputSchema: TInput
-  submissionSchema?: TSubmission
   outputSchema: TOutput
   authConfig: TAuth
-  actionFunction: TActionFunction<
-    TRegistry,
-    TInput,
-    TOutput,
-    TAuth,
-    TSubmission
-  >
-  component: TRegistry["metadataSchema"] extends infer U
-    ? U extends TActionMetadata
-      ? TPassThroughComponent<U, TInput, TOutput, TSubmission>
-      : never
-    : never
+  actionFunction: TActionFunction<TRegistry, TInput, TOutput, TAuth>
   exampleInput: z.input<TInput> | null
 }
 
@@ -144,5 +133,5 @@ export type TAnyActionData = TActionData<
   TActionInput,
   TActionOutput,
   TActionAuth<TAnyRegistryData, TTokenCustomData>,
-  TActionOnSubmit
+  TActionType
 >

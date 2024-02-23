@@ -18,7 +18,7 @@ export type TActionBuilderWithFunctionData<
             TAuthActionData["inputSchema"],
             TAuthActionData["outputSchema"],
             U,
-            TAuthActionData["submissionSchema"]
+            TAuthActionData["actionType"]
           >,
           "actionFunction" | "exampleInput"
         >
@@ -66,10 +66,6 @@ export class ActionBuilderWithFunction<
     return this.actionData.inputSchema
   }
 
-  getSubmissionSchema(): TLocalActionData["submissionSchema"] {
-    return this.actionData.submissionSchema
-  }
-
   getActionFunction(): TLocalActionData["actionFunction"] {
     return this.actionData.actionFunction
   }
@@ -86,8 +82,8 @@ export class ActionBuilderWithFunction<
     return zodToJsonSchema(this.actionData.outputSchema)
   }
 
-  getComponent(): TLocalActionData["component"] {
-    return this.actionData.component
+  getActionType(): TLocalActionData["actionType"] {
+    return this.actionData.actionType
   }
 
   getRegistryData(): TLocalActionData["registryData"] {

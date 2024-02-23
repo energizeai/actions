@@ -254,10 +254,7 @@ export const setupActionCaller = <
       if (!action) continue
 
       // parse the input
-      const submissionSchema = action.getSubmissionSchema()
-      const schema = submissionSchema
-        ? submissionSchema
-        : action.getInputSchema()
+      const schema = action.getInputSchema()
       const functionArgs = schema.safeParse(input.arguments)
 
       // the input is invalid
