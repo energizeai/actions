@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.5.0
+
+### Minor Changes
+
+- 3b94009: New action type "ECHO" that will just bounce back the input schema
+
 ## 0.4.1
 
 ### Patch Changes
