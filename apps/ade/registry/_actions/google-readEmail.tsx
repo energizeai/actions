@@ -1,6 +1,6 @@
 import { simpleParser } from "mailparser"
 import z from "zod"
-import { createADEAction } from "./_properties/generators"
+import { createADEAction } from "../_properties/generators"
 
 const outputSchema = z.object({
   id: z.string().describe(`The ID of the message.`),
@@ -37,7 +37,7 @@ const GoogleReadEmailAction = createADEAction({
         `Read a specified email from the user's Gmail. This is useful to read an email that was not already provided.`
       )
   )
-  .setActionType("GET")
+  .setActionType("SERVER")
   .setOutputSchema(outputSchema)
   .setAuthType("OAuth")
   .setOAuthData({

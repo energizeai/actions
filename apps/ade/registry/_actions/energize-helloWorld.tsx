@@ -1,5 +1,5 @@
 import z from "zod"
-import { createADEAction } from "./_properties/generators"
+import { createADEAction } from "../_properties/generators"
 
 const HelloWorldAction = createADEAction({
   id: "energize-helloWorld",
@@ -23,7 +23,7 @@ const HelloWorldAction = createADEAction({
       })
       .describe(`Get a greeting.`)
   )
-  .setActionType("GET")
+  .setActionType("SERVER")
   .setOutputSchema(
     z.object({
       greeting: z.string().describe(`The raw MYSQL schema for a table.`),

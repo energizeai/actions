@@ -1,5 +1,5 @@
 import z from "zod"
-import { createADEAction } from "./_properties/generators"
+import { createADEAction } from "../_properties/generators"
 
 const SearchContactsResponseSchema = z.object({
   results: z.array(
@@ -47,7 +47,7 @@ const GoogleGetContactAction = createADEAction({
         `Get a contact from the user's Google Contacts. This is useful to lookup someones email address if it wasn't already provided.`
       )
   )
-  .setActionType("GET")
+  .setActionType("SERVER")
   .setOutputSchema(outputSchema)
   .setAuthType("OAuth")
   .setOAuthData({

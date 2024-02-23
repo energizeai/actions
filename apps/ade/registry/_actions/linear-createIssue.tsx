@@ -1,26 +1,6 @@
 import { LinearClient } from "@linear/sdk"
-import { inferActionComponent } from "ai-actions"
 import z from "zod"
-import { LinearCreateIssueCard } from "./_components/linear-create-issue-card"
-import { createADEAction } from "./_properties/generators"
-
-const actionInputSchema = z
-  .object({
-    title: z
-      .string()
-      .min(1)
-      .describe(`Title of the issue. Required. Must be a non-empty string.`),
-    description: z
-      .string()
-      .optional()
-      .describe(`Description of the issue. Optional.`),
-  })
-  .describe(`Create an issue in the Linear workspace.`)
-
-export type TLinearCreateIssueCard = inferActionComponent<
-  typeof createADEAction,
-  typeof actionInputSchema
->
+import { createADEAction } from "../_properties/generators"
 
 const LinearCreateIssueAction = createADEAction({
   id: "linear-createIssue",
@@ -41,9 +21,24 @@ const LinearCreateIssueAction = createADEAction({
     ],
   },
 })
-  .setInputSchema(actionInputSchema)
-  .setActionType("POST")
-  .setOutputComponent(LinearCreateIssueCard)
+  .setInputSchema(
+    z
+      .object({
+        title: z
+          .string()
+          .min(1)
+          .describe(
+            `Title of the issue. Required. Must be a non-empty string.`
+          ),
+        description: z
+          .string()
+          .optional()
+          .describe(`Description of the issue. Optional.`),
+      })
+      .describe(`Create an issue in the Linear workspace.`)
+  )
+  .setActionType("CLIENT")
+  .setOutputAsVoid()
   .setAuthType("OAuth")
   .setOAuthData({
     humanReadableDescription: "Ability to create issues in Linear",

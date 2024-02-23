@@ -4,7 +4,7 @@ import { TActionAuth, TAnyActionAuth, TAuthArg, TTokenCustomData } from "./auth"
 export type ValidZodSchema = z.ZodString | z.ZodNumber | z.AnyZodObject
 
 export type TActionMetadata = ValidZodSchema | undefined
-export type TActionFunctionExtras = z.ZodObject<any> | undefined
+export type TActionFunctionExtras = ValidZodSchema | undefined
 export type TActionInput = z.ZodObject<any>
 export type TActionOutput = ValidZodSchema | z.ZodVoid
 export type TTokenAuthMetadata = z.ZodObject<any> | undefined
@@ -20,7 +20,7 @@ export type TActionFunction<
   input: z.output<TInput>
   auth: TAuthArg<TAuth>
   extras: TRegistry["actionFunctionExtrasSchema"] extends infer U
-    ? U extends z.AnyZodObject
+    ? U extends ValidZodSchema
       ? z.output<U>
       : undefined
     : undefined

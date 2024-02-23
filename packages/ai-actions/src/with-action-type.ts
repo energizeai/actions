@@ -1,14 +1,17 @@
 import z from "zod"
 import { TActionOutput, TActionType } from "./action-data"
 import { TActionDataWithInput } from "./with-input"
-import { ActionBuilderWithOutput } from "./with-output"
+import {
+  ActionBuilderWithOutput,
+  TActionBuilderWithOutputData,
+} from "./with-output"
 
 export class ActionBuilderWithActionType<
   TType extends TActionType,
   TLocalActionData extends TActionDataWithInput,
 > {
   actionData: TLocalActionData
-  actionType: TType
+  private actionType: TType
 
   constructor({
     actionData,
@@ -34,7 +37,7 @@ export class ActionBuilderWithActionType<
     })
   }
 
-  outputVoid() {
+  setOutputAsVoid() {
     return new ActionBuilderWithOutput({
       actionData: {
         ...this.actionData,
@@ -42,5 +45,21 @@ export class ActionBuilderWithActionType<
         outputSchema: z.void(),
       },
     })
+  }
+
+  setOutputSchemaAsInputSchema() {
+    return new ActionBuilderWithOutput({
+      actionData: {
+        ...this.actionData,
+        actionType: this.actionType,
+        outputSchema: this.actionData.inputSchema,
+      },
+    }) as ActionBuilderWithOutput<
+      TActionBuilderWithOutputData<
+        TLocalActionData,
+        TLocalActionData["inputSchema"],
+        TType
+      >
+    >
   }
 }

@@ -1,6 +1,6 @@
 import z from "zod"
 import { ValuesOf } from "."
-import { TAnyRegistryData } from "./action-data"
+import { TAnyRegistryData, ValidZodSchema } from "./action-data"
 import { TAuthType } from "./auth"
 import {
   ActionBuilderWithFunction,
@@ -72,7 +72,7 @@ type inferExtras<
   ReturnType<ValuesOf<T>["getRegistryData"]> extends infer TRegistry
     ? TRegistry extends TAnyRegistryData
       ? TRegistry["actionFunctionExtrasSchema"] extends infer A
-        ? A extends z.AnyZodObject
+        ? A extends ValidZodSchema
           ? { extras: z.input<A> }
           : {}
         : {}
@@ -203,7 +203,7 @@ export const setupActionCaller = <
   const runInParallel = args.runInParallel || false
 
   // get the extras
-  let funcitonExtras: z.AnyZodObject["_output"] | undefined = undefined
+  let funcitonExtras: ValidZodSchema["_output"] | undefined = undefined
   if (
     "extras" in args &&
     actionIds.length > 0 &&

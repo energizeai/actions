@@ -2,11 +2,9 @@ import z from "zod"
 import { ActionBuilder, TActionBuilderConstructorData } from "./action-builder"
 import {
   TActionMetadata,
-  TActionType,
   TAnyRegistryData,
   ValidZodSchema,
 } from "./action-data"
-import { TAuthType } from "./auth"
 import { ActionBuilderWithFunction } from "./with-function"
 
 type TActionsArray<TRegistry extends TAnyRegistryData> = Array<
@@ -36,75 +34,9 @@ type TActionsRegistry<
     : never
   : Readonly<{}>
 
-/**
- * Filter the action registry by the auth type.
- *
- * @param registry The registry of actions.
- * @param authType The auth type to filter by.
- *
- * @returns The filtered registry of actions.
- */
-export const filterActionRegistryByAuthType = <
-  const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
-  }>,
-  U extends TAuthType,
->(
-  registry: T,
-  authType: U
-): {
-  [K in keyof T as ReturnType<T[K]["getAuthConfig"]>["type"] extends U
-    ? K
-    : never]: T[K]
-} => {
-  return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (action.getAuthConfig().type === authType) {
-      acc[id] = action
-    }
-    return acc
-  }, {} as any)
-}
-
-export const generateActionIdMap = <
-  const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
-  }>,
->(
-  registry: T
-): Readonly<{ [K in keyof T]: K }> => {
-  return Object.freeze(
-    Object.keys(registry).reduce((acc, id) => ({ ...acc, [id]: id }), {})
-  ) as Readonly<{ [K in keyof T]: K }>
-}
-
-/**
- * Filter the action registry by the action type.
- *
- * @param registry The registry of actions.
- * @param authType The auth type to filter by.
- *
- * @returns The filtered registry of actions.
- */
-export const filterActionRegistryByActionType = <
-  const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
-  }>,
-  U extends TActionType,
->(
-  registry: T,
-  actionType: U
-): {
-  [K in keyof T as ReturnType<T[K]["getActionType"]> extends U
-    ? K
-    : never]: T[K]
-} => {
-  return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (action.getActionType() === actionType) {
-      acc[id] = action
-    }
-    return acc
-  }, {} as any)
-}
+export type TAnyActionRegistry = Readonly<{
+  [key: string]: ActionBuilderWithFunction<any>
+}>
 
 // string literal for the create actions registry function
 type TCreateActionsRegistry<T extends string> = `create${T}ActionsRegistry`
@@ -278,4 +210,15 @@ const { createActionsRegistry, createAction } = generateActionRegistryFunctions(
   }
 )
 
+export type inferAcitonMetadataSchema<T> =
+  T extends TCreateActionFunction<infer TRegistry>
+    ? TRegistry["metadataSchema"] extends infer TMetadata
+      ? TMetadata extends TActionMetadata
+        ? TMetadata
+        : never
+      : never
+    : never
+
 export { createAction, createActionsRegistry }
+
+export { type TActionInput, type TActionMetadata } from "./action-data"

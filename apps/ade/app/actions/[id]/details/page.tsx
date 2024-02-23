@@ -114,7 +114,7 @@ export default function ActionDetailsPage({
       {actionData.getComponent() !== null ? (
         <div className="lg:max-w-screen-sm">
           <ActionComponent
-            actionId={params.id}
+            clientActionId={params.id}
             inputDataAsString={undefined}
             state="placeholder"
             userData={undefined}

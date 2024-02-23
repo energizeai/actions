@@ -251,7 +251,7 @@ export default function ActionTestForm({
   if (action.getComponent() && componentLoading) {
     output = (
       <ActionComponent
-        actionId={params.id}
+        clientActionId={params.id}
         state="skeleton"
         key={`action-component-${refreshKey}`}
         inputDataAsString={undefined}
@@ -261,7 +261,7 @@ export default function ActionTestForm({
   } else if (componentInput && action.getComponent()) {
     output = (
       <ActionComponent
-        actionId={params.id}
+        clientActionId={params.id}
         inputDataAsString={componentInput}
         state="active"
         key={`action-component-${refreshKey}`}

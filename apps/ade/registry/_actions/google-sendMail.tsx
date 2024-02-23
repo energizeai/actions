@@ -1,27 +1,5 @@
-import { inferActionComponent } from "ai-actions"
 import z from "zod"
-import { GoogleSendMailCard } from "./_components/google-send-mail-card"
-import { createADEAction } from "./_properties/generators"
-
-const actionInputSchema = z.object({
-  subject: z.string().describe("The subject of the email"),
-  body: z.string().describe("The body of the email"),
-  to: z
-    .array(
-      z.object({
-        email: z
-          .string()
-          .email()
-          .describe("The email address to send the email to"),
-      })
-    )
-    .describe("The email address to send the email to"),
-})
-
-export type TGoogleSendMailCard = inferActionComponent<
-  typeof createADEAction,
-  typeof actionInputSchema
->
+import { createADEAction } from "../_properties/generators"
 
 const GoogleSendMailAction = createADEAction({
   id: "google-sendMail",
@@ -41,9 +19,24 @@ const GoogleSendMailAction = createADEAction({
     examples: ["Send an email to johnappleseed@gmail.com"],
   },
 })
-  .setInputSchema(actionInputSchema)
-  .setActionType("POST")
-  .setOutputComponent(GoogleSendMailCard)
+  .setInputSchema(
+    z.object({
+      subject: z.string().describe("The subject of the email"),
+      body: z.string().describe("The body of the email"),
+      to: z
+        .array(
+          z.object({
+            email: z
+              .string()
+              .email()
+              .describe("The email address to send the email to"),
+          })
+        )
+        .describe("The email address to send the email to"),
+    })
+  )
+  .setActionType("CLIENT")
+  .setOutputAsVoid()
   .setAuthType("OAuth")
   .setOAuthData({
     humanReadableDescription: "Ability to send emails using Google's api",

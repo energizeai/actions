@@ -32,10 +32,10 @@ export class ActionBuilderWithTokenType<
       base = { ...base, ...safeParsed.data }
     }
 
-    const authConfig = {
+    const authConfig: TTokenAuth<T, TLocalActionData["registryData"]> = {
       type: "Token",
       config: base,
-    } as TTokenAuth<T, TLocalActionData["registryData"]>
+    }
 
     return new ActionBuilderWithAuth({
       actionData: {

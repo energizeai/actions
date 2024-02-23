@@ -1,5 +1,5 @@
 import z from "zod"
-import { createADEAction } from "./_properties/generators"
+import { createADEAction } from "../_properties/generators"
 
 const GoogleWebSearchResponseSchema = z.object({
   items: z.array(
@@ -55,7 +55,7 @@ const GoogleWebSearchAction = createADEAction({
       })
       .describe(`Browse the web using Google.`)
   )
-  .setActionType("GET")
+  .setActionType("SERVER")
   .setOutputSchema(GoogleWebSearchResponseSchema)
   .setAuthType("Token")
   .setTokenData({

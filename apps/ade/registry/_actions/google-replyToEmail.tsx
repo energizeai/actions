@@ -1,21 +1,5 @@
-import { inferActionComponent } from "ai-actions"
 import z from "zod"
-import { GoogleReplyToEmailCard } from "./_components/google-reply-to-email-card"
-import { createADEAction } from "./_properties/generators"
-
-const actionInputSchema = z.object({
-  body: z.string().describe("The body of the email"),
-  subject: z.string().describe("The subject of the email thread."),
-  to: z
-    .string()
-    .describe("The email address of the last sender in the thread."),
-  threadId: z.string().describe("The ID of the thread to reply to."),
-})
-
-export type TGoogleReplyToEmailCard = inferActionComponent<
-  typeof createADEAction,
-  typeof actionInputSchema
->
+import { createADEAction } from "../_properties/generators"
 
 const GoogleReplyToEmailAction = createADEAction({
   id: "google-replyToEmail",
@@ -34,9 +18,18 @@ const GoogleReplyToEmailAction = createADEAction({
       "https://developers.google.com/gmail/api/reference/rest/v1/users.messages/send",
   },
 })
-  .setInputSchema(actionInputSchema)
-  .setActionType("POST")
-  .setOutputComponent(GoogleReplyToEmailCard)
+  .setInputSchema(
+    z.object({
+      body: z.string().describe("The body of the email"),
+      subject: z.string().describe("The subject of the email thread."),
+      to: z
+        .string()
+        .describe("The email address of the last sender in the thread."),
+      threadId: z.string().describe("The ID of the thread to reply to."),
+    })
+  )
+  .setActionType("CLIENT")
+  .setOutputAsVoid()
   .setAuthType("OAuth")
   .setOAuthData({
     humanReadableDescription: "Ability to send emails using Google's api",

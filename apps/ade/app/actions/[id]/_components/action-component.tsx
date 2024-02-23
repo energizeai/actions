@@ -1,119 +1,57 @@
 "use client"
 
-import { ActionsRegistry } from "@/registry"
-import { TActionId } from "@/registry/_properties/types"
+import { GoogleMoveEmailToTrashCard } from "@/registry/_components/google-move-email-to-trash-card"
+import { GoogleReplyToEmailCard } from "@/registry/_components/google-reply-to-email-card"
+import { GoogleSendMailCard } from "@/registry/_components/google-send-mail-card"
+import { LinearCreateIssueCard } from "@/registry/_components/linear-create-issue-card"
+import {
+  ClientSafeActionsRegistry,
+  TActionComponentRouter,
+  TClientActionId,
+} from "@/registry/client"
 import { api } from "@/trpc/react"
-import React, { useEffect } from "react"
+import { createActionComponentRouter } from "ai-actions"
 import { toast } from "sonner"
+import { z } from "zod"
 
 function ActionComponent({
-  actionId,
+  clientActionId,
   state,
-  inputDataAsString,
-  userData,
+  args,
 }: {
-  actionId: TActionId
-} & (
-  | {
-      inputDataAsString: string
-      userData: {
-        name: string
-        email: string
-      }
-      state: "active"
-    }
-  | {
-      inputDataAsString: undefined
-      userData: undefined
-      state: "placeholder"
-    }
-  | {
-      inputDataAsString: undefined
-      userData: undefined
-      state: "skeleton"
-    }
-)) {
-  const actionData = ActionsRegistry[actionId]
-  const [mounted, setMounted] = React.useState(false)
-
+  clientActionId: TClientActionId
+  state: "active" | "placeholder" | "skeleton"
+  args: any
+}) {
   const caller = api.actions.testActionFunction.useMutation()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const Router = createActionComponentRouter<TActionComponentRouter>({
+    "google-sendMail": GoogleSendMailCard,
+    "google-moveEmailToTrash": GoogleMoveEmailToTrashCard,
+    "linear-createIssue": LinearCreateIssueCard,
+    "google-replyToEmail": GoogleReplyToEmailCard,
+  })
 
-  const Component = actionData.getComponent()
-
-  if (!mounted || !Component) {
-    return null
-  }
-
-  if (state === "placeholder") {
-    return (
-      <Component
-        displayState="placeholder"
-        data={undefined}
-        // @ts-ignore
-        inputSchema={actionData.getInputSchema()}
-        metadata={actionData.getMetadata()}
-      />
-    )
-  }
-
-  if (state === "skeleton") {
-    return (
-      <Component
-        displayState="skeleton"
-        data={undefined}
-        // @ts-ignore
-        inputSchema={actionData.getInputSchema()}
-        metadata={actionData.getMetadata()}
-      />
-    )
-  }
-
-  const inputSafeParsed = actionData
-    .getInputSchema()
-    .safeParse(JSON.parse(inputDataAsString))
-
-  if (inputSafeParsed.success === false) {
-    return (
-      <div>
-        <div className="text-red-500 font-semibold">
-          Input Error: {inputSafeParsed.error.message}
-        </div>
-        <div className="text-muted-foreground">
-          {JSON.stringify(inputDataAsString, null, 2)}
-        </div>
-      </div>
-    )
-  }
+  const actionData = ClientSafeActionsRegistry[clientActionId]
 
   return (
-    <Component
-      displayState="active"
-      // @ts-ignore
-      inputSchema={actionData.getInputSchema()}
-      metadata={actionData.getMetadata()}
-      data={{
-        isLoading: caller.isLoading,
-        isSuccess: caller.isSuccess,
-        isError: caller.isError,
-
-        // @ts-ignore
-        input: inputSafeParsed.data,
-
-        onSubmit: async (input) => {
-          try {
-            await caller.mutateAsync({
-              actionId: actionId,
-              inputDataAsString: JSON.stringify(input),
-              userData,
-            })
-          } catch {
-            toast.error("Error running action.")
-          }
-        },
+    <Router
+      displayState={state}
+      inputSchema={actionData.inputSchema}
+      functionName={actionData.functionName}
+      args={args as z.input<typeof actionData.inputSchema>}
+      isLoading={caller.isLoading}
+      isSuccess={caller.isSuccess}
+      onSubmit={(props) => {
+        try {
+          caller.mutateAsync({
+            actionId: clientActionId,
+            inputDataAsString: JSON.stringify(props.args),
+            userData: props.userData,
+          })
+        } catch {
+          toast.error("Error running action.")
+        }
       }}
     />
   )

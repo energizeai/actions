@@ -25,24 +25,35 @@ import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { inferActionComponentProps } from "ai-actions"
 import { useFieldArray, useForm } from "react-hook-form"
 import z from "zod"
-import { TGoogleSendMailCard } from "../google-sendMail"
+import { TActionComponentRouter } from "../client"
 
-const GoogleSendMailCard: TGoogleSendMailCard = ({
-  data,
+type Props = inferActionComponentProps<
+  TActionComponentRouter,
+  "google-sendMail"
+>
+
+const GoogleSendMailCard = ({
   displayState,
   inputSchema,
   metadata,
-}) => {
+  onSubmit,
+  args,
+  isLoading,
+  isSuccess,
+}: Props) => {
   const form = useForm<z.infer<typeof inputSchema>>({
     resolver: zodResolver(inputSchema),
     defaultValues: {
-      subject: data?.input.subject || "",
-      body: data?.input.body || "",
-      to:
-        data?.input.to ||
-        (displayState === "placeholder" ? [{ email: "" }] : []),
+      subject: args ? args.subject : "",
+      body: args ? args.body : "",
+      to: args
+        ? args.to
+        : displayState === "placeholder"
+          ? [{ email: "" }]
+          : [],
     },
   })
 
@@ -66,13 +77,7 @@ const GoogleSendMailCard: TGoogleSendMailCard = ({
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form
-          onSubmit={
-            data && Boolean(data.onSubmit)
-              ? form.handleSubmit(data.onSubmit)
-              : undefined
-          }
-        >
+        <form onSubmit={args ? form.handleSubmit(onSubmit) : undefined}>
           <CardContent className="flex flex-col gap-4">
             <FormField
               control={form.control}
@@ -165,13 +170,11 @@ const GoogleSendMailCard: TGoogleSendMailCard = ({
             <Button
               name="send"
               type="submit"
-              disabled={
-                displayState !== "active" || data.isLoading || data.isSuccess
-              }
-              variant={data?.isSuccess ? "success" : undefined}
+              disabled={displayState !== "active" || isLoading || isSuccess}
+              variant={isSuccess ? "success" : undefined}
             >
-              {data?.isLoading ? <Spinner /> : null}
-              {!data?.isSuccess ? "Send" : "Sent!"}
+              {isLoading ? <Spinner /> : null}
+              {!isSuccess ? "Send" : "Sent!"}
             </Button>
           </CardFooter>
         </form>

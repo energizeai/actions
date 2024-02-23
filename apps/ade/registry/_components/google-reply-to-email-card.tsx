@@ -22,22 +22,31 @@ import { ConditionalSkeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { inferActionComponentProps } from "ai-actions"
 import { useForm } from "react-hook-form"
 import z from "zod"
-import { TGoogleReplyToEmailCard } from "../google-replyToEmail"
+import { TActionComponentRouter } from "../client"
 
-const GoogleReplyToEmailCard: TGoogleReplyToEmailCard = ({
-  data,
+type Props = inferActionComponentProps<
+  TActionComponentRouter,
+  "google-replyToEmail"
+>
+
+const GoogleReplyToEmailCard = ({
+  args,
   displayState,
+  isLoading,
+  isSuccess,
   inputSchema,
   metadata,
-}) => {
+  onSubmit,
+}: Props) => {
   const form = useForm<z.infer<typeof inputSchema>>({
     resolver: zodResolver(inputSchema),
     defaultValues: {
-      body: data?.input.body || "",
-      threadId: data?.input.threadId || "",
-      subject: data?.input.subject || "",
+      body: args ? args.body : "",
+      threadId: args ? args.threadId : "",
+      subject: args ? args.subject : "",
     },
   })
 
@@ -52,17 +61,11 @@ const GoogleReplyToEmailCard: TGoogleReplyToEmailCard = ({
           {metadata.title}
         </CardTitle>
         <CardDescription>
-          Let&apos;s confirm that you want to reply to {data?.input.to || ""}.
+          Let&apos;s confirm that you want to reply to {args ? args.to : ""}.
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form
-          onSubmit={
-            data && Boolean(data.onSubmit)
-              ? form.handleSubmit(data.onSubmit)
-              : undefined
-          }
-        >
+        <form onSubmit={args ? form.handleSubmit(onSubmit) : undefined}>
           <CardContent className="flex flex-col gap-4">
             <FormField
               control={form.control}
@@ -91,23 +94,11 @@ const GoogleReplyToEmailCard: TGoogleReplyToEmailCard = ({
             <Button
               name="send"
               type="submit"
-              disabled={
-                displayState !== "active" || data.isLoading || data.isSuccess
-              }
-              variant={data?.isSuccess ? "success" : undefined}
-              onClick={() => {
-                if (!data) return
-
-                data.onSubmit({
-                  body: form.getValues("body"),
-                  to: data.input.to,
-                  subject: data.input.subject,
-                  threadId: data.input.threadId,
-                })
-              }}
+              disabled={displayState !== "active" || isLoading || isSuccess}
+              variant={isSuccess ? "success" : undefined}
             >
-              {data?.isLoading ? <Spinner /> : null}
-              {!data?.isSuccess ? "Send" : "Sent!"}
+              {isLoading ? <Spinner /> : null}
+              {!isSuccess ? "Send" : "Sent!"}
             </Button>
           </CardFooter>
         </form>
