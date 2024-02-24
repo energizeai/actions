@@ -85,6 +85,7 @@ export const createActionComponentRouter = <
       const finalProps = {
         ...rest,
         args: parsedArgs.success ? parsedArgs.data : null,
+        inputSchema: dezerialize(props.inputSchema),
         onSubmit: (args: NonNullable<unknown>) => {
           // we want to pass the on submit up to the parent
           wrapperOnSubmit({ functionName: props.functionName, args: args })
