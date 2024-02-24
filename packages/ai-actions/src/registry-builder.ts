@@ -1,15 +1,11 @@
 import z from "zod"
 import { ActionBuilder, TActionBuilderConstructorData } from "./action-builder"
 import {
-  TActionInput,
   TActionMetadata,
-  TActionOnSubmit,
   TAnyRegistryData,
+  ValidZodSchema,
 } from "./action-data"
-import { TAuthType } from "./auth"
 import { ActionBuilderWithFunction } from "./with-function"
-import { TActionType } from "./with-input"
-import { TActionComponent } from "./with-post"
 
 type TActionsArray<TRegistry extends TAnyRegistryData> = Array<
   ReturnType<
@@ -38,81 +34,9 @@ type TActionsRegistry<
     : never
   : Readonly<{}>
 
-/**
- * Filter the action registry by the auth type.
- *
- * @param registry The registry of actions.
- * @param authType The auth type to filter by.
- *
- * @returns The filtered registry of actions.
- */
-export const filterActionRegistryByAuthType = <
-  const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
-  }>,
-  U extends TAuthType,
->(
-  registry: T,
-  authType: U
-): {
-  [K in keyof T as ReturnType<T[K]["getAuthConfig"]>["type"] extends U
-    ? K
-    : never]: T[K]
-} => {
-  return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (action.getAuthConfig().type === authType) {
-      acc[id] = action
-    }
-    return acc
-  }, {} as any)
-}
-
-export const generateActionIdMap = <
-  const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
-  }>,
->(
-  registry: T
-): Readonly<{ [K in keyof T]: K }> => {
-  return Object.freeze(
-    Object.keys(registry).reduce((acc, id) => ({ ...acc, [id]: id }), {})
-  ) as Readonly<{ [K in keyof T]: K }>
-}
-
-/**
- * Filter the action registry by the action type.
- *
- * @param registry The registry of actions.
- * @param authType The auth type to filter by.
- *
- * @returns The filtered registry of actions.
- */
-export const filterActionRegistryByActionType = <
-  const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
-  }>,
-  U extends TActionType,
->(
-  registry: T,
-  actionType: U
-): {
-  [K in keyof T as U extends "POST"
-    ? ReturnType<T[K]["getOutputSchema"]> extends z.ZodVoid
-      ? K
-      : never
-    : ReturnType<T[K]["getOutputSchema"]> extends z.AnyZodObject
-      ? K
-      : never]: T[K]
-} => {
-  return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (actionType === "GET" && action.getOutputSchema() !== z.void()) {
-      acc[id] = action
-    } else if (actionType === "POST" && action.getOutputSchema() === z.void()) {
-      acc[id] = action
-    }
-    return acc
-  }, {} as any)
-}
+export type TAnyActionRegistry = Readonly<{
+  [key: string]: ActionBuilderWithFunction<any>
+}>
 
 // string literal for the create actions registry function
 type TCreateActionsRegistry<T extends string> = `create${T}ActionsRegistry`
@@ -135,7 +59,7 @@ type TCreateActionFunction<TRegistry extends TAnyRegistryData> =
           input: {
             id: TId
             functionName?: TFunctionName
-          } & (TMetadataSchema extends z.AnyZodObject
+          } & (TMetadataSchema extends ValidZodSchema
             ? { metadata: z.input<TMetadataSchema> }
             : {})
         ) => ActionBuilder<
@@ -213,7 +137,7 @@ export const generateActionRegistryFunctions = <
       /**
        * The metadata for the action. This is used to validate the arguments passed to the action.
        */
-      metadata: typeof args.metadataSchema extends z.AnyZodObject
+      metadata: typeof args.metadataSchema extends ValidZodSchema
         ? z.input<typeof args.metadataSchema>
         : never
       /**
@@ -286,7 +210,7 @@ const { createActionsRegistry, createAction } = generateActionRegistryFunctions(
   }
 )
 
-type inferMetadataSchema<T> =
+export type inferAcitonMetadataSchema<T> =
   T extends TCreateActionFunction<infer TRegistry>
     ? TRegistry["metadataSchema"] extends infer TMetadata
       ? TMetadata extends TActionMetadata
@@ -295,11 +219,6 @@ type inferMetadataSchema<T> =
       : never
     : never
 
-// helper type to infer the action component
-export type inferActionComponent<
-  T,
-  TInput extends TActionInput,
-  TOnSubmitValues extends TActionOnSubmit = undefined,
-> = TActionComponent<inferMetadataSchema<T>, TInput, TOnSubmitValues>
-
 export { createAction, createActionsRegistry }
+
+export { type TActionInput, type TActionMetadata } from "./action-data"

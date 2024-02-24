@@ -38,3 +38,5 @@ sqlite.db
 tsconfig.tsbuildinfo
 
 dist
+
+playground

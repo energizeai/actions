@@ -1,7 +1,7 @@
 import { newId } from "@/lib/utils"
 import dedent from "dedent"
 import z from "zod"
-import { createADEAction } from "./_properties/generators"
+import { createADEAction } from "../_properties/generators"
 
 const BingWebPagesResultSchema = z.object({
   webPages: z.object({
@@ -152,7 +152,7 @@ const BingWebSearchAction = createADEAction({
       })
       .describe(`Browse the web using Bing.`)
   )
-  .setActionType("GET")
+  .setActionType("SERVER")
   .setOutputSchema(BingWebSearchOutput)
   .setAuthType("Token")
   .setTokenData({

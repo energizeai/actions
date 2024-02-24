@@ -12,14 +12,23 @@ import {
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
-import { TGoogleMoveEmailToTrashCard } from "../google-moveEmailToTrash"
+import { inferActionComponentProps } from "ai-actions"
+import { TActionComponentRouter } from "../client"
 
-export const GoogleMoveEmailToTrashCard: TGoogleMoveEmailToTrashCard = ({
-  data,
+type Props = inferActionComponentProps<
+  TActionComponentRouter,
+  "google-moveEmailToTrash"
+>
+
+export const GoogleMoveEmailToTrashCard = ({
+  args,
   displayState,
   metadata,
-}) => {
-  const messageIds = data?.input.messageIds || []
+  isLoading,
+  isSuccess,
+  onSubmit,
+}: Props) => {
+  const messageIds = args ? args.messageIds : []
 
   if (displayState === "placeholder") {
     messageIds.push("ABC")
@@ -66,18 +75,16 @@ export const GoogleMoveEmailToTrashCard: TGoogleMoveEmailToTrashCard = ({
       </CardContent>
       <CardFooter className="justify-end">
         <Button
-          disabled={
-            displayState !== "active" || data.isLoading || data.isSuccess
-          }
-          variant={data?.isSuccess ? "success" : "destructive"}
+          disabled={displayState !== "active" || isLoading || isSuccess}
+          variant={isSuccess ? "success" : "destructive"}
           onClick={() => {
-            if (data) {
-              data.onSubmit(data.input)
+            if (args) {
+              onSubmit(args)
             }
           }}
         >
-          {data?.isLoading ? <Spinner /> : null}
-          {!data?.isSuccess
+          {isLoading ? <Spinner /> : null}
+          {isSuccess
             ? `Delete email${messageIds.length > 1 ? "s" : ""}`
             : `Email${messageIds.length > 1 ? "s" : ""} deleted!`}
         </Button>

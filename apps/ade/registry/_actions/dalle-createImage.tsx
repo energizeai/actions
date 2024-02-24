@@ -1,6 +1,6 @@
 import { OpenAI } from "openai"
 import z from "zod"
-import { createADEAction } from "./_properties/generators"
+import { createADEAction } from "../_properties/generators"
 
 const IMAGE_PROMPT_DESCRIPTION = `The prompt to use to generate the image. You must take the user's request and transform it into a much more descriptive prompt. 
 
@@ -51,7 +51,7 @@ const DalleCreateImageAction = createADEAction({
       })
       .describe(`Create an image using DALL-E 3.`)
   )
-  .setActionType("GET")
+  .setActionType("SERVER")
   .setOutputSchema(
     z.object({
       generatedImageUrl: z

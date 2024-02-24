@@ -1,4 +1,4 @@
-import { TActionFunction } from "./action-data"
+import { TActionData, TActionFunction } from "./action-data"
 import { TActionAuth, TAnyActionAuth, TTokenCustomData } from "./auth"
 import { ActionBuilderWithFunction } from "./with-function"
 import { TActionDataWithOutput } from "./with-output"
@@ -59,8 +59,7 @@ export class ActionBuilderWithAuth<
       TLocalActionData["registryData"],
       TLocalActionData["inputSchema"],
       TLocalActionData["outputSchema"],
-      TLocalActionData["authConfig"],
-      TLocalActionData["submissionSchema"]
+      TLocalActionData["authConfig"]
     >
   ) {
     return new ActionBuilderWithFunction({
@@ -69,6 +68,16 @@ export class ActionBuilderWithAuth<
         actionFunction,
         exampleInput: null,
       },
-    })
+    }) as unknown as ActionBuilderWithFunction<
+      TActionData<
+        TLocalActionData["registryData"],
+        TLocalActionData["id"],
+        TLocalActionData["functionName"],
+        TLocalActionData["inputSchema"],
+        TLocalActionData["outputSchema"],
+        TLocalActionData["authConfig"],
+        TLocalActionData["actionType"]
+      >
+    >
   }
 }

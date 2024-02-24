@@ -1,9 +1,13 @@
 import { TActionBuilderData } from "./action-builder"
-import { TActionData, TActionInput, TActionOutput } from "./action-data"
+import {
+  TActionData,
+  TActionInput,
+  TActionOutput,
+  TActionType,
+} from "./action-data"
 import { TNoAuth } from "./auth"
+import { ActionBuilderWithActionType } from "./with-action-type"
 import { ActionBuilderWithAuth, TActionBuilderWithAuthData } from "./with-auth"
-import { ActionBuilderWithGet } from "./with-get"
-import { ActionBuilderWithPost } from "./with-post"
 
 type TActionBuilderWithInputData<
   TBuilderData extends TActionBuilderData,
@@ -16,8 +20,6 @@ export type TActionDataWithInput = TActionBuilderWithInputData<
   TActionInput
 >
 
-export type TActionType = "GET" | "POST" | "ECHO"
-
 type TEcho<TLocalActionData extends TActionDataWithInput> =
   TLocalActionData["inputSchema"] extends infer TOutput
     ? TOutput extends TActionOutput
@@ -25,9 +27,8 @@ type TEcho<TLocalActionData extends TActionDataWithInput> =
           ActionBuilderWithAuth<
             TActionBuilderWithAuthData<
               TLocalActionData & {
-                submissionSchema: undefined
                 outputSchema: TOutput
-                component: null
+                actionType: "ECHO"
               },
               TNoAuth
             >
@@ -56,39 +57,35 @@ export class ActionBuilderWithInput<
    *
    * 3. `Echo` that just simply returns the input data.
    */
-  setActionType(type: "GET"): ActionBuilderWithGet<TLocalActionData>
-  setActionType(
-    type: "POST"
-  ): ActionBuilderWithPost<TLocalActionData, undefined>
+  setActionType<T extends TActionType>(
+    type: T
+  ): ActionBuilderWithActionType<T, TLocalActionData>
   setActionType(type: "ECHO"): TEcho<TLocalActionData>
 
   setActionType(output: TActionType) {
-    if (output === "POST") {
-      return new ActionBuilderWithPost({
-        actionData: this.actionData,
-        submissionSchema: undefined,
-      })
-    } else if (output === "GET") {
-      return new ActionBuilderWithGet({
-        actionData: {
-          ...this.actionData,
-        },
-      })
-    } else {
+    if (output === "ECHO") {
       // ECHO
       return (
-        new ActionBuilderWithGet({
+        new ActionBuilderWithActionType({
           actionData: {
             ...this.actionData,
           },
+          actionType: "ECHO",
         })
           .setOutputSchema(this.actionData.inputSchema)
           .setAuthType("None")
-          // @ts-expect-error - This is a valid action function
+          // @ts-expect-error
           .setActionFunction(async ({ input }) => {
             return input
           })
       )
     }
+
+    return new ActionBuilderWithActionType({
+      actionData: {
+        ...this.actionData,
+      },
+      actionType: output,
+    })
   }
 }

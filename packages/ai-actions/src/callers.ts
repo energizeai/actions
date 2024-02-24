@@ -1,11 +1,8 @@
 import z from "zod"
 import { ValuesOf } from "."
-import { TAnyRegistryData } from "./action-data"
+import { TAnyActionData, TAnyRegistryData, ValidZodSchema } from "./action-data"
 import { TAuthType } from "./auth"
-import {
-  ActionBuilderWithFunction,
-  TActionDataWithFunction,
-} from "./with-function"
+import { ActionBuilderWithFunction } from "./with-function"
 
 type TAnyActionRegistry = Readonly<{
   [key: string]: ActionBuilderWithFunction<any>
@@ -32,6 +29,8 @@ export type TCallerSuccessResult<
   id: string
   arguments: z.input<ReturnType<TAction["getInputSchema"]>>
   parsedArguments: z.output<ReturnType<TAction["getInputSchema"]>>
+  isSuccess: true
+  isError: false
 }
 
 export type TCallerErrorResult<TAction extends ActionBuilderWithFunction<any>> =
@@ -40,6 +39,9 @@ export type TCallerErrorResult<TAction extends ActionBuilderWithFunction<any>> =
     message: string
     cause?: Error
     actionId: ReturnType<TAction["getId"]>
+    data: undefined
+    isError: true
+    isSuccess: false
     id: string
     failedArguments: z.input<ReturnType<TAction["getInputSchema"]>>
     functionName: ReturnType<TAction["getFunctionName"]>
@@ -64,7 +66,7 @@ export type TCallerResults<
 
 // infer the function extras needed based on the action registry
 type inferExtras<
-  TActionData extends TActionDataWithFunction,
+  TActionData extends TAnyActionData,
   T extends Readonly<{
     [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
   }>,
@@ -72,7 +74,7 @@ type inferExtras<
   ReturnType<ValuesOf<T>["getRegistryData"]> extends infer TRegistry
     ? TRegistry extends TAnyRegistryData
       ? TRegistry["actionFunctionExtrasSchema"] extends infer A
-        ? A extends z.AnyZodObject
+        ? A extends ValidZodSchema
           ? { extras: z.input<A> }
           : {}
         : {}
@@ -148,12 +150,12 @@ export type TFunctionCallingArgs<
 > = {
   inArray?: U
   runInParallel?: boolean
-} & inferExtras<TActionDataWithFunction, TRegistry> &
+} & inferExtras<TAnyActionData, TRegistry> &
   inferOAuthFunction<TRegistry, TActionRegistrySubset<TRegistry, U>> &
   inferTokenFunction<TRegistry, TActionRegistrySubset<TRegistry, U>>
 
 type TActionCaller<
-  TActionData extends TActionDataWithFunction,
+  TActionData extends TAnyActionData,
   TRegistry extends Readonly<{
     [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
   }>,
@@ -163,7 +165,7 @@ type TActionCaller<
 ) => Promise<TCallerResults<TRegistry, TActionRegistrySubset<TRegistry, U>>>
 
 export const setupActionCaller = <
-  TActionData extends TActionDataWithFunction,
+  TActionData extends TAnyActionData,
   const TRegistry extends Readonly<{
     [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
   }>,
@@ -203,7 +205,7 @@ export const setupActionCaller = <
   const runInParallel = args.runInParallel || false
 
   // get the extras
-  let funcitonExtras: z.AnyZodObject["_output"] | undefined = undefined
+  let funcitonExtras: ValidZodSchema["_output"] | undefined = undefined
   if (
     "extras" in args &&
     actionIds.length > 0 &&
@@ -254,10 +256,7 @@ export const setupActionCaller = <
       if (!action) continue
 
       // parse the input
-      const submissionSchema = action.getSubmissionSchema()
-      const schema = submissionSchema
-        ? submissionSchema
-        : action.getInputSchema()
+      const schema = action.getInputSchema()
       const functionArgs = schema.safeParse(input.arguments)
 
       // the input is invalid
@@ -271,6 +270,9 @@ export const setupActionCaller = <
           id: inputId,
           failedArguments: input.arguments,
           failedParsedArguments: null,
+          isError: true,
+          isSuccess: false,
+          data: undefined,
         })
         continue
       }
@@ -290,6 +292,9 @@ export const setupActionCaller = <
                 message: `The action with the ID ${JSON.stringify(actionId)} requires OAuth authentication, but no fetchOAuthAccessToken function was provided.`,
                 actionId,
                 functionName,
+                isError: true,
+                isSuccess: false,
+                data: undefined,
                 id: inputId,
                 failedArguments: input.arguments,
                 failedParsedArguments: functionArgs.data,
@@ -313,6 +318,9 @@ export const setupActionCaller = <
                 id: inputId,
                 failedArguments: input.arguments,
                 failedParsedArguments: functionArgs.data,
+                isError: true,
+                isSuccess: false,
+                data: undefined,
               })
               return
             }
@@ -342,29 +350,20 @@ export const setupActionCaller = <
 
           const outputSchema = action.getOutputSchema()
 
-          if (outputSchema !== z.void()) {
-            const parsed = outputSchema.parse(output)
-
-            results.push({
-              status: "success",
-              data: parsed,
-              actionId,
-              id: inputId,
-              functionName,
-              parsedArguments: functionArgs.data,
-              arguments: input.arguments,
-            })
-          } else {
-            results.push({
-              status: "success",
-              data: undefined,
-              actionId,
-              id: inputId,
-              functionName,
-              parsedArguments: functionArgs.data,
-              arguments: input.arguments,
-            })
-          }
+          results.push({
+            status: "success",
+            data:
+              outputSchema === z.void()
+                ? undefined
+                : outputSchema.parse(output),
+            actionId,
+            id: inputId,
+            isSuccess: true,
+            isError: false,
+            functionName,
+            parsedArguments: functionArgs.data,
+            arguments: input.arguments,
+          })
         } catch (error: unknown) {
           results.push({
             status: "error",
@@ -374,6 +373,9 @@ export const setupActionCaller = <
                 ? (error as unknown as { message: string })["message"]
                 : "Unknown error",
             actionId,
+            isError: true,
+            isSuccess: false,
+            data: undefined,
             id: inputId,
             functionName,
             failedParsedArguments: functionArgs.data,

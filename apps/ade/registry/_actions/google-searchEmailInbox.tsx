@@ -1,5 +1,5 @@
 import z from "zod"
-import { createADEAction } from "./_properties/generators"
+import { createADEAction } from "../_properties/generators"
 
 const OutputSchema = z.object({
   messages: z
@@ -57,7 +57,7 @@ const GoogleSearchEmailInboxAction = createADEAction({
       })
       .describe(`List the messages in your Gmail inbox`)
   )
-  .setActionType("GET")
+  .setActionType("SERVER")
   .setOutputSchema(OutputSchema)
   .setAuthType("OAuth")
   .setOAuthData({

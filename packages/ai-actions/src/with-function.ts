@@ -1,35 +1,10 @@
 import OpenAI from "openai"
 import z from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
-import { TActionData } from "./action-data"
-import { TActionAuth, TTokenCustomData } from "./auth"
-import { TActionDataWithAuth } from "./with-auth"
-
-export type TActionBuilderWithFunctionData<
-  TAuthActionData extends TActionDataWithAuth,
-> = TAuthActionData["authConfig"] extends infer U
-  ? U extends TActionAuth<TAuthActionData["registryData"], TTokenCustomData>
-    ? TAuthActionData &
-        Pick<
-          TActionData<
-            TAuthActionData["registryData"],
-            TAuthActionData["id"],
-            TAuthActionData["functionName"],
-            TAuthActionData["inputSchema"],
-            TAuthActionData["outputSchema"],
-            U,
-            TAuthActionData["submissionSchema"]
-          >,
-          "actionFunction" | "exampleInput"
-        >
-    : never
-  : never
-
-export type TActionDataWithFunction =
-  TActionBuilderWithFunctionData<TActionDataWithAuth>
+import { TAnyActionData } from "./action-data"
 
 export class ActionBuilderWithFunction<
-  TLocalActionData extends TActionDataWithFunction,
+  TLocalActionData extends TAnyActionData,
 > {
   actionData: TLocalActionData
 
@@ -66,10 +41,6 @@ export class ActionBuilderWithFunction<
     return this.actionData.inputSchema
   }
 
-  getSubmissionSchema(): TLocalActionData["submissionSchema"] {
-    return this.actionData.submissionSchema
-  }
-
   getActionFunction(): TLocalActionData["actionFunction"] {
     return this.actionData.actionFunction
   }
@@ -86,8 +57,8 @@ export class ActionBuilderWithFunction<
     return zodToJsonSchema(this.actionData.outputSchema)
   }
 
-  getComponent(): TLocalActionData["component"] {
-    return this.actionData.component
+  getActionType(): TLocalActionData["actionType"] {
+    return this.actionData.actionType
   }
 
   getRegistryData(): TLocalActionData["registryData"] {

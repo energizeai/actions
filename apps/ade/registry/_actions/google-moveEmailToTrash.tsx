@@ -1,23 +1,5 @@
-import { inferActionComponent } from "ai-actions"
 import z from "zod"
-import { GoogleMoveEmailToTrashCard } from "./_components/google-move-email-to-trash-card"
-import { createADEAction } from "./_properties/generators"
-
-const actionInputSchema = z
-  .object({
-    messageIds: z.array(
-      z
-        .string()
-        .min(1)
-        .describe(`The ID of the message/email to be moved to the trash.`)
-    ),
-  })
-  .describe(`Moves the specified message to the trash.`)
-
-export type TGoogleMoveEmailToTrashCard = inferActionComponent<
-  typeof createADEAction,
-  typeof actionInputSchema
->
+import { createADEAction } from "../_properties/generators"
 
 const GoogleMoveEmailToTrash = createADEAction({
   id: "google-moveEmailToTrash",
@@ -35,9 +17,20 @@ const GoogleMoveEmailToTrash = createADEAction({
     examples: ["Can you please delete that email?"],
   },
 })
-  .setInputSchema(actionInputSchema)
-  .setActionType("POST")
-  .setOutputComponent(GoogleMoveEmailToTrashCard)
+  .setInputSchema(
+    z
+      .object({
+        messageIds: z.array(
+          z
+            .string()
+            .min(1)
+            .describe(`The ID of the message/email to be moved to the trash.`)
+        ),
+      })
+      .describe(`Moves the specified message to the trash.`)
+  )
+  .setActionType("CLIENT")
+  .setOutputAsVoid()
   .setAuthType("OAuth")
   .setOAuthData({
     humanReadableDescription: "Ability to modify your Google emails",

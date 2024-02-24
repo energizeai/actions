@@ -1,5 +1,5 @@
 import z from "zod"
-import { createADEAction } from "./_properties/generators"
+import { createADEAction } from "../_properties/generators"
 
 const PlanetScaleGetBranchTableSchema = z.object({
   name: z.string(),
@@ -53,7 +53,7 @@ const PlanetScaleGetBranchSchemaAction = createADEAction({
       })
       .describe(`Get the schema for the current branch in PlanetScale.`)
   )
-  .setActionType("GET")
+  .setActionType("SERVER")
   .setOutputSchema(
     z.object({
       rawTables: z.array(

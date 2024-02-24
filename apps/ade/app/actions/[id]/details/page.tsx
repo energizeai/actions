@@ -5,6 +5,7 @@ import { TActionId } from "@/registry/_properties/types"
 import { ExternalLink } from "lucide-react"
 import Link from "next/link"
 
+import { TClientActionId } from "@/registry/client"
 import { ActionComponent } from "../_components/action-component"
 
 export default function ActionDetailsPage({
@@ -111,11 +112,11 @@ export default function ActionDetailsPage({
       <p className="text-muted-foreground mb-7">
         This is the resulting output of the action.
       </p>
-      {actionData.getComponent() !== null ? (
+      {actionData.getActionType() === "CLIENT" ? (
         <div className="lg:max-w-screen-sm">
           <ActionComponent
-            actionId={params.id}
-            inputDataAsString={undefined}
+            clientActionId={params.id as TClientActionId}
+            args={undefined}
             state="placeholder"
             userData={undefined}
           />

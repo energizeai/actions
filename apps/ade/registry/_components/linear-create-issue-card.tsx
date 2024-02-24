@@ -25,21 +25,30 @@ import { Textarea } from "@/components/ui/textarea"
 import { ThemedImage } from "@/components/ui/themed-image"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { inferActionComponentProps } from "ai-actions"
 import { useForm } from "react-hook-form"
 import z from "zod"
-import { TLinearCreateIssueCard } from "../linear-createIssue"
+import { TActionComponentRouter } from "../client"
 
-const LinearCreateIssueCard: TLinearCreateIssueCard = ({
-  data,
+type Props = inferActionComponentProps<
+  TActionComponentRouter,
+  "linear-createIssue"
+>
+
+const LinearCreateIssueCard = ({
+  args,
   displayState,
-  inputSchema,
   metadata,
-}) => {
+  inputSchema,
+  isLoading,
+  isSuccess,
+  onSubmit,
+}: Props) => {
   const form = useForm<z.infer<typeof inputSchema>>({
     resolver: zodResolver(inputSchema),
     defaultValues: {
-      title: data?.input.title || "",
-      description: data?.input.description || "",
+      title: args ? args.title : "",
+      description: args ? args.description : "",
     },
   })
 
@@ -63,13 +72,7 @@ const LinearCreateIssueCard: TLinearCreateIssueCard = ({
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form
-          onSubmit={
-            data && Boolean(data.onSubmit)
-              ? form.handleSubmit(data.onSubmit)
-              : undefined
-          }
-        >
+        <form onSubmit={args ? form.handleSubmit(onSubmit) : undefined}>
           <CardContent className="flex flex-col gap-4">
             <FormField
               control={form.control}
@@ -119,13 +122,11 @@ const LinearCreateIssueCard: TLinearCreateIssueCard = ({
           <CardFooter className="justify-end">
             <Button
               type="submit"
-              disabled={
-                displayState !== "active" || data.isLoading || data.isSuccess
-              }
-              variant={data?.isSuccess ? "success" : undefined}
+              disabled={displayState !== "active" || isLoading || isSuccess}
+              variant={isSuccess ? "success" : undefined}
             >
-              {data?.isLoading ? <Spinner /> : null}
-              {!data?.isSuccess ? "Create" : "Created!"}
+              {isLoading ? <Spinner /> : null}
+              {!isSuccess ? "Create" : "Created!"}
             </Button>
           </CardFooter>
         </form>
