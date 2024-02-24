@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.7.0
+
+### Minor Changes
+
+- 26988b3: Ability to add an ActionsRegistryProvider and useActionRegistry
+
 ## 0.6.0
 
 ### Minor Changes
