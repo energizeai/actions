@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.6.0
+
+### Minor Changes
+
+- d503bac: Ability to make a clientActionRegistry that feeds into a createActionComponentRouter
+
 ## 0.5.0
 
 ### Minor Changes
