@@ -18,7 +18,7 @@ type ClientActionData<
 }
 
 type TAnyClientActionRegistry = Readonly<{
-  [key: string]: ClientActionData<string, string, TActionInput, TClientMetadata>
+  [K in string]: ClientActionData<string, K, TActionInput, TClientMetadata>
 }>
 
 export type inferActionComponentRouter<
@@ -102,7 +102,7 @@ type inferClientAct<
   TTransformedMetadata extends TClientMetadata,
 > = {
   [K in keyof T as ReturnType<T[K]["getActionType"]> extends "CLIENT"
-    ? K
+    ? ReturnType<T[K]["getFunctionName"]>
     : never]: ClientActionData<
     ReturnType<T[K]["getId"]>,
     ReturnType<T[K]["getFunctionName"]>,
