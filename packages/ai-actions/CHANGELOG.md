@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.7.1
+
+### Patch Changes
+
+- 800a349: Fixed bug where input schema wasn't being dezerialized
+
 ## 0.7.0
 
 ### Minor Changes
