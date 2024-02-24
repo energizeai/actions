@@ -27,3 +27,5 @@ export type TActionComponentRouter = inferActionComponentRouter<
 >
 
 export type TClientActionId = keyof typeof ClientActionsRegistry
+
+export type TClientActionsRegistry = typeof ClientActionsRegistry
