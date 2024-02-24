@@ -5,7 +5,7 @@ import { ValidZodSchema } from "./action-data"
 
 type TClientMetadata = z.output<ValidZodSchema> | never
 
-type ClientSafeActionData<
+type ClientActionData<
   TId extends string,
   TFunctionName extends string,
   TInputSchema extends TActionInput,
@@ -17,17 +17,12 @@ type ClientSafeActionData<
   metadata: TMetadata
 }
 
-type TAnyClientSafeActionRegistry = Readonly<{
-  [key: string]: ClientSafeActionData<
-    string,
-    string,
-    TActionInput,
-    TClientMetadata
-  >
+type TAnyClientActionRegistry = Readonly<{
+  [key: string]: ClientActionData<string, string, TActionInput, TClientMetadata>
 }>
 
 export type inferActionComponentRouter<
-  T extends TAnyClientSafeActionRegistry,
+  T extends TAnyClientActionRegistry,
   Props extends {} = {},
 > = {
   [K in keyof T]: Props & {
@@ -40,12 +35,12 @@ export type inferActionComponentRouter<
 }
 
 export type inferActionComponentProps<
-  T extends inferActionComponentRouter<TAnyClientSafeActionRegistry, any>,
+  T extends inferActionComponentRouter<TAnyClientActionRegistry, any>,
   K extends keyof T,
 > = T[K]
 
 export const createActionComponentRouter = <
-  TRouter extends inferActionComponentRouter<TAnyClientSafeActionRegistry, any>,
+  TRouter extends inferActionComponentRouter<TAnyClientActionRegistry, any>,
 >(args: {
   [K in keyof TRouter]: React.FC<inferActionComponentProps<TRouter, K>>
 }) => {
@@ -84,10 +79,6 @@ export const createActionComponentRouter = <
 
       const parsedArgs = props.inputSchema.safeParse(props.args)
 
-      console.log("rendering component")
-      console.log(props.args)
-      console.log(parsedArgs)
-
       const finalProps = {
         ...rest,
         args: parsedArgs.success ? parsedArgs.data : null,
@@ -106,13 +97,13 @@ export const createActionComponentRouter = <
   return Component
 }
 
-type inferClientSafe<
+type inferClientAct<
   T extends TAnyActionRegistry,
   TTransformedMetadata extends TClientMetadata,
 > = {
   [K in keyof T as ReturnType<T[K]["getActionType"]> extends "CLIENT"
     ? K
-    : never]: ClientSafeActionData<
+    : never]: ClientActionData<
     ReturnType<T[K]["getId"]>,
     ReturnType<T[K]["getFunctionName"]>,
     ReturnType<T[K]["getInputSchema"]>,
@@ -120,7 +111,7 @@ type inferClientSafe<
   >
 }
 
-export const createClientSafeActionRegistry = <
+export const createClientActionRegistry = <
   const T extends TAnyActionRegistry,
   TTransformedMetadata extends TClientMetadata = never,
 >(
@@ -132,8 +123,8 @@ export const createClientSafeActionRegistry = <
         : never
       : never
   }
-): inferClientSafe<T, TTransformedMetadata> => {
-  type TRet = inferClientSafe<T, TTransformedMetadata>
+): inferClientAct<T, TTransformedMetadata> => {
+  type TRet = inferClientAct<T, TTransformedMetadata>
   const newRegistry = {} as TRet
 
   const keys = Object.keys(registry) as (keyof T)[]

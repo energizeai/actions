@@ -1,10 +1,10 @@
 import {
-  createClientSafeActionRegistry,
+  createClientActionRegistry,
   inferActionComponentRouter,
 } from "ai-actions"
 import { ActionsRegistry } from "."
 
-export const ClientSafeActionsRegistry = createClientSafeActionRegistry(
+export const ClientActionsRegistry = createClientActionRegistry(
   ActionsRegistry,
   {
     pipeMetadata(metadata) {
@@ -18,7 +18,7 @@ export const ClientSafeActionsRegistry = createClientSafeActionRegistry(
 )
 
 export type TActionComponentRouter = inferActionComponentRouter<
-  typeof ClientSafeActionsRegistry,
+  typeof ClientActionsRegistry,
   {
     displayState: "placeholder" | "active" | "skeleton"
     isLoading: boolean
@@ -26,4 +26,4 @@ export type TActionComponentRouter = inferActionComponentRouter<
   }
 >
 
-export type TClientActionId = keyof typeof ClientSafeActionsRegistry
+export type TClientActionId = keyof typeof ClientActionsRegistry

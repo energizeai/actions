@@ -5,7 +5,7 @@ import { GoogleReplyToEmailCard } from "@/registry/_components/google-reply-to-e
 import { GoogleSendMailCard } from "@/registry/_components/google-send-mail-card"
 import { LinearCreateIssueCard } from "@/registry/_components/linear-create-issue-card"
 import {
-  ClientSafeActionsRegistry,
+  ClientActionsRegistry,
   TActionComponentRouter,
   TClientActionId,
 } from "@/registry/client"
@@ -40,7 +40,7 @@ function ActionComponent({
     "google-replyToEmail": GoogleReplyToEmailCard,
   })
 
-  const actionData = ClientSafeActionsRegistry[clientActionId]
+  const actionData = ClientActionsRegistry[clientActionId]
 
   return (
     <Router

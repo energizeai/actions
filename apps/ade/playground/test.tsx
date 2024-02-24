@@ -1,6 +1,6 @@
 import {
   createActionComponentRouter,
-  createClientSafeActionRegistry,
+  createClientActionRegistry,
   generateActionRegistryFunctions,
   inferActionComponentProps,
   inferActionComponentRouter,
@@ -114,7 +114,7 @@ const main = async () => {
     sendGoodbyeMessage,
   ])
 
-  const clientDemoRegistry = createClientSafeActionRegistry(demoRegistry, {
+  const clientDemoRegistry = createClientActionRegistry(demoRegistry, {
     pipeMetadata(metadata) {
       return metadata.title
     },
