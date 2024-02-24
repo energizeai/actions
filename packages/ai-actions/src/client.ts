@@ -1,6 +1,6 @@
 import React from "react"
 import z from "zod"
-import { TActionInput, TAnyActionRegistry } from "."
+import { TActionInput, TAnyActionRegistry, ValuesOf } from "."
 import { ValidZodSchema } from "./action-data"
 
 type TClientMetadata = z.output<ValidZodSchema> | never
@@ -55,20 +55,21 @@ export const createActionComponentRouter = <
       : { other: string }
 
   type C = React.FC<
-    CustomProps &
-      {
-        [K in keyof TRouter]: {
-          functionName: K
-          args: z.input<TRouter[K]["inputSchema"]>
-          inputSchema: TRouter[K]["inputSchema"]
-          onSubmit: (args: {
+    CustomProps & {
+      functionName: string
+      args: unknown
+      inputSchema: TRouter[keyof TRouter]["inputSchema"]
+      onSubmit: (
+        args: ValuesOf<{
+          [K in keyof TRouter]: {
             functionName: K
             args: NonNullable<TRouter[K]["args"]>
-          }) => void
-        }
-      }[keyof TRouter] & {
-        fallback?: React.ReactNode
-      }
+          }
+        }>
+      ) => void
+      fallback?: React.ReactNode
+      metadata: TRouter[keyof TRouter]["metadata"]
+    }
   >
 
   const Component: C = (props) => {
@@ -82,6 +83,10 @@ export const createActionComponentRouter = <
       const { fallback, onSubmit: wrapperOnSubmit, ...rest } = props
 
       const parsedArgs = props.inputSchema.safeParse(props.args)
+
+      console.log("rendering component")
+      console.log(props.args)
+      console.log(parsedArgs)
 
       const finalProps = {
         ...rest,

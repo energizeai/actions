@@ -188,6 +188,7 @@ const main = async () => {
           args.category
         }
       }}
+      metadata={clientDemoRegistry["sendGreeting"].metadata}
     />
   )
 
@@ -214,13 +215,6 @@ const main = async () => {
   console.log(results)
 
   for (const r of results) {
-    if (r.status === "error") {
-      continue
-    }
-
-    if (r.actionId === "sendGoodbyeMessage") {
-      r.data
-    }
   }
 }
 

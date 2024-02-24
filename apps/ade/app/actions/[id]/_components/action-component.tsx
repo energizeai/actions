@@ -10,18 +10,26 @@ import {
   TClientActionId,
 } from "@/registry/client"
 import { api } from "@/trpc/react"
+import { extractErrorMessage } from "@/trpc/shared"
 import { createActionComponentRouter } from "ai-actions"
 import { toast } from "sonner"
-import { z } from "zod"
 
 function ActionComponent({
   clientActionId,
   state,
   args,
+  userData = {
+    email: "",
+    name: "",
+  },
 }: {
   clientActionId: TClientActionId
   state: "active" | "placeholder" | "skeleton"
   args: any
+  userData?: {
+    email: string
+    name: string
+  }
 }) {
   const caller = api.actions.testActionFunction.useMutation()
 
@@ -39,7 +47,8 @@ function ActionComponent({
       displayState={state}
       inputSchema={actionData.inputSchema}
       functionName={actionData.functionName}
-      args={args as z.input<typeof actionData.inputSchema>}
+      args={args}
+      metadata={actionData.metadata}
       isLoading={caller.isLoading}
       isSuccess={caller.isSuccess}
       onSubmit={(props) => {
@@ -47,10 +56,10 @@ function ActionComponent({
           caller.mutateAsync({
             actionId: clientActionId,
             inputDataAsString: JSON.stringify(props.args),
-            userData: props.userData,
+            userData,
           })
-        } catch {
-          toast.error("Error running action.")
+        } catch (error) {
+          toast.error(extractErrorMessage(error))
         }
       }}
     />

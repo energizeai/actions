@@ -1,5 +1,5 @@
 import z from "zod"
-import { TActionAuth, TAnyActionAuth, TAuthArg, TTokenCustomData } from "./auth"
+import { TAnyActionAuth, TAuthArg } from "./auth"
 
 export type ValidZodSchema = z.ZodString | z.ZodNumber | z.AnyZodObject
 
@@ -126,12 +126,4 @@ export type TActionData<
   exampleInput: z.input<TInput> | null
 }
 
-export type TAnyActionData = TActionData<
-  TAnyRegistryData,
-  string,
-  string,
-  TActionInput,
-  TActionOutput,
-  TActionAuth<TAnyRegistryData, TTokenCustomData>,
-  TActionType
->
+export type TAnyActionData = TActionData<any, any, any, any, any, any, any>

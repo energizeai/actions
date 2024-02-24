@@ -40,6 +40,7 @@ import {
 import { env } from "@/env/client.mjs"
 import useLocalStorage from "@/lib/hooks/use-local-storage"
 import { cn } from "@/lib/utils"
+import { TClientActionId } from "@/registry/client"
 import { extractErrorMessage } from "@/trpc/shared"
 import hjson from "hjson"
 import Link from "next/link"
@@ -189,7 +190,7 @@ export default function ActionTestForm({
   const handleTest = async () => {
     if (componentLoading) return
 
-    if (action.getComponent()) {
+    if (action.getActionType() === "CLIENT") {
       setComponentLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setComponentLoading(false)
@@ -248,21 +249,21 @@ export default function ActionTestForm({
     )
   }
 
-  if (action.getComponent() && componentLoading) {
+  if (action.getActionType() === "CLIENT" && componentLoading) {
     output = (
       <ActionComponent
-        clientActionId={params.id}
+        clientActionId={params.id as TClientActionId}
         state="skeleton"
         key={`action-component-${refreshKey}`}
-        inputDataAsString={undefined}
+        args={undefined}
         userData={undefined}
       />
     )
-  } else if (componentInput && action.getComponent()) {
+  } else if (componentInput && action.getActionType() === "CLIENT") {
     output = (
       <ActionComponent
-        clientActionId={params.id}
-        inputDataAsString={componentInput}
+        clientActionId={params.id as TClientActionId}
+        args={JSON.parse(componentInput)}
         state="active"
         key={`action-component-${refreshKey}`}
         userData={userData}

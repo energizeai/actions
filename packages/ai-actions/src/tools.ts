@@ -6,10 +6,8 @@ import {
   TFunctionCallingArgs,
   setupActionCaller,
 } from "."
-import {
-  ActionBuilderWithFunction,
-  TActionDataWithFunction,
-} from "./with-function"
+import { TAnyActionData } from "./action-data"
+import { ActionBuilderWithFunction } from "./with-function"
 
 /**
  * Given an action registry, generate the tools for the LLM.
@@ -70,7 +68,7 @@ type TToolCallHandler<
 }>
 
 export const setupFunctionCalling = <
-  TActionData extends TActionDataWithFunction,
+  TActionData extends TAnyActionData,
   const T extends Readonly<{
     [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
   }>,
