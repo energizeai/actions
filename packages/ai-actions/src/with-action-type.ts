@@ -11,7 +11,7 @@ export class ActionBuilderWithActionType<
   TLocalActionData extends TActionDataWithInput,
 > {
   actionData: TLocalActionData
-  private actionType: TType
+  actionType: TType
 
   constructor({
     actionData,

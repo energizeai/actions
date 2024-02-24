@@ -149,31 +149,3 @@ export const createClientActionRegistry = <
 
   return newRegistry
 }
-
-// export const createActionsRegistryClientRouter = <
-//   T extends TAnyActionRegistry,
-//   Props extends {} = {},
-// >(args: {
-//   clientRouter: {
-//     [K in inferClientActionIds<T>]: (props: Props) => React.ReactNode
-//   }
-// }): React.FC<
-//   {
-//     fallback?: React.ReactNode
-//     action: {
-//       [K in keyof T]: {
-//         functionName: ReturnType<T[K]["getFunctionName"]>
-//         arguments: z.output<ReturnType<T[K]["getInputSchema"]>>
-//       }
-//     }[keyof T]
-//   } & Props
-// > => {
-//   return ({
-//     fallback,
-//     ...props
-//   }: {
-//     fallback?: React.ReactNode
-//   } & Props) => {
-//     return null
-//   }
-// }
