@@ -1,5 +1,6 @@
 import React from "react"
 import z from "zod"
+import { dezerialize, zerialize } from "zodex"
 import { TActionInput, TAnyActionRegistry, ValuesOf } from "."
 import { ValidZodSchema } from "./action-data"
 
@@ -17,7 +18,7 @@ type ClientActionData<
   metadata: TMetadata
 }
 
-type TAnyClientActionRegistry = Readonly<{
+export type TAnyClientActionRegistry = Readonly<{
   [K in string]: ClientActionData<string, K, TActionInput, TClientMetadata>
 }>
 
@@ -77,7 +78,9 @@ export const createActionComponentRouter = <
 
       const { fallback, onSubmit: wrapperOnSubmit, ...rest } = props
 
-      const parsedArgs = props.inputSchema.safeParse(props.args)
+      const dezerialized = dezerialize(props.inputSchema)
+
+      const parsedArgs = dezerialized.safeParse(props.args)
 
       const finalProps = {
         ...rest,
@@ -138,7 +141,7 @@ export const createClientActionRegistry = <
 
     // @ts-ignore
     newRegistry[key as keyof TRet] = {
-      inputSchema: action.getInputSchema(),
+      inputSchema: zerialize(action.getInputSchema()),
       functionName: action.getFunctionName(),
       actionId: action.getId(),
       metadata: options?.pipeMetadata

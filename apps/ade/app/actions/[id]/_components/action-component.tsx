@@ -5,10 +5,11 @@ import { GoogleReplyToEmailCard } from "@/registry/_components/google-reply-to-e
 import { GoogleSendMailCard } from "@/registry/_components/google-send-mail-card"
 import { LinearCreateIssueCard } from "@/registry/_components/linear-create-issue-card"
 import {
-  ClientActionsRegistry,
   TActionComponentRouter,
   TClientActionId,
+  TClientActionsRegistry,
 } from "@/registry/client"
+import { useActionRegistry } from "@/registry/provider"
 import { api } from "@/trpc/react"
 import { extractErrorMessage } from "@/trpc/shared"
 import { createActionComponentRouter } from "ai-actions"
@@ -31,6 +32,7 @@ function ActionComponent({
     name: string
   }
 }) {
+  const { clientRegistry } = useActionRegistry<TClientActionsRegistry>()
   const caller = api.actions.testActionFunction.useMutation()
 
   const Router = createActionComponentRouter<TActionComponentRouter>({
@@ -40,7 +42,7 @@ function ActionComponent({
     "google-replyToEmail": GoogleReplyToEmailCard,
   })
 
-  const actionData = ClientActionsRegistry[clientActionId]
+  const actionData = clientRegistry[clientActionId]
 
   return (
     <Router
