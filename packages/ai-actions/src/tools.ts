@@ -67,6 +67,10 @@ type TToolCallHandler<
   results: TCallerResults<T, TActionRegistrySubset<T, U>>
 }>
 
+type TToolSelect<T extends Readonly<{
+  [key: string]: ActionBuilderWithFunction<any>
+}>> = (id: keyof T | "auto") => OpenAI.Chat.Completions.ChatCompletionToolChoiceOption
+
 export const setupFunctionCalling = <
   TActionData extends TAnyActionData,
   const T extends Readonly<{
@@ -88,6 +92,7 @@ export const setupFunctionCalling = <
 ): {
   tools: OpenAI.Chat.Completions.ChatCompletionTool[]
   toolCallsHandler: TToolCallHandler<T, U>
+  toolSelect: TToolSelect<T>
 } => {
   const { inArray } = args
 
@@ -142,9 +147,9 @@ export const setupFunctionCalling = <
         content:
           result.status === "error"
             ? JSON.stringify({
-                status: "error",
-                message: result.message,
-              })
+              status: "error",
+              message: result.message,
+            })
             : JSON.stringify(result.data),
       }
 
@@ -157,8 +162,18 @@ export const setupFunctionCalling = <
     }
   }
 
+  const toolSelect: TToolSelect<T> = (id) => {
+    if ("auto") {
+      return "auto"
+    }
+    else {
+      return { "type": "function", "function": { "name": registry[id].getFunctionName() } }
+    }
+  }
+
   return {
     tools,
     toolCallsHandler,
+    toolSelect
   }
 }
