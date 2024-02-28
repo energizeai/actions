@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.8.0
+
+### Minor Changes
+
+- e163836: New createFewShotToolCallMessage helper method
+
 ## 0.7.1
 
 ### Patch Changes
