@@ -14,7 +14,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf .next",
     "generate:action": "turbo gen action-starter",
-    "playground": "tsx playground/test.tsx"
+    "playground": "dotenv -e .env.local -- npx tsx playground/test.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

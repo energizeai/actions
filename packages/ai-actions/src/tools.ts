@@ -1,9 +1,12 @@
 import OpenAI from "openai"
+import z from "zod"
 import {
   TActionCallerInput,
   TActionRegistrySubset,
+  TAnyActionRegistry,
   TCallerResults,
   TFunctionCallingArgs,
+  ValuesOf,
   setupActionCaller,
 } from "."
 import { TAnyActionData } from "./action-data"
@@ -56,9 +59,7 @@ export const generateLLMTools = <
 }
 
 type TToolCallHandler<
-  T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
-  }>,
+  T extends TAnyActionRegistry,
   U extends (keyof T)[] | undefined,
 > = (
   toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
@@ -66,6 +67,25 @@ type TToolCallHandler<
   toolCallMessages: OpenAI.Chat.Completions.ChatCompletionToolMessageParam[]
   results: TCallerResults<T, TActionRegistrySubset<T, U>>
 }>
+
+type TCreateFewShotToolCallMessages<
+  TRegistry extends TAnyActionRegistry,
+  U extends (keyof TRegistry)[] | undefined,
+> = (
+  examples: {
+    userMessageContent: string
+    tool_calls: ValuesOf<{
+      [K in TActionRegistrySubset<TRegistry, U>]: {
+        name: ReturnType<TRegistry[K]["getFunctionName"]>
+        arguments: z.input<ReturnType<TRegistry[K]["getInputSchema"]>>
+      } & (ReturnType<TRegistry[K]["getActionType"]> extends "ECHO"
+        ? {}
+        : ReturnType<TRegistry[K]["getOutputSchema"]> extends z.ZodVoid
+          ? {}
+          : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
+    }>[]
+  }[]
+) => OpenAI.Chat.Completions.ChatCompletionMessageParam[]
 
 export const setupFunctionCalling = <
   TActionData extends TAnyActionData,
@@ -88,6 +108,7 @@ export const setupFunctionCalling = <
 ): {
   tools: OpenAI.Chat.Completions.ChatCompletionTool[]
   toolCallsHandler: TToolCallHandler<T, U>
+  createFewShotToolCallMessages: TCreateFewShotToolCallMessages<T, U>
 } => {
   const { inArray } = args
 
@@ -157,8 +178,65 @@ export const setupFunctionCalling = <
     }
   }
 
+  const createFewShotToolCallMessages: TCreateFewShotToolCallMessages<T, U> = (
+    examples
+  ) => {
+    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = []
+
+    for (const example of examples) {
+      messages.push({
+        role: "user",
+        content: example.userMessageContent,
+      })
+
+      const generateToolCallId = () => {
+        return "call_" + Math.random().toString(36).substring(2, 12)
+      }
+
+      const toolCallIds = example.tool_calls.map(() => generateToolCallId())
+
+      messages.push({
+        role: "assistant",
+        tool_calls: example.tool_calls.map((toolCall, ix) => ({
+          id: toolCallIds[ix]!,
+          function: {
+            name: toolCall.name,
+            arguments: JSON.stringify(toolCall.arguments),
+          },
+          type: "function",
+        })),
+      })
+
+      for (const [ix, toolCall] of example.tool_calls.entries()) {
+        const foundAction = Object.values(registry).find(
+          (action) =>
+            (action as (typeof registry)[string]).getFunctionName() ===
+            toolCall.name
+        ) as (typeof registry)[string] | undefined
+
+        if (!foundAction) {
+          throw new Error(`Could not find action with name ${toolCall.name}`)
+        }
+
+        messages.push({
+          role: "tool",
+          tool_call_id: toolCallIds[ix]!,
+          content:
+            "response" in toolCall
+              ? JSON.stringify(toolCall.response)
+              : foundAction.getActionType() === "ECHO"
+                ? JSON.stringify(toolCall.arguments)
+                : JSON.stringify({}),
+        })
+      }
+    }
+
+    return messages
+  }
+
   return {
     tools,
     toolCallsHandler,
+    createFewShotToolCallMessages,
   }
 }

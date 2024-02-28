@@ -117,6 +117,8 @@ export const generateActionRegistryFunctions = <
       registry: T
     ): TActionsRegistry<TRegistry, T> => {
       type TId = ReturnType<T[number]["getId"]>
+      const seenFunctionNames = new Set<string>()
+
       return Object.freeze(
         registry.reduce((acc, action) => {
           const id = action.getId() as TId
@@ -124,6 +126,14 @@ export const generateActionRegistryFunctions = <
           if (acc[id]) {
             throw new Error(`Duplicate action id: ${id}`)
           }
+
+          if (seenFunctionNames.has(action.getFunctionName())) {
+            throw new Error(
+              `Duplicate function name: ${action.getFunctionName()}`
+            )
+          }
+
+          seenFunctionNames.add(action.getFunctionName())
 
           acc[id] = action
           return acc
