@@ -64,8 +64,8 @@ export type TCallerResults<
     | TCallerErrorResult<TRegistry[K]>
 }>[]
 
-// infer the function extras needed based on the action registry
-type inferExtras<
+// infer the function context needed based on the action registry
+type inferContext<
   TActionData extends TAnyActionData,
   T extends Readonly<{
     [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
@@ -73,9 +73,9 @@ type inferExtras<
 > =
   ReturnType<ValuesOf<T>["getRegistryData"]> extends infer TRegistry
     ? TRegistry extends TAnyRegistryData
-      ? TRegistry["actionFunctionExtrasSchema"] extends infer A
+      ? TRegistry["actionFunctionContextSchema"] extends infer A
         ? A extends ValidZodSchema
-          ? { extras: z.input<A> }
+          ? { context: z.input<A> }
           : {}
         : {}
       : {}
@@ -150,7 +150,23 @@ export type TFunctionCallingArgs<
 > = {
   inArray?: U
   runInParallel?: boolean
-} & inferExtras<TAnyActionData, TRegistry> &
+  onActionExecutionStarted?: (
+    result: Pick<
+      TCallerSuccessResult<TRegistry[TActionRegistrySubset<TRegistry, U>]>,
+      "actionId" | "arguments" | "functionName" | "id"
+    > & {
+      timestamp: number
+    }
+  ) => void
+  onActionExecutionFinished?: (
+    result: TCallerResults<
+      TRegistry,
+      TActionRegistrySubset<TRegistry, U>
+    >[number] & {
+      timestamp: number
+    }
+  ) => void
+} & inferContext<TAnyActionData, TRegistry> &
   inferOAuthFunction<TRegistry, TActionRegistrySubset<TRegistry, U>> &
   inferTokenFunction<TRegistry, TActionRegistrySubset<TRegistry, U>>
 
@@ -203,25 +219,27 @@ export const setupActionCaller = <
   const validActionIds = new Set(actionIds)
 
   const runInParallel = args.runInParallel || false
+  const onActionExecutionFinished = args.onActionExecutionFinished
+  const onActionExecutionStarted = args.onActionExecutionStarted
 
-  // get the extras
-  let funcitonExtras: ValidZodSchema["_output"] | undefined = undefined
+  // get the context
+  let funcitonContext: ValidZodSchema["_output"] | undefined = undefined
   if (
-    "extras" in args &&
+    "context" in args &&
     actionIds.length > 0 &&
     registry[actionIds[0]!] &&
     registry[actionIds[0]!]
   ) {
-    const funcitonExtrasSchema =
-      registry[actionIds[0]!]!.getRegistryData().actionFunctionExtrasSchema
-    if (funcitonExtrasSchema) {
-      const funcitonExtrasSafe = funcitonExtrasSchema.safeParse(args.extras)
-      if (!funcitonExtrasSafe.success) {
+    const funcitonContextSchema =
+      registry[actionIds[0]!]!.getRegistryData().actionFunctionContextSchema
+    if (funcitonContextSchema) {
+      const funcitonContextSafe = funcitonContextSchema.safeParse(args.context)
+      if (!funcitonContextSafe.success) {
         throw new Error(
-          `The extras are invalid: ${funcitonExtrasSafe.error.message}`
+          `The context is invalid: ${funcitonContextSafe.error.message}`
         )
       }
-      funcitonExtras = funcitonExtrasSafe.data
+      funcitonContext = funcitonContextSafe.data
     }
   }
 
@@ -280,108 +298,130 @@ export const setupActionCaller = <
       const actionFunction = action.getActionFunction()
 
       const runActionFunction = async () => {
-        try {
-          let authData = actionIdToAuthDataCache[actionId as string]
-          let authConfig = action.getAuthConfig()
-
-          // if there is no auth data, and the action requires OAuth, fetch the OAuth token
-          if (!authData && authConfig.type === "OAuth") {
-            if (!("fetchOAuthAccessToken" in args)) {
-              results.push({
-                status: "error",
-                message: `The action with the ID ${JSON.stringify(actionId)} requires OAuth authentication, but no fetchOAuthAccessToken function was provided.`,
-                actionId,
-                functionName,
-                isError: true,
-                isSuccess: false,
-                data: undefined,
-                id: inputId,
-                failedArguments: input.arguments,
-                failedParsedArguments: functionArgs.data,
-              })
-              return
-            }
-
-            authData = await (
-              args.fetchOAuthAccessToken as TFetchOAuthAccessToken<
-                typeof actionId
-              >
-            )(actionId)
-          } else if (!authData && authConfig.type === "Token") {
-            // if there is no auth data, and the action requires Token, fetch the Token data
-            if (!("fetchTokenAuthData" in args)) {
-              results.push({
-                status: "error",
-                message: `The action with the ID ${JSON.stringify(actionId)} requires Token authentication, but no fetchTokenAuthData function was provided.`,
-                actionId,
-                functionName,
-                id: inputId,
-                failedArguments: input.arguments,
-                failedParsedArguments: functionArgs.data,
-                isError: true,
-                isSuccess: false,
-                data: undefined,
-              })
-              return
-            }
-
-            const tokenData = await (
-              args.fetchTokenAuthData as TFetchTokenAuthData<typeof actionId>
-            )(actionId)
-
-            // if there is a custom data schema, parse the custom data
-            tokenData.customData =
-              (authConfig.config.customDataSchema
-                ? authConfig.config.customDataSchema.parse(tokenData.customData)
-                : tokenData.customData) || null
-
-            authData = tokenData
-          }
-
-          // update the cache
-          actionIdToAuthDataCache[actionId as string] = authData
-
-          const output = await actionFunction({
-            input: functionArgs.data,
-            // @ts-expect-error
-            auth: authData,
-            extras: funcitonExtras,
-          })
-
-          const outputSchema = action.getOutputSchema()
-
-          results.push({
-            status: "success",
-            data:
-              outputSchema === z.void()
-                ? undefined
-                : outputSchema.parse(output),
+        if (onActionExecutionStarted) {
+          onActionExecutionStarted({
             actionId,
-            id: inputId,
-            isSuccess: true,
-            isError: false,
             functionName,
-            parsedArguments: functionArgs.data,
             arguments: input.arguments,
-          })
-        } catch (error: unknown) {
-          results.push({
-            status: "error",
-            cause: error as Error,
-            message:
-              error instanceof Object && "message" in error
-                ? (error as unknown as { message: string })["message"]
-                : "Unknown error",
-            actionId,
-            isError: true,
-            isSuccess: false,
-            data: undefined,
             id: inputId,
-            functionName,
-            failedParsedArguments: functionArgs.data,
-            failedArguments: input.arguments,
+            timestamp: Date.now(),
           })
         }
+
+        const getResult: () => Promise<(typeof results)[number]> = async () => {
+          try {
+            let authData = actionIdToAuthDataCache[actionId as string]
+            let authConfig = action.getAuthConfig()
+
+            // if there is no auth data, and the action requires OAuth, fetch the OAuth token
+            if (!authData && authConfig.type === "OAuth") {
+              if (!("fetchOAuthAccessToken" in args)) {
+                return {
+                  status: "error",
+                  message: `The action with the ID ${JSON.stringify(actionId)} requires OAuth authentication, but no fetchOAuthAccessToken function was provided.`,
+                  actionId,
+                  functionName,
+                  isError: true,
+                  isSuccess: false,
+                  data: undefined,
+                  id: inputId,
+                  failedArguments: input.arguments,
+                  failedParsedArguments: functionArgs.data,
+                }
+              }
+
+              authData = await (
+                args.fetchOAuthAccessToken as TFetchOAuthAccessToken<
+                  typeof actionId
+                >
+              )(actionId)
+            } else if (!authData && authConfig.type === "Token") {
+              // if there is no auth data, and the action requires Token, fetch the Token data
+              if (!("fetchTokenAuthData" in args)) {
+                return {
+                  status: "error",
+                  message: `The action with the ID ${JSON.stringify(actionId)} requires Token authentication, but no fetchTokenAuthData function was provided.`,
+                  actionId,
+                  functionName,
+                  id: inputId,
+                  failedArguments: input.arguments,
+                  failedParsedArguments: functionArgs.data,
+                  isError: true,
+                  isSuccess: false,
+                  data: undefined,
+                }
+              }
+
+              const tokenData = await (
+                args.fetchTokenAuthData as TFetchTokenAuthData<typeof actionId>
+              )(actionId)
+
+              // if there is a custom data schema, parse the custom data
+              tokenData.customData =
+                (authConfig.config.customDataSchema
+                  ? authConfig.config.customDataSchema.parse(
+                      tokenData.customData
+                    )
+                  : tokenData.customData) || null
+
+              authData = tokenData
+            }
+
+            // update the cache
+            actionIdToAuthDataCache[actionId as string] = authData
+
+            const output = await actionFunction({
+              input: functionArgs.data,
+              // @ts-expect-error
+              auth: authData,
+              context: funcitonContext,
+            })
+
+            const outputSchema = action.getOutputSchema()
+
+            return {
+              status: "success",
+              data:
+                outputSchema === z.void()
+                  ? undefined
+                  : outputSchema.parse(output),
+              actionId,
+              id: inputId,
+              isSuccess: true,
+              isError: false,
+              functionName,
+              parsedArguments: functionArgs.data,
+              arguments: input.arguments,
+            }
+          } catch (error: unknown) {
+            return {
+              status: "error",
+              cause: error as Error,
+              message:
+                error instanceof Object && "message" in error
+                  ? (error as unknown as { message: string })["message"]
+                  : "Unknown error",
+              actionId,
+              isError: true,
+              isSuccess: false,
+              data: undefined,
+              id: inputId,
+              functionName,
+              failedParsedArguments: functionArgs.data,
+              failedArguments: input.arguments,
+            }
+          }
+        }
+
+        const result = await getResult()
+
+        if (onActionExecutionFinished) {
+          onActionExecutionFinished({ ...result, timestamp: Date.now() })
+        }
+
+        results.push(result)
+
+        return
       }
 
       if (runInParallel) {
