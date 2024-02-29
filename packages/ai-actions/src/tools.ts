@@ -81,11 +81,31 @@ type TCreateFewShotToolCallMessages<
       } & (ReturnType<TRegistry[K]["getActionType"]> extends "ECHO"
         ? {}
         : ReturnType<TRegistry[K]["getOutputSchema"]> extends z.ZodVoid
-          ? {}
-          : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
+        ? {}
+        : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
     }>[]
   }[]
 ) => OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+
+
+type ExtractFunctionNames<TRegistry, TInArray extends (keyof TRegistry)[]> =
+  TInArray extends (infer U)[]
+  ? U extends keyof TRegistry
+  ? TRegistry[U] extends { getFunctionName: () => infer FName }
+  ? FName
+  : never
+  : never
+  : never;
+
+
+type TChooseTool<TRegistry extends TAnyActionRegistry, U extends (keyof TRegistry)[] | undefined = undefined> = (
+  name: U extends undefined
+    ? ReturnType<TRegistry[keyof TRegistry]['getFunctionName']>
+    : U extends [] //empty array results in no args allowed
+    ? never
+    : ExtractFunctionNames<TRegistry, NonNullable<U>>
+) => OpenAI.Chat.Completions.ChatCompletionToolChoiceOption;
+
 
 export const setupFunctionCalling = <
   TActionData extends TAnyActionData,
@@ -108,6 +128,7 @@ export const setupFunctionCalling = <
 ): {
   tools: OpenAI.Chat.Completions.ChatCompletionTool[]
   toolCallsHandler: TToolCallHandler<T, U>
+  chooseTool: TChooseTool<T, U>;
   createFewShotToolCallMessages: TCreateFewShotToolCallMessages<T, U>
 } => {
   const { inArray } = args
@@ -163,9 +184,9 @@ export const setupFunctionCalling = <
         content:
           result.status === "error"
             ? JSON.stringify({
-                status: "error",
-                message: result.message,
-              })
+              status: "error",
+              message: result.message,
+            })
             : JSON.stringify(result.data),
       }
 
@@ -234,9 +255,20 @@ export const setupFunctionCalling = <
     return messages
   }
 
+  const chooseTool: TChooseTool<T, U> = (name) => {
+    if (!actionIds.includes(name as keyof T)) {
+      throw new Error(`Action name "${name}" is not allowed.`);
+    }
+    return {
+      type: 'function',
+      function: { name: registry[name].getFunctionName() },
+    };
+  };
+
   return {
     tools,
     toolCallsHandler,
     createFewShotToolCallMessages,
+    chooseTool,
   }
 }
