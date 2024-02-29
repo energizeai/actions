@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.8.2
+
+### Patch Changes
+
+- 5a8309b: Renamed extras -> context in action functions
+
 ## 0.8.1
 
 ### Patch Changes
