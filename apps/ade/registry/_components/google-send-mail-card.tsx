@@ -41,8 +41,7 @@ const GoogleSendMailCard = ({
   metadata,
   onSubmit,
   args,
-  isLoading,
-  isSuccess,
+  mutationResults,
 }: Props) => {
   const form = useForm<z.infer<typeof inputSchema>>({
     resolver: zodResolver(inputSchema),
@@ -56,6 +55,9 @@ const GoogleSendMailCard = ({
           : [],
     },
   })
+
+  const isLoading = mutationResults?.isLoading
+  const isSuccess = mutationResults?.isSuccess
 
   const { fields, append } = useFieldArray({
     name: "to",

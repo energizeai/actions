@@ -96,7 +96,7 @@ type TGenerateFunctionsRet<TRegistry extends TAnyRegistryData> =
  *     title: z.string(),
  *     description: z.string(),
  *   }),
- *   actionFunctionExtras: z.object({
+ *   actionFunctionContextSchema: z.object({
  *     userData: z.object({
  *       email: z.string().email(),
  *       name: z.string(),
@@ -214,7 +214,7 @@ const { createActionsRegistry, createAction } = generateActionRegistryFunctions(
   {
     namespace: "",
     metadataSchema: undefined,
-    actionFunctionExtrasSchema: undefined,
+    actionFunctionContextSchema: undefined,
     tokenAuthMetadataSchema: undefined,
     oAuthMetadataSchema: undefined,
   }

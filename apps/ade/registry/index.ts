@@ -10,6 +10,7 @@ import { GoogleSendMailAction } from "./_actions/google-sendMail"
 import { GoogleWebSearchAction } from "./_actions/google-webSearch"
 import { LinearCreateIssueAction } from "./_actions/linear-createIssue"
 import { PlanetScaleGetBranchSchemaAction } from "./_actions/planetScale-getBranchSchema"
+import { ZoomCreateMeetingAction } from "./_actions/zoom-createMeeting"
 import { createADEActionsRegistry } from "./_properties/generators"
 // <|GENERATOR|> import new action here
 
@@ -26,6 +27,7 @@ const ActionsRegistry = createADEActionsRegistry([
   LinearCreateIssueAction,
   BingWebSearchAction,
   PlanetScaleGetBranchSchemaAction,
+  ZoomCreateMeetingAction,
   // <|GENERATOR|> add new action here
 ])
 

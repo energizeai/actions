@@ -1,3 +1,6 @@
+import { RouterOutputs } from "@/trpc/shared"
+import { TRPCClientErrorLike } from "@trpc/client"
+import { UseTRPCMutationResult } from "@trpc/react-query/shared"
 import {
   createClientActionRegistry,
   inferActionComponentRouter,
@@ -21,8 +24,13 @@ export type TActionComponentRouter = inferActionComponentRouter<
   typeof ClientActionsRegistry,
   {
     displayState: "placeholder" | "active" | "skeleton"
-    isLoading: boolean
-    isSuccess: boolean
+  } & {
+    mutationResults?: UseTRPCMutationResult<
+      RouterOutputs["actions"]["testActionFunction"],
+      TRPCClientErrorLike<any>,
+      any,
+      any
+    >
   }
 >
 

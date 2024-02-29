@@ -4,7 +4,7 @@ import { TAnyActionAuth, TAuthArg } from "./auth"
 export type ValidZodSchema = z.ZodString | z.ZodNumber | z.AnyZodObject
 
 export type TActionMetadata = ValidZodSchema | undefined
-export type TActionFunctionExtras = ValidZodSchema | undefined
+export type TActionFunctionContext = ValidZodSchema | undefined
 export type TActionInput = z.ZodObject<any>
 export type TActionOutput = ValidZodSchema | z.ZodVoid
 export type TTokenAuthMetadata = z.ZodObject<any> | undefined
@@ -19,7 +19,7 @@ export type TActionFunction<
 > = (_: {
   input: z.output<TInput>
   auth: TAuthArg<TAuth>
-  extras: TRegistry["actionFunctionExtrasSchema"] extends infer U
+  context: TRegistry["actionFunctionContextSchema"] extends infer U
     ? U extends ValidZodSchema
       ? z.output<U>
       : undefined
@@ -29,7 +29,7 @@ export type TActionFunction<
 export type TRegistryData<
   TNamespace extends string,
   TMetadata extends TActionMetadata,
-  TExtras extends TActionFunctionExtras,
+  TContext extends TActionFunctionContext,
   TToken extends TTokenAuthMetadata,
   TOAuth extends TOAuthMetadata,
 > = {
@@ -70,7 +70,7 @@ export type TRegistryData<
    * })
    * ```
    */
-  actionFunctionExtrasSchema?: TExtras
+  actionFunctionContextSchema?: TContext
 
   /**
    * The schema for the token auth metadata. Useful if you want to store some extra data with the token.
@@ -96,7 +96,7 @@ export type TRegistryData<
 export type TAnyRegistryData = TRegistryData<
   string,
   TActionMetadata,
-  TActionFunctionExtras,
+  TActionFunctionContext,
   TTokenAuthMetadata,
   TOAuthMetadata
 >

@@ -42,8 +42,8 @@ const GoogleReplyToEmailAction = createADEAction({
     scopes: ["https://www.googleapis.com/auth/gmail.send"],
     oauthAppGenerationURL: "https://console.cloud.google.com/apis/credentials",
   })
-  .setActionFunction(async ({ input, auth, extras }) => {
-    const { userData } = extras
+  .setActionFunction(async ({ input, auth, context }) => {
+    const { userData } = context
     function createEmail(
       to: string[],
       subject: string,
