@@ -208,6 +208,7 @@ export default function ActionTestForm({
         actionId: params.id,
         inputDataAsString: JSON.stringify(getParsedInputRecord()),
         userData,
+        localTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       })
     } catch (error) {
       toast.error(extractErrorMessage(error))

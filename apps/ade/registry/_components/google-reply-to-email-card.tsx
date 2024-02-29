@@ -35,8 +35,7 @@ type Props = inferActionComponentProps<
 const GoogleReplyToEmailCard = ({
   args,
   displayState,
-  isLoading,
-  isSuccess,
+  mutationResults,
   inputSchema,
   metadata,
   onSubmit,
@@ -49,6 +48,9 @@ const GoogleReplyToEmailCard = ({
       subject: args ? args.subject : "",
     },
   })
+
+  const isLoading = mutationResults?.isLoading
+  const isSuccess = mutationResults?.isSuccess
 
   return (
     <Card>

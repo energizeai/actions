@@ -1,5 +1,7 @@
+import { CalendarDate, CalendarDateTime } from "@internationalized/date"
 import clsx, { ClassValue } from "clsx"
 import { customAlphabet } from "nanoid"
+import { DateValue } from "react-aria"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -38,4 +40,33 @@ export function base64Encode(str: string): string {
 
 export function base64Decode(base64Str: string): string {
   return Buffer.from(base64Str, "base64").toString("utf-8")
+}
+
+export const logJSON = (data: any, prefix = "") => {
+  console.log(prefix, JSON.stringify(data, null, 2), "\n")
+}
+
+export const getDateValueFromString = (str: string): DateValue | null => {
+  const date = new Date(str)
+
+  // if the date is invalid, return null
+  if (isNaN(date.getTime())) return null
+
+  // check if there is a time component
+  if (str.includes(":")) {
+    return new CalendarDateTime(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds()
+    )
+  }
+
+  return new CalendarDate(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate()
+  )
 }

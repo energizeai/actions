@@ -19,6 +19,7 @@ export const actionsRouter = createTRPCRouter({
           email: z.string().email(),
           name: z.string(),
         }),
+        localTimeZone: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -41,11 +42,12 @@ export const actionsRouter = createTRPCRouter({
       }
 
       const { actionCaller } = setupActionCaller(ActionsRegistry, {
-        extras: {
+        context: {
           userData: {
             email: input.userData.email,
             name: input.userData.name,
           },
+          localTimeZone: input.localTimeZone,
         },
         async fetchOAuthAccessToken(actionId) {
           const linkedAccount = await getLinkedAccountForActionId(actionId)

@@ -30,7 +30,7 @@ const HelloWorldAction = createADEAction({
     })
   )
   .setAuthType("None")
-  .setActionFunction(async ({ input, extras }) => {
+  .setActionFunction(async ({ input }) => {
     return {
       greeting: `Hello, ${input.name}!`,
     }

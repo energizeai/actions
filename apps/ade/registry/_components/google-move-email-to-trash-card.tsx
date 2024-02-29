@@ -24,8 +24,7 @@ export const GoogleMoveEmailToTrashCard = ({
   args,
   displayState,
   metadata,
-  isLoading,
-  isSuccess,
+  mutationResults,
   onSubmit,
 }: Props) => {
   const messageIds = args ? args.messageIds : []
@@ -35,6 +34,9 @@ export const GoogleMoveEmailToTrashCard = ({
     messageIds.push("DEF")
     messageIds.push("GHI")
   }
+
+  const isLoading = mutationResults?.isLoading
+  const isSuccess = mutationResults?.isSuccess
 
   return (
     <Card>

@@ -4,6 +4,7 @@ import { GoogleMoveEmailToTrashCard } from "@/registry/_components/google-move-e
 import { GoogleReplyToEmailCard } from "@/registry/_components/google-reply-to-email-card"
 import { GoogleSendMailCard } from "@/registry/_components/google-send-mail-card"
 import { LinearCreateIssueCard } from "@/registry/_components/linear-create-issue-card"
+import { ZoomCreateMeetingCard } from "@/registry/_components/zoom-create-meeting-card"
 import {
   TActionComponentRouter,
   TClientActionId,
@@ -40,6 +41,7 @@ function ActionComponent({
     "google-moveEmailToTrash": GoogleMoveEmailToTrashCard,
     "linear-createIssue": LinearCreateIssueCard,
     "google-replyToEmail": GoogleReplyToEmailCard,
+    "zoom-createMeeting": ZoomCreateMeetingCard,
   })
 
   const actionData = clientRegistry[clientActionId]
@@ -51,14 +53,14 @@ function ActionComponent({
       functionName={actionData.functionName}
       args={args}
       metadata={actionData.metadata}
-      isLoading={caller.isLoading}
-      isSuccess={caller.isSuccess}
+      mutationResults={caller}
       onSubmit={(props) => {
         try {
           caller.mutateAsync({
             actionId: clientActionId,
             inputDataAsString: JSON.stringify(props.args),
             userData,
+            localTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           })
         } catch (error) {
           toast.error(extractErrorMessage(error))

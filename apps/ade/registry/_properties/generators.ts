@@ -10,11 +10,12 @@ const { createADEActionsRegistry, createADEAction } =
   generateActionRegistryFunctions({
     namespace: "ADE",
     metadataSchema: ActionsRegistryMetadataSchema,
-    actionFunctionExtrasSchema: z.object({
+    actionFunctionContextSchema: z.object({
       userData: z.object({
         email: z.string().email(),
         name: z.string(),
       }),
+      localTimeZone: z.string(),
     }),
     oAuthMetadataSchema: OAuth2AuthMetadataSchema,
     tokenAuthMetadataSchema: TokenAuthMetadataSchema,

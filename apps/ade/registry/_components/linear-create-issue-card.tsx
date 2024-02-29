@@ -40,9 +40,8 @@ const LinearCreateIssueCard = ({
   displayState,
   metadata,
   inputSchema,
-  isLoading,
-  isSuccess,
   onSubmit,
+  mutationResults,
 }: Props) => {
   const form = useForm<z.infer<typeof inputSchema>>({
     resolver: zodResolver(inputSchema),
@@ -51,6 +50,9 @@ const LinearCreateIssueCard = ({
       description: args ? args.description : "",
     },
   })
+
+  const isLoading = mutationResults?.isLoading
+  const isSuccess = mutationResults?.isSuccess
 
   return (
     <Card>

@@ -48,11 +48,11 @@ const {{ properCase name }}Action = createADEAction({
   // Define the action function for your action
   // ==========================================================================
 
-  .setActionFunction(async ({ input, auth, extras }) => {
+  .setActionFunction(async ({ input, auth, context }) => {
     // Add your action function logic here
     console.log(auth)
     console.log(input)
-    console.log(extras.userData)
+    console.log(context.userData)
 
 <|RETURN_TEMPLATE|>
   })
