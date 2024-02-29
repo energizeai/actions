@@ -162,32 +162,60 @@ export const ZoomCreateMeetingCard = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="start_time"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Start</FormLabel>
-                  <FormControl>
-                    <ConditionalSkeleton
-                      showSkeleton={isLoadingArguments}
-                      variant="input"
-                    >
-                      <DateTimePicker
-                        granularity="minute"
-                        {...field}
-                        value={getDateValueFromString(field.value)}
-                        onChange={(v) => {
-                          field.onChange(v.toString())
-                        }}
-                        isDisabled={isPlaceholder}
-                      />
-                    </ConditionalSkeleton>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex gap-4">
+              <FormField
+                control={form.control}
+                name="start_time"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Start</FormLabel>
+                    <FormControl>
+                      <ConditionalSkeleton
+                        showSkeleton={isLoadingArguments}
+                        variant="input"
+                      >
+                        <DateTimePicker
+                          granularity="minute"
+                          {...field}
+                          value={getDateValueFromString(field.value)}
+                          onChange={(v) => {
+                            field.onChange(v.toString())
+                          }}
+                          isDisabled={isPlaceholder}
+                        />
+                      </ConditionalSkeleton>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Duration (mins)</FormLabel>
+                    <FormControl>
+                      <ConditionalSkeleton
+                        showSkeleton={isLoadingArguments}
+                        variant="input"
+                      >
+                        <Input
+                          placeholder="Enter meeting duration..."
+                          type="number"
+                          {...field}
+                          disabled={isPlaceholder}
+                          onChange={(event) =>
+                            field.onChange(+event.target.value)
+                          }
+                        />
+                      </ConditionalSkeleton>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div>
               {fields.map((field, index) => (
                 <FormField
