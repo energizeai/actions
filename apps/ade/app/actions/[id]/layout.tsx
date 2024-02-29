@@ -79,7 +79,7 @@ export default async function ActionLayout({
           target={env.NODE_ENV !== "development" ? "_blank" : "_self"}
           href={
             env.NODE_ENV !== "development"
-              ? `https://github.com/energizeai/actions/blob/main/apps/ade/registry/${actionData.getId()}.tsx`
+              ? `https://github.com/energizeai/actions/blob/main/apps/ade/registry/_actions/${actionData.getId()}.tsx`
               : `#`
           }
           className={cn(
@@ -87,7 +87,7 @@ export default async function ActionLayout({
           )}
         >
           <pre className="max-w-[300px] text-wrap break-all">
-            @/registry/{actionData.getId()}.tsx
+            @/registry/_actions/{actionData.getId()}.tsx
           </pre>
         </Link>
       </SectionHeader>
