@@ -81,11 +81,17 @@ type TCreateFewShotToolCallMessages<
       } & (ReturnType<TRegistry[K]["getActionType"]> extends "ECHO"
         ? {}
         : ReturnType<TRegistry[K]["getOutputSchema"]> extends z.ZodVoid
-          ? {}
-          : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
+        ? {}
+        : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
     }>[]
   }[]
 ) => OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+
+
+type TChooseTool<TRegistry extends TAnyActionRegistry, U extends (keyof TRegistry)[] | undefined = undefined> = (
+  name: ReturnType<TRegistry[TActionRegistrySubset<TRegistry, U>]["getFunctionName"]>
+) => OpenAI.Chat.Completions.ChatCompletionToolChoiceOption;
+
 
 export const setupFunctionCalling = <
   TActionData extends TAnyActionData,
@@ -108,6 +114,7 @@ export const setupFunctionCalling = <
 ): {
   tools: OpenAI.Chat.Completions.ChatCompletionTool[]
   toolCallsHandler: TToolCallHandler<T, U>
+  chooseTool: TChooseTool<T, U>;
   createFewShotToolCallMessages: TCreateFewShotToolCallMessages<T, U>
 } => {
   const { inArray } = args
@@ -163,9 +170,9 @@ export const setupFunctionCalling = <
         content:
           result.status === "error"
             ? JSON.stringify({
-                status: "error",
-                message: result.message,
-              })
+              status: "error",
+              message: result.message,
+            })
             : JSON.stringify(result.data),
       }
 
@@ -234,9 +241,20 @@ export const setupFunctionCalling = <
     return messages
   }
 
+  const chooseTool: TChooseTool<T, U> = (name) => {
+    if (!actionIds.includes(functionNameToActionIdMap[name])) {
+      throw new Error(`Action name "${name}" is not allowed.`);
+    }
+    return {
+      type: 'function',
+      function: { name: registry[functionNameToActionIdMap[name]].getFunctionName() },
+    };
+  };
+
   return {
     tools,
     toolCallsHandler,
     createFewShotToolCallMessages,
+    chooseTool,
   }
 }
