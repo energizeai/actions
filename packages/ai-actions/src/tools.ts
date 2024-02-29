@@ -242,7 +242,7 @@ export const setupFunctionCalling = <
   }
 
   const chooseTool: TChooseTool<T, U> = (name) => {
-    if (!actionIds.includes(name as keyof T)) {
+    if (!actionIds.includes(functionNameToActionIdMap[name])) {
       throw new Error(`Action name "${name}" is not allowed.`);
     }
     return {
