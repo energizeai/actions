@@ -247,7 +247,7 @@ export const setupFunctionCalling = <
     }
     return {
       type: 'function',
-      function: { name: registry[name].getFunctionName() },
+      function: { name: registry[functionNameToActionIdMap[name]].getFunctionName() },
     };
   };
 
