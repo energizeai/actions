@@ -28,6 +28,7 @@ export async function generateMetadata({
     }/api/og`
   )
   imageUrl.searchParams.append("title", `${action.getMetadata().title}`)
+  imageUrl.searchParams.append("avatar", action.getMetadata().avatar.dark)
 
   return {
     metadataBase: new URL(
