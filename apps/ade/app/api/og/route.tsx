@@ -5,6 +5,7 @@ export const runtime = "edge"
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const title = searchParams.get("title") ?? "ADE"
+  const avatar = searchParams.get("avatar")
 
   const energizeLogoWhiteImageData = await fetch(
     new URL("../../../public/logos/energize-white-square.png", import.meta.url)
@@ -72,11 +73,24 @@ export async function GET(request: Request) {
           alignItems: "center",
         }}
       >
-        <img
-          width="100"
-          height="100"
-          src={energizeLogoWhiteImageData as unknown as string}
-        />
+        <div tw="flex items-center justify-center">
+          <img
+            width="125"
+            height="125"
+            src={energizeLogoWhiteImageData as unknown as string}
+          />
+          {avatar && (
+            <>
+              <p tw="m-0 pt-2 ml-16">x</p>
+              <img
+                width="125"
+                height={"125"}
+                src={new URL(avatar, "https://ade.energize.ai").toString()}
+                tw="ml-16"
+              />
+            </>
+          )}
+        </div>
         <p tw="mb-0">{title}</p>
       </div>
     ),
