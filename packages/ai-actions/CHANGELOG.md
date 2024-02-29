@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.8.1
+
+### Patch Changes
+
+- 180f406: added helper function returned by setupFunctionCalling to select a typesafe tool_choice
+
 ## 0.8.0
 
 ### Minor Changes
