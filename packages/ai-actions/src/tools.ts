@@ -88,22 +88,8 @@ type TCreateFewShotToolCallMessages<
 ) => OpenAI.Chat.Completions.ChatCompletionMessageParam[]
 
 
-type ExtractFunctionNames<TRegistry, TInArray extends (keyof TRegistry)[]> =
-  TInArray extends (infer U)[]
-  ? U extends keyof TRegistry
-  ? TRegistry[U] extends { getFunctionName: () => infer FName }
-  ? FName
-  : never
-  : never
-  : never;
-
-
 type TChooseTool<TRegistry extends TAnyActionRegistry, U extends (keyof TRegistry)[] | undefined = undefined> = (
-  name: U extends undefined
-    ? ReturnType<TRegistry[keyof TRegistry]['getFunctionName']>
-    : U extends [] //empty array results in no args allowed
-    ? never
-    : ExtractFunctionNames<TRegistry, NonNullable<U>>
+  name: ReturnType<TRegistry[TActionRegistrySubset<TRegistry, U>]["getFunctionName"]>
 ) => OpenAI.Chat.Completions.ChatCompletionToolChoiceOption;
 
 
