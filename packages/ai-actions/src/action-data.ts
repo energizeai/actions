@@ -16,15 +16,16 @@ export type TActionFunction<
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TAnyActionAuth,
-> = (_: {
-  input: z.output<TInput>
-  auth: TAuthArg<TAuth>
-  context: TRegistry["actionFunctionContextSchema"] extends infer U
-    ? U extends ValidZodSchema
-      ? z.output<U>
+> = (
+  _: {
+    input: z.output<TInput>
+    context: TRegistry["actionFunctionContextSchema"] extends infer U
+      ? U extends ValidZodSchema
+        ? z.output<U>
+        : undefined
       : undefined
-    : undefined
-}) => Promise<z.input<TOutput>>
+  } & (TAuth["type"] extends "None" ? {} : { auth: TAuthArg<TAuth> })
+) => Promise<z.input<TOutput>>
 
 export type TRegistryData<
   TNamespace extends string,
