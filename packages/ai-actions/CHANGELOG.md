@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.8.3
+
+### Patch Changes
+
+- c250ca8: Added assistantMessageContent option for few shot
+
 ## 0.8.2
 
 ### Patch Changes
