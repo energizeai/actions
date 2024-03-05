@@ -14,19 +14,20 @@ export type TActionBuilderWithOutputData<
   actionType: TType
 }
 
-export type TActionDataWithOutput = TActionBuilderWithOutputData<
-  TActionDataWithInput,
-  TActionOutput,
-  TActionType
->
+export interface TActionDataWithOutput
+  extends TActionBuilderWithOutputData<
+    TActionDataWithInput,
+    TActionOutput,
+    TActionType
+  > {}
 
 export class ActionBuilderWithOutput<
   TLocalActionData extends TActionDataWithOutput,
 > {
-  actionData: TLocalActionData
+  _actionData: TLocalActionData
 
   constructor({ actionData }: { actionData: TLocalActionData }) {
-    this.actionData = actionData
+    this._actionData = actionData
   }
 
   /**
@@ -49,7 +50,7 @@ export class ActionBuilderWithOutput<
     if (type === AuthType.NONE) {
       return new ActionBuilderWithAuth({
         actionData: {
-          ...this.actionData,
+          ...this._actionData,
           authConfig: {
             type: AuthType.NONE,
             config: undefined,
@@ -59,12 +60,12 @@ export class ActionBuilderWithOutput<
     }
     if (type === AuthType.TOKEN) {
       return new ActionBuilderWithTokenType({
-        actionData: this.actionData,
+        actionData: this._actionData,
       })
     }
     if (type === AuthType.OAUTH) {
       return new ActionBuilderWithOAuthType({
-        actionData: this.actionData,
+        actionData: this._actionData,
       })
     }
     throw new Error("Invalid authentication type")

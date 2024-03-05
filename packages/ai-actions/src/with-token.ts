@@ -9,10 +9,10 @@ import { TActionDataWithOutput } from "./with-output"
 export class ActionBuilderWithTokenType<
   TLocalActionData extends TActionDataWithOutput,
 > {
-  actionData: TLocalActionData
+  _actionData: TLocalActionData
 
   constructor({ actionData }: { actionData: TLocalActionData }) {
-    this.actionData = actionData
+    this._actionData = actionData
   }
 
   setTokenData = <T extends TTokenCustomData>(
@@ -20,7 +20,7 @@ export class ActionBuilderWithTokenType<
   ) => {
     let base = { ...data }
 
-    const schema = this.actionData.registryData.tokenAuthMetadataSchema
+    const schema = this._actionData.registryData.tokenAuthMetadataSchema
     if (schema) {
       const safeParsed = schema.safeParse(base)
       if (!safeParsed.success) {
@@ -39,7 +39,7 @@ export class ActionBuilderWithTokenType<
 
     return new ActionBuilderWithAuth({
       actionData: {
-        ...this.actionData,
+        ...this._actionData,
         authConfig,
       },
     })

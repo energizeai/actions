@@ -14,13 +14,6 @@ import { ActionBuilderWithFunction } from "./with-function"
 
 /**
  * Given an action registry, generate the tools for the LLM.
- *
- * @param registry The registry of actions.
- * @param toolId The id(s) of the action(s) to generate tools for. Can be a single id or an array of ids.
- *
- * @returns The tools for the LLM. In the format of `OpenAI.Chat.Completions.ChatCompletionTool[]`. The name of the tool is the ID of the action.
- *
- * @example
  */
 export const generateLLMTools = <
   const T extends Readonly<{
@@ -68,6 +61,20 @@ type TToolCallHandler<
   results: TCallerResults<T, TActionRegistrySubset<T, U>>
 }>
 
+export type TFewShotExampleCalls<
+  TRegistry extends TAnyActionRegistry,
+  U extends (keyof TRegistry)[] | undefined,
+> = ValuesOf<{
+  [K in TActionRegistrySubset<TRegistry, U>]: {
+    name: ReturnType<TRegistry[K]["getFunctionName"]>
+    arguments: z.input<ReturnType<TRegistry[K]["getInputSchema"]>>
+  } & (ReturnType<TRegistry[K]["getActionType"]> extends "ECHO"
+    ? {}
+    : ReturnType<TRegistry[K]["getOutputSchema"]> extends z.ZodVoid
+      ? {}
+      : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
+}>
+
 type TCreateFewShotToolCallMessages<
   TRegistry extends TAnyActionRegistry,
   U extends (keyof TRegistry)[] | undefined,
@@ -75,16 +82,7 @@ type TCreateFewShotToolCallMessages<
   examples: {
     userMessageContent: string
     assistantMessageContent?: string
-    tool_calls: ValuesOf<{
-      [K in TActionRegistrySubset<TRegistry, U>]: {
-        name: ReturnType<TRegistry[K]["getFunctionName"]>
-        arguments: z.input<ReturnType<TRegistry[K]["getInputSchema"]>>
-      } & (ReturnType<TRegistry[K]["getActionType"]> extends "ECHO"
-        ? {}
-        : ReturnType<TRegistry[K]["getOutputSchema"]> extends z.ZodVoid
-          ? {}
-          : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
-    }>[]
+    tool_calls: TFewShotExampleCalls<TRegistry, U>[]
   }[]
 ) => OpenAI.Chat.Completions.ChatCompletionMessageParam[]
 
@@ -97,7 +95,7 @@ type TChooseTool<
   >
 ) => OpenAI.Chat.Completions.ChatCompletionToolChoiceOption
 
-export const setupFunctionCalling = <
+export const setupToolCalling = <
   TActionData extends TAnyActionData,
   const T extends Readonly<{
     [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>

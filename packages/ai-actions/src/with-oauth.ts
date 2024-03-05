@@ -8,10 +8,10 @@ import { TActionDataWithOutput } from "./with-output"
 export class ActionBuilderWithOAuthType<
   TLocalActionData extends TActionDataWithOutput,
 > {
-  actionData: TLocalActionData
+  _actionData: TLocalActionData
 
   constructor({ actionData }: { actionData: TLocalActionData }) {
-    this.actionData = actionData
+    this._actionData = actionData
   }
 
   setOAuthData = (
@@ -20,7 +20,7 @@ export class ActionBuilderWithOAuthType<
     let base: TOAuthConfigWithOutputMetadata<TLocalActionData["registryData"]> =
       { ...data }
 
-    const schema = this.actionData.registryData.oAuthMetadataSchema
+    const schema = this._actionData.registryData.oAuthMetadataSchema
     if (schema) {
       const safeParsed = schema.safeParse(base)
       if (!safeParsed.success) {
@@ -33,7 +33,7 @@ export class ActionBuilderWithOAuthType<
 
     return new ActionBuilderWithAuth({
       actionData: {
-        ...this.actionData,
+        ...this._actionData,
         authConfig: {
           type: "OAuth",
           config: base,
