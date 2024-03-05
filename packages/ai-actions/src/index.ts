@@ -1,6 +1,7 @@
 import { TActionBuilderConstructorData } from "./action-builder"
 import { TActionData } from "./action-data"
 import { AuthType, TNoAuth, TTokenAuth, TTokenAuthConfig } from "./auth"
+import { ClientActionData } from "./client"
 
 export * from "./callers"
 export * from "./client"
@@ -12,6 +13,7 @@ export * from "./utility"
 
 export {
   AuthType,
+  type ClientActionData,
   type TActionBuilderConstructorData,
   type TActionData,
   type TNoAuth,

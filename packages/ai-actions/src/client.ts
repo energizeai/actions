@@ -6,7 +6,7 @@ import { ValidZodSchema } from "./action-data"
 
 type TClientMetadata = z.output<ValidZodSchema> | never
 
-interface ClientActionData<
+export interface ClientActionData<
   TId extends string,
   TFunctionName extends string,
   TInputSchema extends TActionInput,
