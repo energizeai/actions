@@ -121,7 +121,7 @@ export const setupFunctionCalling = <
         {
           role: "function",
           name: result.functionName,
-          content: JSON.stringify(result.data),
+          content: JSON.stringify(result.data ? result.data : {}),
         }
 
       return {
