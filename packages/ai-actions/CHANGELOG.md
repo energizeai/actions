@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.9.0
+
+### Minor Changes
+
+- d87b3ee: Changed setupFunctionCalling to split into setupToolCalling and setupFunctionCalling
+
 ## 0.8.3
 
 ### Patch Changes
