@@ -10,8 +10,8 @@ export class ActionBuilderWithActionType<
   TType extends TActionType,
   TLocalActionData extends TActionDataWithInput,
 > {
-  actionData: TLocalActionData
-  actionType: TType
+  _actionData: TLocalActionData
+  _actionType: TType
 
   constructor({
     actionData,
@@ -20,8 +20,8 @@ export class ActionBuilderWithActionType<
     actionData: TLocalActionData
     actionType: TType
   }) {
-    this.actionData = actionData
-    this.actionType = actionType
+    this._actionData = actionData
+    this._actionType = actionType
   }
 
   /**
@@ -30,9 +30,9 @@ export class ActionBuilderWithActionType<
   setOutputSchema<T extends TActionOutput>(output: T) {
     return new ActionBuilderWithOutput({
       actionData: {
-        ...this.actionData,
+        ...this._actionData,
         outputSchema: output,
-        actionType: this.actionType,
+        actionType: this._actionType,
       },
     })
   }
@@ -40,8 +40,8 @@ export class ActionBuilderWithActionType<
   setOutputAsVoid() {
     return new ActionBuilderWithOutput({
       actionData: {
-        ...this.actionData,
-        actionType: this.actionType,
+        ...this._actionData,
+        actionType: this._actionType,
         outputSchema: z.void(),
       },
     })
@@ -50,9 +50,9 @@ export class ActionBuilderWithActionType<
   setOutputSchemaAsInputSchema() {
     return new ActionBuilderWithOutput({
       actionData: {
-        ...this.actionData,
-        actionType: this.actionType,
-        outputSchema: this.actionData.inputSchema,
+        ...this._actionData,
+        actionType: this._actionType,
+        outputSchema: this._actionData.inputSchema,
       },
     }) as ActionBuilderWithOutput<
       TActionBuilderWithOutputData<

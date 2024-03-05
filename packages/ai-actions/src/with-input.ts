@@ -15,10 +15,8 @@ type TActionBuilderWithInputData<
 > = TBuilderData &
   Pick<TActionData<any, any, any, TInput, any, any, any>, "inputSchema">
 
-export type TActionDataWithInput = TActionBuilderWithInputData<
-  TActionBuilderData,
-  TActionInput
->
+export interface TActionDataWithInput
+  extends TActionBuilderWithInputData<TActionBuilderData, TActionInput> {}
 
 type TEcho<TLocalActionData extends TActionDataWithInput> =
   TLocalActionData["inputSchema"] extends infer TOutput
@@ -40,10 +38,10 @@ type TEcho<TLocalActionData extends TActionDataWithInput> =
 export class ActionBuilderWithInput<
   TLocalActionData extends TActionDataWithInput,
 > {
-  actionData: TLocalActionData
+  _actionData: TLocalActionData
 
   constructor({ actionData }: { actionData: TLocalActionData }) {
-    this.actionData = {
+    this._actionData = {
       ...actionData,
     }
   }
@@ -68,11 +66,11 @@ export class ActionBuilderWithInput<
       return (
         new ActionBuilderWithActionType({
           actionData: {
-            ...this.actionData,
+            ...this._actionData,
           },
           actionType: "ECHO",
         })
-          .setOutputSchema(this.actionData.inputSchema)
+          .setOutputSchema(this._actionData.inputSchema)
           .setAuthType("None")
           // @ts-expect-error
           .setActionFunction(async ({ input }) => {
@@ -83,7 +81,7 @@ export class ActionBuilderWithInput<
 
     return new ActionBuilderWithActionType({
       actionData: {
-        ...this.actionData,
+        ...this._actionData,
       },
       actionType: output,
     })

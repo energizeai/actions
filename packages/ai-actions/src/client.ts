@@ -6,12 +6,12 @@ import { ValidZodSchema } from "./action-data"
 
 type TClientMetadata = z.output<ValidZodSchema> | never
 
-type ClientActionData<
+interface ClientActionData<
   TId extends string,
   TFunctionName extends string,
   TInputSchema extends TActionInput,
   TMetadata extends TClientMetadata,
-> = {
+> {
   actionId: TId
   functionName: TFunctionName
   inputSchema: TInputSchema

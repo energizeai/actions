@@ -416,7 +416,7 @@ export const setupActionCaller = <
         const result = await getResult()
 
         if (onActionExecutionFinished) {
-          onActionExecutionFinished({ ...result, timestamp: Date.now() })
+          onActionExecutionFinished({ ...result, timestamp: Date.now() } as any)
         }
 
         results.push(result)

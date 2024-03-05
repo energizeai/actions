@@ -1,4 +1,5 @@
-import { AuthType } from "./auth"
+import { TActionData } from "./action-data"
+import { AuthType, TNoAuth, TTokenAuth } from "./auth"
 
 export * from "./callers"
 export * from "./client"
@@ -8,4 +9,4 @@ export * from "./registry-builder"
 export * from "./tools"
 export * from "./utility"
 
-export { AuthType }
+export { AuthType, type TActionData, type TNoAuth, type TTokenAuth }

@@ -11,18 +11,16 @@ export type TActionBuilderWithAuthData<
   >,
 > = TOutputActionData & { authConfig: TAuth }
 
-export type TActionDataWithAuth = TActionBuilderWithAuthData<
-  TActionDataWithOutput,
-  TAnyActionAuth
->
+export interface TActionDataWithAuth
+  extends TActionBuilderWithAuthData<TActionDataWithOutput, TAnyActionAuth> {}
 
 export class ActionBuilderWithAuth<
   TLocalActionData extends TActionDataWithAuth,
 > {
-  actionData: TLocalActionData
+  _actionData: TLocalActionData
 
   constructor({ actionData }: { actionData: TLocalActionData }) {
-    this.actionData = actionData
+    this._actionData = actionData
   }
 
   /**
@@ -64,7 +62,7 @@ export class ActionBuilderWithAuth<
   ) {
     return new ActionBuilderWithFunction({
       actionData: {
-        ...this.actionData,
+        ...this._actionData,
         actionFunction,
         exampleInput: null,
       },

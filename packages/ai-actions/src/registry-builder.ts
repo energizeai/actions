@@ -7,13 +7,14 @@ import {
 } from "./action-data"
 import { ActionBuilderWithFunction } from "./with-function"
 
-type TActionsArray<TRegistry extends TAnyRegistryData> = Array<
-  ReturnType<
-    ActionBuilderWithFunction<any>["getRegistryData"]
-  > extends TRegistry
-    ? ActionBuilderWithFunction<any>
-    : never
->
+interface TActionsArray<TRegistry extends TAnyRegistryData>
+  extends Array<
+    ReturnType<
+      ActionBuilderWithFunction<any>["getRegistryData"]
+    > extends TRegistry
+      ? ActionBuilderWithFunction<any>
+      : never
+  > {}
 
 type TActionsRegistry<
   TRegistry extends TAnyRegistryData,
@@ -34,9 +35,10 @@ type TActionsRegistry<
     : never
   : Readonly<{}>
 
-export type TAnyActionRegistry = Readonly<{
-  [key: string]: ActionBuilderWithFunction<any>
-}>
+export interface TAnyActionRegistry
+  extends Readonly<{
+    [key: string]: ActionBuilderWithFunction<any>
+  }> {}
 
 // string literal for the create actions registry function
 type TCreateActionsRegistry<T extends string> = `create${T}ActionsRegistry`

@@ -112,7 +112,7 @@ export type TTokenCustomData = z.ZodObject<any> | null
  *
  * This is useful for resources that don't support OAuth, but do support API keys.
  */
-type TTokenAuthConfig<TCustomData extends TTokenCustomData> = {
+interface TTokenAuthConfig<TCustomData extends TTokenCustomData> {
   /**
    * Optional schema for custom data to be stored in the user's account that is needed to use the action.
    *
@@ -169,15 +169,15 @@ export type TTokenAuthConfigWithOutputMetadata<
 > = TTokenAuthConfig<TCustomData> &
   TAuthOutputMetadata<TRegistry, "tokenAuthMetadataSchema">
 
-export type TNoAuth = {
+export interface TNoAuth {
   type: typeof AuthType.NONE
   config: undefined
 }
 
-export type TTokenAuth<
+export interface TTokenAuth<
   TCustomData extends TTokenCustomData,
   TRegistry extends TAnyRegistryData,
-> = {
+> {
   type: typeof AuthType.TOKEN
   config: TTokenAuthConfigWithOutputMetadata<TCustomData, TRegistry>
 }

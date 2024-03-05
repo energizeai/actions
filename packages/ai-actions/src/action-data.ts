@@ -27,13 +27,13 @@ export type TActionFunction<
   } & (TAuth["type"] extends "None" ? {} : { auth: TAuthArg<TAuth> })
 ) => Promise<z.input<TOutput>>
 
-export type TRegistryData<
+export interface TRegistryData<
   TNamespace extends string,
   TMetadata extends TActionMetadata,
   TContext extends TActionFunctionContext,
   TToken extends TTokenAuthMetadata,
   TOAuth extends TOAuthMetadata,
-> = {
+> {
   /**
    * The namespace for the actions registry. Useful if you have multiple action registries.
    *
@@ -94,15 +94,16 @@ export type TRegistryData<
   oAuthMetadataSchema?: TOAuth
 }
 
-export type TAnyRegistryData = TRegistryData<
-  string,
-  TActionMetadata,
-  TActionFunctionContext,
-  TTokenAuthMetadata,
-  TOAuthMetadata
->
+export interface TAnyRegistryData
+  extends TRegistryData<
+    string,
+    TActionMetadata,
+    TActionFunctionContext,
+    TTokenAuthMetadata,
+    TOAuthMetadata
+  > {}
 
-export type TActionData<
+export interface TActionData<
   TRegistry extends TAnyRegistryData,
   TId extends string,
   TFunctionName extends string,
@@ -110,7 +111,7 @@ export type TActionData<
   TOutput extends TActionOutput,
   TAuth extends TAnyActionAuth,
   TType extends TActionType,
-> = {
+> {
   registryData: TRegistry
   id: TId
   actionType: TType
@@ -127,4 +128,5 @@ export type TActionData<
   exampleInput: z.input<TInput> | null
 }
 
-export type TAnyActionData = TActionData<any, any, any, any, any, any, any>
+export interface TAnyActionData
+  extends TActionData<any, any, any, any, any, any, any> {}

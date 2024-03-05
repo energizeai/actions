@@ -1,26 +1,30 @@
-import { TActionData, TActionInput, TAnyRegistryData } from "./action-data"
+import z from "zod"
+import { TActionInput, TAnyRegistryData, ValidZodSchema } from "./action-data"
 import { ActionBuilderWithInput } from "./with-input"
 
-export type TActionBuilderConstructorData<
+export interface TActionBuilderConstructorData<
   TRegistry extends TAnyRegistryData,
   TId extends string,
   TFunctionName extends string,
-> = Pick<
-  TActionData<TRegistry, TId, TFunctionName, any, any, any, any>,
-  "metadata" | "id" | "registryData" | "functionName"
->
+> {
+  id: TId
+  functionName: TFunctionName
+  metadata: TRegistry["metadataSchema"] extends infer U
+    ? U extends ValidZodSchema
+      ? z.output<U>
+      : undefined
+    : undefined
+  registryData: TRegistry
+}
 
-export type TActionBuilderData = TActionBuilderConstructorData<
-  TAnyRegistryData,
-  string,
-  string
->
+export interface TActionBuilderData
+  extends TActionBuilderConstructorData<TAnyRegistryData, string, string> {}
 
 export class ActionBuilder<TLocalActionData extends TActionBuilderData> {
-  actionData: TLocalActionData
+  _actionData: TLocalActionData
 
   constructor(input: TLocalActionData) {
-    this.actionData = input
+    this._actionData = input
   }
 
   /**
@@ -42,7 +46,7 @@ export class ActionBuilder<TLocalActionData extends TActionBuilderData> {
   setInputSchema<T extends TActionInput>(input: T) {
     return new ActionBuilderWithInput({
       actionData: {
-        ...this.actionData,
+        ...this._actionData,
         inputSchema: input,
       },
     })
