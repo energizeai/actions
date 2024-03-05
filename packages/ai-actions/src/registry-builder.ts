@@ -7,7 +7,7 @@ import {
 } from "./action-data"
 import { ActionBuilderWithFunction } from "./with-function"
 
-interface TActionsArray<TRegistry extends TAnyRegistryData>
+export interface TActionsArray<TRegistry extends TAnyRegistryData>
   extends Array<
     ReturnType<
       ActionBuilderWithFunction<any>["getRegistryData"]

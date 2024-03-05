@@ -112,7 +112,7 @@ export type TTokenCustomData = z.ZodObject<any> | null
  *
  * This is useful for resources that don't support OAuth, but do support API keys.
  */
-interface TTokenAuthConfig<TCustomData extends TTokenCustomData> {
+export interface TTokenAuthConfig<TCustomData extends TTokenCustomData> {
   /**
    * Optional schema for custom data to be stored in the user's account that is needed to use the action.
    *
