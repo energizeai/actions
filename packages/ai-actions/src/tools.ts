@@ -175,7 +175,7 @@ export const setupToolCalling = <
                 status: "error",
                 message: result.message,
               })
-            : JSON.stringify(result.data),
+            : JSON.stringify(result.data ? result.data : {}),
       }
 
       toolCallMessages.push(message)
