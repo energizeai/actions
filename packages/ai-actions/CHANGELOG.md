@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.9.1
+
+### Patch Changes
+
+- 1f3fd31: Fix void output on tool calls and function when appending the result messages
+
 ## 0.9.0
 
 ### Minor Changes
