@@ -72,8 +72,8 @@ export class ActionBuilderWithInput<
         })
           .setOutputSchema(this._actionData.inputSchema)
           .setAuthType("None")
-          // @ts-expect-error
-          .setActionFunction(async ({ input }) => {
+          // @ts-expect-error - this is a hack to get the correct type
+          .setActionFunction(({ input }) => {
             return input
           })
       )
