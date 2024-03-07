@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.10.0
+
+### Minor Changes
+
+- 0184370: Added support for Vercel AI SDK render tools
+
 ## 0.9.1
 
 ### Patch Changes
