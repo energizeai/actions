@@ -35,36 +35,42 @@ export const generateLLMFunctions = <
   return tools.map((tool) => tool.function)
 }
 
-type TFunctionCallHandler<
+interface TFunctionCallHandler<
   T extends TAnyActionRegistry,
   U extends (keyof T)[] | undefined,
-> = (functionCall: {
-  name: string
-  arguments: Record<string, unknown>
-}) => Promise<{
-  functionCallMessage: OpenAI.Chat.Completions.ChatCompletionFunctionMessageParam
-  results: TCallerResults<T, TActionRegistrySubset<T, U>>
-}>
+> {
+  (functionCall: {
+    name: string
+    arguments: Record<string, unknown>
+  }): Promise<{
+    functionCallMessage: OpenAI.Chat.Completions.ChatCompletionFunctionMessageParam
+    results: TCallerResults<T, TActionRegistrySubset<T, U>>
+  }>
+}
 
-type TCreateFewShotFunctionCallMessages<
+interface TCreateFewShotFunctionCallMessages<
   TRegistry extends TAnyActionRegistry,
   U extends (keyof TRegistry)[] | undefined,
-> = (
-  examples: {
-    userMessageContent: string
-    assistantMessageContent?: string
-    function_call: TFewShotExampleCalls<TRegistry, U>
-  }[]
-) => OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+> {
+  (
+    examples: {
+      userMessageContent: string
+      assistantMessageContent?: string
+      function_call: TFewShotExampleCalls<TRegistry, U>
+    }[]
+  ): OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+}
 
-type TChooseFunction<
+interface TChooseFunction<
   TRegistry extends TAnyActionRegistry,
   U extends (keyof TRegistry)[] | undefined = undefined,
-> = (
-  name: ReturnType<
-    TRegistry[TActionRegistrySubset<TRegistry, U>]["getFunctionName"]
-  >
-) => OpenAI.Chat.Completions.ChatCompletionFunctionCallOption
+> {
+  (
+    name: ReturnType<
+      TRegistry[TActionRegistrySubset<TRegistry, U>]["getFunctionName"]
+    >
+  ): OpenAI.Chat.Completions.ChatCompletionFunctionCallOption
+}
 
 export const setupFunctionCalling = <
   TActionData extends TAnyActionData,
@@ -90,18 +96,12 @@ export const setupFunctionCalling = <
   const actionIds: (keyof T)[] =
     inArray || (Object.keys(registry) as (keyof T)[])
 
-  const validActionIds = new Set(actionIds)
-
   const functionNameToActionIdMap: Record<string, keyof T> = {}
   for (const actionId of actionIds) {
     const action = registry[actionId]
     if (!action) continue
     functionNameToActionIdMap[action.getFunctionName()] = actionId
   }
-
-  const tools = generateLLMTools(registry, {
-    inArray: actionIds,
-  })
 
   const functions = generateLLMFunctions(registry, {
     inArray: actionIds,

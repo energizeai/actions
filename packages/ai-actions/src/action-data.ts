@@ -1,3 +1,4 @@
+import { ReactNode } from "react"
 import z from "zod"
 import { TAnyActionAuth, TAuthArg } from "./auth"
 
@@ -11,21 +12,30 @@ export type TTokenAuthMetadata = z.ZodObject<any> | undefined
 export type TOAuthMetadata = z.ZodObject<any> | undefined
 export type TActionType = "CLIENT" | "SERVER" | "ECHO"
 
-export type TActionFunction<
+export type TStreamable = ReactNode | Promise<ReactNode>
+
+export type TRenderReturn =
+  | TStreamable
+  | Generator<TStreamable, TStreamable, void>
+  | AsyncGenerator<TStreamable, TStreamable, void>
+
+export interface TActionFunction<
   TRegistry extends TAnyRegistryData,
   TInput extends TActionInput,
   TOutput extends TActionOutput,
   TAuth extends TAnyActionAuth,
-> = (
-  _: {
-    input: z.output<TInput>
-    context: TRegistry["actionFunctionContextSchema"] extends infer U
-      ? U extends ValidZodSchema
-        ? z.output<U>
+> {
+  (
+    _: {
+      input: z.output<TInput>
+      context: TRegistry["actionFunctionContextSchema"] extends infer U
+        ? U extends ValidZodSchema
+          ? z.output<U>
+          : undefined
         : undefined
-      : undefined
-  } & (TAuth["type"] extends "None" ? {} : { auth: TAuthArg<TAuth> })
-) => Promise<z.input<TOutput>>
+    } & (TAuth["type"] extends "None" ? {} : { auth: TAuthArg<TAuth> })
+  ): Promise<z.input<TOutput>> | z.input<TOutput>
+}
 
 export interface TRegistryData<
   TNamespace extends string,
@@ -126,6 +136,11 @@ export interface TActionData<
   authConfig: TAuth
   actionFunction: TActionFunction<TRegistry, TInput, TOutput, TAuth>
   exampleInput: z.input<TInput> | null
+  renderFunction?: (
+    props: Parameters<TActionFunction<TRegistry, TInput, TOutput, TAuth>>[0] & {
+      actionFunction: TActionFunction<TRegistry, TInput, TOutput, TAuth>
+    }
+  ) => TRenderReturn
 }
 
 export interface TAnyActionData

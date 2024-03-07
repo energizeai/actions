@@ -9,7 +9,7 @@ import {
   ValuesOf,
   setupActionCaller,
 } from "."
-import { TAnyActionData } from "./action-data"
+import { TAnyActionData, TStreamable } from "./action-data"
 import { ActionBuilderWithFunction } from "./with-function"
 
 /**
@@ -51,15 +51,17 @@ export const generateLLMTools = <
   return tools
 }
 
-type TToolCallHandler<
+interface TToolCallHandler<
   T extends TAnyActionRegistry,
   U extends (keyof T)[] | undefined,
-> = (
-  toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
-) => Promise<{
-  toolCallMessages: OpenAI.Chat.Completions.ChatCompletionToolMessageParam[]
-  results: TCallerResults<T, TActionRegistrySubset<T, U>>
-}>
+> {
+  (
+    toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
+  ): Promise<{
+    toolCallMessages: OpenAI.Chat.Completions.ChatCompletionToolMessageParam[]
+    results: TCallerResults<T, TActionRegistrySubset<T, U>>
+  }>
+}
 
 export type TFewShotExampleCalls<
   TRegistry extends TAnyActionRegistry,
@@ -75,25 +77,42 @@ export type TFewShotExampleCalls<
       : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
 }>
 
-type TCreateFewShotToolCallMessages<
+interface TCreateFewShotToolCallMessages<
   TRegistry extends TAnyActionRegistry,
   U extends (keyof TRegistry)[] | undefined,
-> = (
-  examples: {
-    userMessageContent: string
-    assistantMessageContent?: string
-    tool_calls: TFewShotExampleCalls<TRegistry, U>[]
-  }[]
-) => OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+> {
+  (
+    examples: {
+      userMessageContent: string
+      assistantMessageContent?: string
+      tool_calls: TFewShotExampleCalls<TRegistry, U>[]
+    }[]
+  ): OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+}
 
-type TChooseTool<
+interface TChooseTool<
   TRegistry extends TAnyActionRegistry,
   U extends (keyof TRegistry)[] | undefined = undefined,
-> = (
-  name: ReturnType<
-    TRegistry[TActionRegistrySubset<TRegistry, U>]["getFunctionName"]
-  >
-) => OpenAI.Chat.Completions.ChatCompletionToolChoiceOption
+> {
+  (
+    name: ReturnType<
+      TRegistry[TActionRegistrySubset<TRegistry, U>]["getFunctionName"]
+    >
+  ): OpenAI.Chat.Completions.ChatCompletionToolChoiceOption
+}
+
+type TToolsWithRender<
+  TRegistry extends TAnyActionRegistry,
+  U extends (keyof TRegistry)[] | undefined = undefined,
+> = {
+  [K in TActionRegistrySubset<TRegistry, U>]: {
+    description?: string | undefined
+    parameters: ReturnType<TRegistry[K]["getInputSchema"]>
+    render: (
+      props: z.output<ReturnType<TRegistry[K]["getInputSchema"]>>
+    ) => AsyncGenerator<TStreamable, TStreamable, void>
+  }
+}
 
 export const setupToolCalling = <
   TActionData extends TAnyActionData,
@@ -118,6 +137,7 @@ export const setupToolCalling = <
   toolCallsHandler: TToolCallHandler<T, U>
   chooseTool: TChooseTool<T, U>
   createFewShotToolCallMessages: TCreateFewShotToolCallMessages<T, U>
+  toolsWithRender: TToolsWithRender<T, U>
 } => {
   const { inArray } = args
 
@@ -262,10 +282,90 @@ export const setupToolCalling = <
     }
   }
 
+  const toolsWithRender: TToolsWithRender<T, U> = ({} = {} as any)
+
+  for (const id of actionIds) {
+    const action = registry[id]
+    if (!action) continue // should never happen
+
+    const renderFn = action.getRenderFunction()
+    if (!renderFn) continue
+
+    toolsWithRender[action.getFunctionName()] = {
+      description: action.getInputSchema().description,
+      parameters: action.getInputSchema(),
+      render: async function* (props: any) {
+        const { actionCaller } = setupActionCaller(registry, {
+          ...args,
+          onActionExecutionFinished: undefined, // we call this later
+          mode: "renderFunction",
+        })
+
+        const results = await actionCaller([
+          {
+            name: action.getFunctionName(),
+            arguments: props,
+          },
+        ])
+
+        const result = results[0]
+
+        if (!result || result.isError) {
+          throw new Error("Expected 1 result")
+        }
+
+        const renderProps = {
+          input: result.parsedArguments,
+          context: result.$parsedContext,
+          auth: result.$auth,
+          actionFunction: action.getActionFunction(),
+        } as const satisfies Parameters<typeof renderFn>[0]
+
+        function isGeneratorFunction(func: any) {
+          const constructor = func.constructor
+
+          if (!constructor) return false
+          if (
+            "GeneratorFunction" === constructor.name ||
+            "GeneratorFunction" === constructor.displayName ||
+            "AsyncGeneratorFunction" === constructor.name ||
+            "AsyncGeneratorFunction" === constructor.displayName
+          )
+            return true
+          return false
+        }
+
+        const handleFinished = () => {
+          if (args.onActionExecutionFinished) {
+            args.onActionExecutionFinished({
+              ...result,
+              timestamp: Date.now(),
+            } as any)
+          }
+        }
+
+        if (isGeneratorFunction(renderFn)) {
+          // @ts-expect-error
+          const yieldResult = yield* renderFn(renderProps)
+
+          handleFinished()
+
+          return yieldResult
+        }
+
+        handleFinished()
+
+        const renderResult = await renderFn(renderProps)
+        return renderResult
+      },
+    }
+  }
+
   return {
     tools,
     toolCallsHandler,
     createFewShotToolCallMessages,
     chooseTool,
+    toolsWithRender,
   }
 }

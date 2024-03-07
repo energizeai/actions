@@ -47,11 +47,13 @@ type TCreateActionsRegistry<T extends string> = `create${T}ActionsRegistry`
 type TCreateAction<T extends string> = `create${T}Action`
 
 // function to create an action registry
-type TCreateActionsRegistryFunction<TRegistry extends TAnyRegistryData> = <
-  const T extends TActionsArray<TRegistry>,
->(
-  registry: T
-) => TActionsRegistry<TRegistry, T>
+export interface TCreateActionsRegistryFunction<
+  TRegistry extends TAnyRegistryData,
+> {
+  <const T extends TActionsArray<TRegistry>>(
+    registry: T
+  ): TActionsRegistry<TRegistry, T>
+}
 
 // function to create an action
 type TCreateActionFunction<TRegistry extends TAnyRegistryData> =

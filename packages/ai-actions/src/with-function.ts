@@ -17,6 +17,15 @@ export class ActionBuilderWithFunction<
     return this
   }
 
+  setRenderFunction(renderFunction: TLocalActionData["renderFunction"]) {
+    this.actionData.renderFunction = renderFunction
+    return this
+  }
+
+  getRenderFunction(): TLocalActionData["renderFunction"] {
+    return this.actionData.renderFunction
+  }
+
   getId(): TLocalActionData["id"] {
     return this.actionData.id
   }
