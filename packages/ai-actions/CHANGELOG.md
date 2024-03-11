@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.11.0
+
+### Minor Changes
+
+- 484581b: Made the whole API much simpler
+
 ## 0.10.0
 
 ### Minor Changes
