@@ -144,7 +144,7 @@ export default function ActionTestForm({
   const [componentInput, setComponentInput] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const action = ActionsRegistry[params.id]
-  const authType = ActionsRegistry[params.id]._def.authConfig.type
+  const authType = ActionsRegistry[params.id].auth.type
 
   const [userData, setUserData] = useLocalStorage<{
     name: string

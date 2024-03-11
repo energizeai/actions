@@ -12,11 +12,9 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
   inputSchema: TLocalActionData["inputSchema"]
   outputSchema: TLocalActionData["outputSchema"]
 
-  _def: {
-    authConfig: TLocalActionData["authConfig"]
-    render: TLocalActionData["render"]
-    handler: TLocalActionData["handler"]
-  }
+  auth: TLocalActionData["authConfig"]
+  _render: TLocalActionData["render"]
+  handler: TLocalActionData["handler"]
 
   constructor({ actionData }: { actionData: TLocalActionData }) {
     this.id = actionData.id
@@ -27,11 +25,9 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
     this.inputSchema = actionData.inputSchema
     this.outputSchema = actionData.outputSchema
 
-    this._def = {
-      authConfig: actionData.authConfig,
-      render: actionData.render,
-      handler: actionData.handler,
-    }
+    this.auth = actionData.authConfig
+    this._render = actionData.render
+    this.handler = actionData.handler
   }
 
   setExampleInput(exampleInput: z.input<TLocalActionData["inputSchema"]>) {
@@ -40,10 +36,10 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
   }
 
   render(renderFunction: TLocalActionData["render"]) {
-    if (this._def.render) {
+    if (this._render) {
       throw new Error(`Render function already set for Action ${this.id}`)
     }
-    this._def.render = renderFunction
+    this._render = renderFunction
     return this
   }
 
@@ -60,9 +56,7 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
 
   getChatCompletionTool(): OpenAI.Chat.Completions.ChatCompletionTool {
     const jsonSchema = zodToJsonSchema(this.inputSchema)
-    let description = `${
-      jsonSchema["description"] || "No description was provided."
-    }`
+    let description = `${jsonSchema["description"] || ""}`
 
     delete jsonSchema["$schema"]
     delete jsonSchema["description"]

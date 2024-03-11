@@ -67,7 +67,7 @@ export default function OAuthForm({
   authorizationEndpoint,
 }: {
   actionId: TActionId
-  authConfig: TOAuthAction["_def"]["authConfig"]
+  authConfig: TOAuthAction["auth"]
   authorizationEndpoint: string | null
 }) {
   const action = ActionsRegistry[actionId]

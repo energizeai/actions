@@ -23,7 +23,7 @@ export interface TCallerSuccessResult<
   TAction extends ActionBuilderWithHandler<any>,
 > {
   status: "success"
-  data: Awaited<ReturnType<TAction["_def"]["handler"]>>
+  data: Awaited<ReturnType<TAction["handler"]>>
   actionId: TAction["id"]
   functionName: TAction["functionName"]
   id: string
@@ -90,9 +90,7 @@ type filterByAuthType<
   TId extends keyof T,
   TSuccess,
 > = {
-  [K in TId as T[K]["_def"]["authConfig"]["type"] extends U
-    ? K
-    : never]: TSuccess
+  [K in TId as T[K]["auth"]["type"] extends U ? K : never]: TSuccess
 }
 
 /**
@@ -179,7 +177,7 @@ export type TFunctionCallingArgs<
 > = {
   inArray?: U
   runInParallel?: boolean
-  mode?: "renderFunction" | "actionFunction"
+  mode?: "render" | "handler"
   onActionExecutionStarted?: TActionStarted<
     TRegistry,
     TActionRegistrySubset<TRegistry, U>
@@ -243,7 +241,7 @@ export const setupActionCaller = <
   const validActionIds = new Set(actionIds)
 
   const runInParallel = args.runInParallel || false
-  const mode = args.mode || "actionFunction"
+  const mode = args.mode || "handler"
   const onActionExecutionFinished = args.onActionExecutionFinished
   const onActionExecutionStarted = args.onActionExecutionStarted
 
@@ -320,9 +318,9 @@ export const setupActionCaller = <
         continue
       }
 
-      const actionFunction = action._def.handler
+      const actionHandler = action.handler
 
-      const runActionFunction = async () => {
+      const runActionHandler = async () => {
         if (onActionExecutionStarted) {
           onActionExecutionStarted({
             actionId,
@@ -336,7 +334,7 @@ export const setupActionCaller = <
         const getResult: () => Promise<(typeof results)[number]> = async () => {
           try {
             let authData = actionIdToAuthDataCache[actionId as string]
-            let authConfig = action._def.authConfig
+            let authConfig = action.auth
 
             // if there is no auth data, and the action requires OAuth, fetch the OAuth token
             if (!authData && authConfig.type === "OAuth") {
@@ -401,7 +399,7 @@ export const setupActionCaller = <
              * If the mode is "renderFunction", return the parsed arguments and the auth data
              * We will deal with actually calling the action function in the render function
              */
-            if (mode === "renderFunction") {
+            if (mode === "render") {
               return {
                 status: "success",
                 data: undefined as TSuccessData,
@@ -417,22 +415,12 @@ export const setupActionCaller = <
               }
             }
 
-            let output = await actionFunction({
+            let output = await actionHandler({
               input: functionArgs.data,
               // @ts-expect-error
               auth: authData,
               context: handleContext,
             })
-
-            const outputSchema = action.outputSchema
-
-            if (outputSchema) {
-              if (outputSchema === z.void()) {
-                output = undefined
-              } else {
-                output = outputSchema.parse(output)
-              }
-            }
 
             return {
               status: "success",
@@ -477,11 +465,11 @@ export const setupActionCaller = <
       }
 
       if (runInParallel) {
-        promises.push(runActionFunction())
+        promises.push(runActionHandler())
         continue
       }
 
-      await runActionFunction()
+      await runActionHandler()
     }
 
     if (runInParallel) {

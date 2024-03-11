@@ -135,9 +135,7 @@ export interface TActionData<
   exampleInput: z.input<TInput> | null
   render:
     | ((
-        props: Parameters<
-          TActionHandler<TRegistry, TInput, THandlerRet, TAuth>
-        >[0] & {
+        props: Parameters<TActionHandler<TRegistry, TInput, any, TAuth>>[0] & {
           handler: TActionHandler<TRegistry, TInput, THandlerRet, TAuth>
         }
       ) => TRenderReturn)

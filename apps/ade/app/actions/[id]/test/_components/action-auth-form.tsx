@@ -6,7 +6,7 @@ import TokenForm from "./token-form"
 
 export const ActionAuthForm = async ({ actionId }: { actionId: TActionId }) => {
   const action = ActionsRegistry[actionId]
-  const authConfig = action._def.authConfig
+  const authConfig = action.auth
 
   if (authConfig.type === "None") return null
 

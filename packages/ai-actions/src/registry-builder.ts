@@ -208,7 +208,7 @@ export type inferActionRegistryInputs<TRegistry extends TAnyActionRegistry> = {
 }
 
 export type inferActionRegistryOutputs<TRegistry extends TAnyActionRegistry> = {
-  [K in keyof TRegistry]: Awaited<ReturnType<TRegistry[K]["_def"]["handler"]>>
+  [K in keyof TRegistry]: Awaited<ReturnType<TRegistry[K]["handler"]>>
 }
 
 export { type TActionInput, type TActionMetadata } from "./action-data"

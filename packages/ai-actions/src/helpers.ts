@@ -16,12 +16,10 @@ export const filterActionRegistryByAuthType = <
   registry: T,
   authType: U
 ): {
-  [K in keyof T as T[K]["_def"]["authConfig"]["type"] extends U
-    ? K
-    : never]: T[K]
+  [K in keyof T as T[K]["auth"]["type"] extends U ? K : never]: T[K]
 } => {
   return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (action._def.authConfig.type === authType) {
+    if (action.auth.type === authType) {
       acc[id] = action
     }
     return acc

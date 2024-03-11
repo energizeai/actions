@@ -70,45 +70,43 @@ export class ActionBuilderWithInput<
   > {
     if ("_def" in output && "parse" in output && "safeParse" in output) {
       const cast = output as TActionOutput
-      // @ts-expect-error
       return new ActionBuilderWithInput({
         actionData: {
           ...this._actionData,
         },
         outputSchema: cast,
         authConfig: this._authConfig,
-      })
+      }) as any
     }
 
     const cast = output as z.ZodRawShape
-    // @ts-expect-error
     return new ActionBuilderWithInput({
       actionData: {
         ...this._actionData,
       },
       outputSchema: z.object(cast),
       authConfig: this._authConfig,
-    })
+    }) as any
   }
 
   /**
    * Sets the output schema to be the same as the input schema.
    */
-  outputSameAsInput(): Omit<
-    ActionBuilderWithInput<
-      TLocalActionData,
-      TLocalActionData["inputSchema"],
-      TAuth
-    >,
-    TOmitOnInputWithOutput
-  > {
+  outputSameAsInput() {
     return new ActionBuilderWithInput({
       actionData: {
         ...this._actionData,
       },
       outputSchema: this._actionData.inputSchema,
       authConfig: this._authConfig,
-    })
+    }) as unknown as Omit<
+      ActionBuilderWithInput<
+        TLocalActionData,
+        TLocalActionData["inputSchema"],
+        TAuth
+      >,
+      TOmitOnInputWithOutput
+    >
   }
 
   /**
@@ -187,33 +185,68 @@ export class ActionBuilderWithInput<
       THandlerRet,
       TAuth
     >
-  ) {
+  ): ActionBuilderWithHandler<
+    TActionData<
+      TLocalActionData["registryData"],
+      TLocalActionData["id"],
+      TLocalActionData["functionName"],
+      TLocalActionData["inputSchema"],
+      TOutput,
+      TAuth,
+      TOutput extends TActionOutput
+        ? THandlerRet extends Promise<z.input<TOutput>>
+          ? Promise<z.output<TOutput>>
+          : z.output<TOutput>
+        : THandlerRet
+    >
+  > {
+    const handlerWrapper = (params: any) => {
+      let result = handler(params) as any
+      if (this._outputSchema) {
+        result = this._outputSchema.parse(result)
+      }
+      return result
+    }
+
+    const handlerWrapperAsync = async (params: any) => {
+      let result = (await handler(params)) as any
+      if (this._outputSchema) {
+        result = this._outputSchema.parse(result)
+      }
+      return result
+    }
+
+    const isAsync = (func: Function): boolean => {
+      return func.constructor.name === "AsyncFunction"
+    }
+
     return new ActionBuilderWithHandler({
       actionData: {
         ...this._actionData,
         outputSchema: this._outputSchema,
-        handler: handler,
+        handler: isAsync(handler) ? handlerWrapperAsync : handlerWrapper,
         exampleInput: null,
         actionType: "SERVER",
         authConfig: this._authConfig,
         render: undefined,
       },
-    }) as unknown as ActionBuilderWithHandler<
+    }) as any
+  }
+
+  noHandler() {
+    const temp = this.outputSameAsInput()
+    return temp.handler(
+      ({ input }) => input as any
+    ) as unknown as ActionBuilderWithHandler<
       TActionData<
         TLocalActionData["registryData"],
         TLocalActionData["id"],
         TLocalActionData["functionName"],
         TLocalActionData["inputSchema"],
-        TOutput,
+        TLocalActionData["inputSchema"],
         TAuth,
-        THandlerRet
+        z.output<TLocalActionData["inputSchema"]>
       >
     >
-  }
-
-  noHandler() {
-    const temp = this.outputSameAsInput()
-    // @ts-expect-error
-    return temp.handler(({ input }) => input)
   }
 }

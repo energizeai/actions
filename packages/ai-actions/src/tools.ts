@@ -70,10 +70,10 @@ export type TFewShotExampleCalls<
   [K in TActionRegistrySubset<TRegistry, U>]: {
     name: TRegistry[K]["functionName"]
     arguments: z.input<TRegistry[K]["inputSchema"]>
-  } & (ReturnType<TRegistry[K]["_def"]["handler"]> extends void
+  } & (ReturnType<TRegistry[K]["handler"]> extends void
     ? {}
     : {
-        response: Awaited<ReturnType<TRegistry[K]["_def"]["handler"]>>
+        response: Awaited<ReturnType<TRegistry[K]["handler"]>>
       })
 }>
 
@@ -283,7 +283,7 @@ export const setupToolCalling = <
     const action = registry[id]
     if (!action) continue // should never happen
 
-    const renderFn = action._def.render
+    const renderFn = action._render
     if (!renderFn) continue
 
     toolsWithRender[action.functionName] = {
@@ -293,7 +293,7 @@ export const setupToolCalling = <
         const { actionCaller } = setupActionCaller(registry, {
           ...args,
           onActionExecutionFinished: undefined, // we call this later
-          mode: "renderFunction",
+          mode: "render",
         })
 
         const results = await actionCaller([
@@ -313,7 +313,7 @@ export const setupToolCalling = <
           input: result.parsedArguments,
           context: result.$parsedContext,
           auth: result.$auth,
-          handler: action._def.handler,
+          handler: action.handler,
         } as const satisfies Parameters<typeof renderFn>[0]
 
         function isGeneratorFunction(func: any) {

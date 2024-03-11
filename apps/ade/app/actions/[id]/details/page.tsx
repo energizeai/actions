@@ -56,7 +56,7 @@ export default function ActionDetailsPage({
           <span className="font-semibold text-muted-foreground mr-2">
             Authentication Method:
           </span>
-          {actionData._def.authConfig.type.toUpperCase()}
+          {actionData.auth.type.toUpperCase()}
         </div>
         <div className="flex items-center line-clamp-1">
           <span className="mr-4">🗣️</span>
@@ -105,7 +105,7 @@ export default function ActionDetailsPage({
           maxWidth: "100%",
         }}
         language="typescript"
-        value={actionData._def.handler.toString()}
+        value={actionData.handler.toString()}
       />
       <h1 className="text-xl font-semibold mt-4">Output</h1>
       <p className="text-muted-foreground mb-7">

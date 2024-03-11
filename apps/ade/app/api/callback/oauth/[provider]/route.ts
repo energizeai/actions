@@ -32,7 +32,7 @@ export async function GET(
     return new Response("Invalid provider", { status: 400 })
   }
 
-  const authConfig = foundAction._def.authConfig
+  const authConfig = foundAction.auth
 
   if (authConfig.type !== "OAuth") {
     return new Response("Invalid provider [Auth Type]", { status: 400 })
