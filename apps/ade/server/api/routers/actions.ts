@@ -66,10 +66,12 @@ export const actionsRouter = createTRPCRouter({
 
       const results = await actionCaller([
         {
-          name: ActionsRegistry[input.actionId].getFunctionName(),
+          name: ActionsRegistry[input.actionId].functionName,
           arguments: JSON.parse(input.inputDataAsString),
         },
       ])
+
+      console.log(results)
 
       const result = results[0]
 
@@ -81,7 +83,7 @@ export const actionsRouter = createTRPCRouter({
         throw trpcBadRequestError(result.message)
       }
 
-      if (ActionsRegistry[input.actionId].getOutputSchema() === z.void()) {
+      if (ActionsRegistry[input.actionId].metadata.renderOnClient) {
         return {
           isSuccess: true,
         } as const

@@ -67,7 +67,7 @@ export default function OAuthForm({
   authorizationEndpoint,
 }: {
   actionId: TActionId
-  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
+  authConfig: TOAuthAction["_def"]["authConfig"]
   authorizationEndpoint: string | null
 }) {
   const action = ActionsRegistry[actionId]
@@ -84,9 +84,9 @@ export default function OAuthForm({
     )
   }
 
-  const clientIdKey = getClientIdEnvKey(ActionsRegistry[actionId].getMetadata())
+  const clientIdKey = getClientIdEnvKey(ActionsRegistry[actionId].metadata)
   const clientSecretKey = getClientSecretEnvKey(
-    ActionsRegistry[actionId].getMetadata()
+    ActionsRegistry[actionId].metadata
   )
 
   const callbackURL = `http://localhost:3000/api/callback/oauth/${actionId}`
@@ -105,8 +105,8 @@ export default function OAuthForm({
         >
           <Button variant={"outline"} className="w-full mt-2 gap-4">
             <ThemedImage
-              srcLight={action.getMetadata().avatar.light}
-              srcDark={action.getMetadata().avatar.dark}
+              srcLight={action.metadata.avatar.light}
+              srcDark={action.metadata.avatar.dark}
               ImageComponent={<img className="h-4 w-4" />}
             />
             <span className="flex-1 text-left overflow-hidden overflow-ellipsis">

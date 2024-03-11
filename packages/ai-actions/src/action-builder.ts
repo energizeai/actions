@@ -1,6 +1,6 @@
 import z from "zod"
-import { TActionInput, TAnyRegistryData, ValidZodSchema } from "./action-data"
-import { ActionBuilderWithInput } from "./with-input"
+import { TAnyRegistryData, ValidZodSchema } from "./action-data"
+import { ActionBuilderWithInput, TOmitOnInputBase } from "./with-input"
 
 export interface TActionBuilderConstructorData<
   TRegistry extends TAnyRegistryData,
@@ -20,11 +20,26 @@ export interface TActionBuilderConstructorData<
 export interface TActionBuilderData
   extends TActionBuilderConstructorData<TAnyRegistryData, string, string> {}
 
+export type TOmitActionBuilderBase = "_actionData" | "_description"
+
 export class ActionBuilder<TLocalActionData extends TActionBuilderData> {
   _actionData: TLocalActionData
+  _description: string | undefined
 
-  constructor(input: TLocalActionData) {
+  constructor(input: TLocalActionData, description?: string) {
     this._actionData = input
+    this._description = description
+  }
+
+  /**
+   * The description of the action. This is used to generate the prompts and details page for your action.
+   * @param description The description of the action.
+   * @returns The action builder with the description set.
+   * @example
+   */
+  describe(description: string) {
+    this._description = description
+    return this as Omit<typeof this, "describe" | TOmitActionBuilderBase>
   }
 
   /**
@@ -43,12 +58,23 @@ export class ActionBuilder<TLocalActionData extends TActionBuilderData> {
    * })).describe("The recipients of the email"),
    * ```
    */
-  setInputSchema<T extends TActionInput>(input: T) {
-    return new ActionBuilderWithInput({
+  input<T extends z.ZodRawShape>(input: T) {
+    const inputSchema = this._description
+      ? z.object(input).describe(this._description)
+      : z.object(input)
+
+    const ret = new ActionBuilderWithInput({
       actionData: {
         ...this._actionData,
-        inputSchema: input,
+        inputSchema,
+      },
+      outputSchema: undefined,
+      authConfig: {
+        type: "None",
+        config: undefined,
       },
     })
+
+    return ret as Omit<typeof ret, TOmitOnInputBase>
   }
 }

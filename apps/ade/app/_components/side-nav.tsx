@@ -79,8 +79,8 @@ export default function SideNav() {
         return (
           <SideNavLink href={`/actions/${key}`} key={key}>
             <ThemedImage
-              srcLight={action.getMetadata().avatar.light}
-              srcDark={action.getMetadata().avatar.dark}
+              srcLight={action.metadata.avatar.light}
+              srcDark={action.metadata.avatar.dark}
               invert={isActive(pathname, `/actions/${key}`)}
               ImageComponent={
                 <img
@@ -91,7 +91,7 @@ export default function SideNav() {
               }
             />
             <p className="text-ellipsis whitespace-nowrap overflow-x-hidden">
-              {action.getMetadata().title}
+              {action.metadata.title}
             </p>
           </SideNavLink>
         )

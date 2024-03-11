@@ -8,6 +8,7 @@ const LinearCreateIssueAction = createADEAction({
     title: "Create Issue",
     description: "Create an issue in Linear",
     resource: "Linear",
+    renderOnClient: true,
     avatar: {
       light: "/logos/linear-dark.svg",
       dark: "/logos/linear-light.svg",
@@ -21,26 +22,19 @@ const LinearCreateIssueAction = createADEAction({
     ],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        title: z
-          .string()
-          .min(1)
-          .describe(
-            `Title of the issue. Required. Must be a non-empty string.`
-          ),
-        description: z
-          .string()
-          .optional()
-          .describe(`Description of the issue. Optional.`),
-      })
-      .describe(`Create an issue in the Linear workspace.`)
-  )
-  .setActionType("CLIENT")
-  .setOutputAsVoid()
-  .setAuthType("OAuth")
-  .setOAuthData({
+  .describe("Create an issue in the Linear workspace.")
+  .input({
+    title: z
+      .string()
+      .min(1)
+      .describe(`Title of the issue. Required. Must be a non-empty string.`),
+    description: z
+      .string()
+      .optional()
+      .describe(`Description of the issue. Optional.`),
+  })
+  .authType("OAuth")
+  .oAuthData({
     humanReadableDescription: "Ability to create issues in Linear",
     humanReadableName: "Linear OAuth",
     button: {
@@ -55,7 +49,7 @@ const LinearCreateIssueAction = createADEAction({
     oauthAppGenerationURL:
       "https://linear.app/energizeai/settings/api/applications/new",
   })
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     const linearClient = new LinearClient({
       accessToken: auth.accessToken,
     })

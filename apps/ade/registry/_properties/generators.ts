@@ -10,7 +10,7 @@ const { createADEActionsRegistry, createADEAction } =
   generateActionRegistryFunctions({
     namespace: "ADE",
     metadataSchema: ActionsRegistryMetadataSchema,
-    actionFunctionContextSchema: z.object({
+    handlerContextSchema: z.object({
       userData: z.object({
         email: z.string().email(),
         name: z.string(),

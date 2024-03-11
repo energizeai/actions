@@ -16,21 +16,11 @@ const HelloWorldAction = createADEAction({
     examples: [],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        name: z.string().describe(`Name of the person to greet.`),
-      })
-      .describe(`Get a greeting.`)
-  )
-  .setActionType("SERVER")
-  .setOutputSchema(
-    z.object({
-      greeting: z.string().describe(`The raw MYSQL schema for a table.`),
-    })
-  )
-  .setAuthType("None")
-  .setActionFunction(async ({ input }) => {
+  .describe("Get a greeting")
+  .input({
+    name: z.string().describe(`Name of the person to greet.`),
+  })
+  .handler(async ({ input }) => {
     return {
       greeting: `Hello, ${input.name}!`,
     }

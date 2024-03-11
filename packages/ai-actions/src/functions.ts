@@ -9,14 +9,14 @@ import {
   setupActionCaller,
 } from "."
 import { TAnyActionData } from "./action-data"
-import { ActionBuilderWithFunction } from "./with-function"
+import { ActionBuilderWithHandler } from "./with-handler"
 
 /**
  * Given an action registry, generate the functions for the LLM.
  */
 export const generateLLMFunctions = <
   const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
+    [key: string]: ActionBuilderWithHandler<any>
   }>,
   U extends (keyof T)[] | undefined,
 >(
@@ -66,16 +66,14 @@ interface TChooseFunction<
   U extends (keyof TRegistry)[] | undefined = undefined,
 > {
   (
-    name: ReturnType<
-      TRegistry[TActionRegistrySubset<TRegistry, U>]["getFunctionName"]
-    >
+    name: TRegistry[TActionRegistrySubset<TRegistry, U>]["functionName"]
   ): OpenAI.Chat.Completions.ChatCompletionFunctionCallOption
 }
 
 export const setupFunctionCalling = <
   TActionData extends TAnyActionData,
   const T extends Readonly<{
-    [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
+    [K in TActionData["id"]]: ActionBuilderWithHandler<TActionData>
   }>,
   U extends (keyof T)[] | undefined = undefined,
 >(
@@ -100,7 +98,7 @@ export const setupFunctionCalling = <
   for (const actionId of actionIds) {
     const action = registry[actionId]
     if (!action) continue
-    functionNameToActionIdMap[action.getFunctionName()] = actionId
+    functionNameToActionIdMap[action.functionName] = actionId
   }
 
   const functions = generateLLMFunctions(registry, {
@@ -187,7 +185,7 @@ export const setupFunctionCalling = <
       throw new Error(`Action name "${name}" is not allowed.`)
     }
     return {
-      name: registry[functionNameToActionIdMap[name]].getFunctionName(),
+      name: registry[functionNameToActionIdMap[name]].functionName,
     }
   }
 

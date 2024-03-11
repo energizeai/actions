@@ -25,7 +25,7 @@ export const linkedAccountsRouter = createTRPCRouter({
       }
 
       // validate custom data
-      const authConfig = ActionsRegistry[input.actionId].getAuthConfig()
+      const authConfig = ActionsRegistry[input.actionId]._def.authConfig
       if (
         authConfig.type === AuthType.TOKEN &&
         authConfig.config.customDataSchema
@@ -98,7 +98,7 @@ export const linkedAccountsRouter = createTRPCRouter({
         .where(eq(linkedAccounts.actionId, input.actionId))
 
       const action = ActionsRegistry[input.actionId]
-      const authConfig = action.getAuthConfig()
+      const authConfig = action._def.authConfig
 
       // if not OAuth, we're done
       if (authConfig.type !== AuthType.OAUTH) {

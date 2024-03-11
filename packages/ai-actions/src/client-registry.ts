@@ -1,17 +1,18 @@
 import React from "react"
 import z from "zod"
-import { dezerialize, zerialize } from "zodex"
 import { TActionInput, TAnyActionRegistry, ValuesOf } from "."
 import { ValidZodSchema } from "./action-data"
 
-type TClientMetadata = z.output<ValidZodSchema> | never
+type TClientMetadata = z.output<ValidZodSchema> | undefined
 
 export interface ClientActionData<
+  TNamespace extends string,
   TId extends string,
   TFunctionName extends string,
   TInputSchema extends TActionInput,
   TMetadata extends TClientMetadata,
 > {
+  namespace: TNamespace
   actionId: TId
   functionName: TFunctionName
   inputSchema: TInputSchema
@@ -19,7 +20,7 @@ export interface ClientActionData<
 }
 
 export type TAnyClientActionRegistry = Readonly<{
-  [K in string]: ClientActionData<string, K, TActionInput, TClientMetadata>
+  [K in string]: ClientActionData<any, any, any, any, any>
 }>
 
 export type inferActionComponentRouter<
@@ -31,8 +32,11 @@ export type inferActionComponentRouter<
     functionName: T[K]["functionName"]
     inputSchema: T[K]["inputSchema"]
     onSubmit: (args: z.output<T[K]["inputSchema"]>) => void
-    metadata: T[K]["metadata"]
-  }
+  } & (T[K]["metadata"] extends z.output<any>
+      ? {
+          metadata: T[K]["metadata"]
+        }
+      : {})
 }
 
 export type inferActionComponentProps<
@@ -42,9 +46,11 @@ export type inferActionComponentProps<
 
 export const createActionComponentRouter = <
   TRouter extends inferActionComponentRouter<TAnyClientActionRegistry, any>,
->(args: {
-  [K in keyof TRouter]: React.FC<inferActionComponentProps<TRouter, K>>
-}) => {
+>(
+  args: Partial<{
+    [K in keyof TRouter]: React.FC<inferActionComponentProps<TRouter, K>>
+  }>
+) => {
   type CustomProps =
     TRouter extends inferActionComponentRouter<any, infer K>
       ? K
@@ -78,14 +84,12 @@ export const createActionComponentRouter = <
 
       const { fallback, onSubmit: wrapperOnSubmit, ...rest } = props
 
-      const dezerialized = dezerialize(props.inputSchema)
-
-      const parsedArgs = dezerialized.safeParse(props.args)
+      const parsedArgs = props.inputSchema.safeParse(props.args)
 
       const finalProps = {
         ...rest,
         args: parsedArgs.success ? parsedArgs.data : null,
-        inputSchema: dezerialize(props.inputSchema),
+        inputSchema: props.inputSchema,
         onSubmit: (args: NonNullable<unknown>) => {
           // we want to pass the on submit up to the parent
           wrapperOnSubmit({ functionName: props.functionName, args: args })
@@ -101,55 +105,58 @@ export const createActionComponentRouter = <
   return Component
 }
 
-type inferClientAct<
+type inferNamespace<T extends TAnyActionRegistry> =
+  T[keyof T]["registryData"]["namespace"]
+
+type inferClientReturn<
   T extends TAnyActionRegistry,
   TTransformedMetadata extends TClientMetadata,
 > = {
-  [K in keyof T as ReturnType<T[K]["getActionType"]> extends "CLIENT"
-    ? ReturnType<T[K]["getFunctionName"]>
-    : never]: ClientActionData<
-    ReturnType<T[K]["getId"]>,
-    ReturnType<T[K]["getFunctionName"]>,
-    ReturnType<T[K]["getInputSchema"]>,
+  [K in keyof T]: ClientActionData<
+    inferNamespace<T>,
+    T[K]["id"],
+    T[K]["functionName"],
+    T[K]["inputSchema"],
     TTransformedMetadata
   >
 }
 
-export const createClientActionRegistry = <
+type TCreateClientActionsRegistryOptions<
+  T extends TAnyActionRegistry,
+  TTransformedMetadata extends TClientMetadata = undefined,
+> = T[keyof T]["metadata"] extends undefined
+  ? {}
+  : {
+      pipeMetadata?: (metadata: T[keyof T]["metadata"]) => TTransformedMetadata
+    }
+
+export const createClientActionsRegistry = <
   const T extends TAnyActionRegistry,
-  TTransformedMetadata extends TClientMetadata = never,
+  TTransformedMetadata extends TClientMetadata = undefined,
 >(
   registry: T,
-  options?: {
-    pipeMetadata?: ReturnType<T[keyof T]["getMetadata"]> extends infer TMetadata
-      ? TMetadata extends z.output<any>
-        ? (metadata: TMetadata) => TTransformedMetadata
-        : never
-      : never
-  }
-): inferClientAct<T, TTransformedMetadata> => {
-  type TRet = inferClientAct<T, TTransformedMetadata>
-  const newRegistry = {} as TRet
+  options?: TCreateClientActionsRegistryOptions<T, TTransformedMetadata>
+): inferClientReturn<T, TTransformedMetadata> => {
+  type TNewReg = inferClientReturn<T, TTransformedMetadata>
+  const newRegistry = {} as TNewReg
 
   const keys = Object.keys(registry) as (keyof T)[]
   for (const key of keys) {
-    if (registry[key]!.getActionType() !== "CLIENT") {
-      continue
-    }
-
     const action = registry[key]
     if (!action) continue
 
-    // @ts-ignore
-    newRegistry[key as keyof TRet] = {
-      inputSchema: zerialize(action.getInputSchema()),
-      functionName: action.getFunctionName(),
-      actionId: action.getId(),
-      metadata: options?.pipeMetadata
-        ? options.pipeMetadata(action.getMetadata())
-        : undefined,
+    newRegistry[key as keyof TNewReg] = {
+      namespace: action.registryData.namespace,
+      inputSchema: action.inputSchema,
+      functionName: action.functionName,
+      actionId: action.id,
+      metadata: (options && "pipeMetadata" in options && options.pipeMetadata
+        ? options.pipeMetadata(action.metadata)
+        : undefined) as TTransformedMetadata,
     }
   }
 
   return newRegistry
 }
+
+export * from "./provider"

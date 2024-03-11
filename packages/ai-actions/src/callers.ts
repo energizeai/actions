@@ -2,10 +2,10 @@ import z from "zod"
 import { ValuesOf } from "."
 import { TAnyActionData, TAnyRegistryData, ValidZodSchema } from "./action-data"
 import { TAuthType } from "./auth"
-import { ActionBuilderWithFunction } from "./with-function"
+import { ActionBuilderWithHandler } from "./with-handler"
 
 type TAnyActionRegistry = Readonly<{
-  [key: string]: ActionBuilderWithFunction<any>
+  [key: string]: ActionBuilderWithHandler<any>
 }>
 
 export type TActionCallerInput<
@@ -13,22 +13,22 @@ export type TActionCallerInput<
   TId extends keyof TRegistry,
 > = ValuesOf<{
   [K in TId]: {
-    name: ReturnType<TRegistry[K]["getFunctionName"]>
-    arguments: z.input<ReturnType<TRegistry[K]["getInputSchema"]>>
+    name: TRegistry[K]["functionName"]
+    arguments: z.input<TRegistry[K]["inputSchema"]>
     id?: string
   }
 }>
 
 export interface TCallerSuccessResult<
-  TAction extends ActionBuilderWithFunction<any>,
+  TAction extends ActionBuilderWithHandler<any>,
 > {
   status: "success"
-  data: z.output<ReturnType<TAction["getOutputSchema"]>>
-  actionId: ReturnType<TAction["getId"]>
-  functionName: ReturnType<TAction["getFunctionName"]>
+  data: Awaited<ReturnType<TAction["_def"]["handler"]>>
+  actionId: TAction["id"]
+  functionName: TAction["functionName"]
   id: string
-  arguments: z.input<ReturnType<TAction["getInputSchema"]>>
-  parsedArguments: z.output<ReturnType<TAction["getInputSchema"]>>
+  arguments: z.input<TAction["inputSchema"]>
+  parsedArguments: z.output<TAction["inputSchema"]>
   isSuccess: true
   isError: false
 
@@ -38,19 +38,19 @@ export interface TCallerSuccessResult<
 }
 
 export interface TCallerErrorResult<
-  TAction extends ActionBuilderWithFunction<any>,
+  TAction extends ActionBuilderWithHandler<any>,
 > {
   status: "error"
   message: string
   cause?: Error
-  actionId: ReturnType<TAction["getId"]>
+  actionId: TAction["id"]
   data: undefined
   isError: true
   isSuccess: false
   id: string
-  failedArguments: z.input<ReturnType<TAction["getInputSchema"]>>
-  functionName: ReturnType<TAction["getFunctionName"]>
-  failedParsedArguments: z.output<ReturnType<TAction["getInputSchema"]>> | null
+  failedArguments: z.input<TAction["inputSchema"]>
+  functionName: TAction["functionName"]
+  failedParsedArguments: z.output<TAction["inputSchema"]> | null
 }
 
 export type TActionRegistrySubset<
@@ -71,18 +71,17 @@ export type TCallerResults<
 type inferContext<
   TActionData extends TAnyActionData,
   T extends Readonly<{
-    [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
+    [K in TActionData["id"]]: ActionBuilderWithHandler<TActionData>
   }>,
-> =
-  ReturnType<ValuesOf<T>["getRegistryData"]> extends infer TRegistry
-    ? TRegistry extends TAnyRegistryData
-      ? TRegistry["actionFunctionContextSchema"] extends infer A
-        ? A extends ValidZodSchema
-          ? { context: z.input<A> }
-          : {}
+> = ValuesOf<T>["registryData"] extends infer TRegistry
+  ? TRegistry extends TAnyRegistryData
+    ? TRegistry["handlerContextSchema"] extends infer A
+      ? A extends ValidZodSchema
+        ? { context: z.input<A> }
         : {}
       : {}
     : {}
+  : {}
 
 // filter the action registry by the auth type and subset
 type filterByAuthType<
@@ -91,7 +90,7 @@ type filterByAuthType<
   TId extends keyof T,
   TSuccess,
 > = {
-  [K in TId as ReturnType<T[K]["getAuthConfig"]>["type"] extends U
+  [K in TId as T[K]["_def"]["authConfig"]["type"] extends U
     ? K
     : never]: TSuccess
 }
@@ -196,7 +195,7 @@ export type TFunctionCallingArgs<
 interface TActionCaller<
   TActionData extends TAnyActionData,
   TRegistry extends Readonly<{
-    [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
+    [K in TActionData["id"]]: ActionBuilderWithHandler<TActionData>
   }>,
   U extends (keyof TRegistry)[] | undefined = undefined,
 > {
@@ -208,7 +207,7 @@ interface TActionCaller<
 export const setupActionCaller = <
   TActionData extends TAnyActionData,
   const TRegistry extends Readonly<{
-    [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
+    [K in TActionData["id"]]: ActionBuilderWithHandler<TActionData>
   }>,
   U extends (keyof TRegistry)[] | undefined = undefined,
 >(
@@ -238,7 +237,7 @@ export const setupActionCaller = <
   for (const actionId of actionIds) {
     const action = registry[actionId]
     if (!action) continue
-    functionNameToActionIdMap[action.getFunctionName()] = actionId
+    functionNameToActionIdMap[action.functionName] = actionId
   }
 
   const validActionIds = new Set(actionIds)
@@ -249,23 +248,23 @@ export const setupActionCaller = <
   const onActionExecutionStarted = args.onActionExecutionStarted
 
   // get the context
-  let functionContext: ValidZodSchema["_output"] | undefined = undefined
+  let handleContext: ValidZodSchema["_output"] | undefined = undefined
   if (
     "context" in args &&
     actionIds.length > 0 &&
     registry[actionIds[0]!] &&
     registry[actionIds[0]!]
   ) {
-    const funcitonContextSchema =
-      registry[actionIds[0]!]!.getRegistryData().actionFunctionContextSchema
-    if (funcitonContextSchema) {
-      const funcitonContextSafe = funcitonContextSchema.safeParse(args.context)
+    const contextSchema =
+      registry[actionIds[0]!]!.registryData.handlerContextSchema
+    if (contextSchema) {
+      const funcitonContextSafe = contextSchema.safeParse(args.context)
       if (!funcitonContextSafe.success) {
         throw new Error(
           `The context is invalid: ${funcitonContextSafe.error.message}`
         )
       }
-      functionContext = funcitonContextSafe.data
+      handleContext = funcitonContextSafe.data
     }
   }
 
@@ -300,7 +299,7 @@ export const setupActionCaller = <
       if (!action) continue
 
       // parse the input
-      const schema = action.getInputSchema()
+      const schema = action.inputSchema
       const functionArgs = schema.safeParse(input.arguments)
 
       // the input is invalid
@@ -321,7 +320,7 @@ export const setupActionCaller = <
         continue
       }
 
-      const actionFunction = action.getActionFunction()
+      const actionFunction = action._def.handler
 
       const runActionFunction = async () => {
         if (onActionExecutionStarted) {
@@ -337,7 +336,7 @@ export const setupActionCaller = <
         const getResult: () => Promise<(typeof results)[number]> = async () => {
           try {
             let authData = actionIdToAuthDataCache[actionId as string]
-            let authConfig = action.getAuthConfig()
+            let authConfig = action._def.authConfig
 
             // if there is no auth data, and the action requires OAuth, fetch the OAuth token
             if (!authData && authConfig.type === "OAuth") {
@@ -396,6 +395,8 @@ export const setupActionCaller = <
             // update the cache
             actionIdToAuthDataCache[actionId as string] = authData
 
+            type TSuccessData = Awaited<ReturnType<TActionData["handler"]>>
+
             /**
              * If the mode is "renderFunction", return the parsed arguments and the auth data
              * We will deal with actually calling the action function in the render function
@@ -403,34 +404,39 @@ export const setupActionCaller = <
             if (mode === "renderFunction") {
               return {
                 status: "success",
-                data: undefined,
+                data: undefined as TSuccessData,
                 actionId,
                 id: inputId,
                 isSuccess: true,
                 isError: false,
                 functionName,
                 parsedArguments: functionArgs.data,
-                $parsedContext: functionContext,
+                $parsedContext: handleContext,
                 $auth: authData,
                 arguments: input.arguments,
               }
             }
 
-            const output = await actionFunction({
+            let output = await actionFunction({
               input: functionArgs.data,
               // @ts-expect-error
               auth: authData,
-              context: functionContext,
+              context: handleContext,
             })
 
-            const outputSchema = action.getOutputSchema()
+            const outputSchema = action.outputSchema
+
+            if (outputSchema) {
+              if (outputSchema === z.void()) {
+                output = undefined
+              } else {
+                output = outputSchema.parse(output)
+              }
+            }
 
             return {
               status: "success",
-              data:
-                outputSchema === z.void()
-                  ? undefined
-                  : outputSchema.parse(output),
+              data: output,
               actionId,
               id: inputId,
               isSuccess: true,

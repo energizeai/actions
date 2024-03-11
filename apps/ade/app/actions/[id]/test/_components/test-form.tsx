@@ -40,7 +40,6 @@ import {
 import { env } from "@/env/client.mjs"
 import useLocalStorage from "@/lib/hooks/use-local-storage"
 import { cn } from "@/lib/utils"
-import { TClientActionId } from "@/registry/client"
 import { extractErrorMessage } from "@/trpc/shared"
 import hjson from "hjson"
 import Link from "next/link"
@@ -145,7 +144,7 @@ export default function ActionTestForm({
   const [componentInput, setComponentInput] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const action = ActionsRegistry[params.id]
-  const authType = ActionsRegistry[params.id].getAuthConfig().type
+  const authType = ActionsRegistry[params.id]._def.authConfig.type
 
   const [userData, setUserData] = useLocalStorage<{
     name: string
@@ -190,7 +189,7 @@ export default function ActionTestForm({
   const handleTest = async () => {
     if (componentLoading) return
 
-    if (action.getActionType() === "CLIENT") {
+    if (action.metadata.renderOnClient) {
       setComponentLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setComponentLoading(false)
@@ -201,7 +200,7 @@ export default function ActionTestForm({
 
     if (actionMutation.isLoading) return
 
-    const loader = toast.loading(action.getMetadata().loadingMessage)
+    const loader = toast.loading(action.metadata.loadingMessage)
 
     try {
       await actionMutation.mutateAsync({
@@ -250,20 +249,20 @@ export default function ActionTestForm({
     )
   }
 
-  if (action.getActionType() === "CLIENT" && componentLoading) {
+  if (action.metadata.renderOnClient && componentLoading) {
     output = (
       <ActionComponent
-        clientActionId={params.id as TClientActionId}
+        actionId={params.id}
         state="skeleton"
         key={`action-component-${refreshKey}`}
         args={undefined}
         userData={undefined}
       />
     )
-  } else if (componentInput && action.getActionType() === "CLIENT") {
+  } else if (componentInput && action.metadata.renderOnClient) {
     output = (
       <ActionComponent
-        clientActionId={params.id as TClientActionId}
+        actionId={params.id}
         args={JSON.parse(componentInput)}
         state="active"
         key={`action-component-${refreshKey}`}

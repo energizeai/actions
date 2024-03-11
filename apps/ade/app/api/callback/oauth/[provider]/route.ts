@@ -32,7 +32,7 @@ export async function GET(
     return new Response("Invalid provider", { status: 400 })
   }
 
-  const authConfig = foundAction.getAuthConfig()
+  const authConfig = foundAction._def.authConfig
 
   if (authConfig.type !== "OAuth") {
     return new Response("Invalid provider [Auth Type]", { status: 400 })
@@ -52,11 +52,9 @@ export async function GET(
   }
 
   const tokenParams: Record<string, string> = {
-    client_id: process.env[
-      getClientIdEnvKey(foundAction.getMetadata())
-    ] as string,
+    client_id: process.env[getClientIdEnvKey(foundAction.metadata)] as string,
     client_secret: process.env[
-      getClientSecretEnvKey(foundAction.getMetadata())
+      getClientSecretEnvKey(foundAction.metadata)
     ] as string,
     redirect_uri: `http://localhost:3000/api/callback/oauth/${params.provider}`,
     grant_type: `authorization_code`,

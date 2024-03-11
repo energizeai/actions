@@ -6,6 +6,7 @@ const GoogleMoveEmailToTrash = createADEAction({
   metadata: {
     title: "Move Emails to Trash",
     description: "Move a list of specific emails to the trash.",
+    renderOnClient: true,
     resource: "Google",
     avatar: {
       light: "/logos/google.svg",
@@ -17,22 +18,17 @@ const GoogleMoveEmailToTrash = createADEAction({
     examples: ["Can you please delete that email?"],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        messageIds: z.array(
-          z
-            .string()
-            .min(1)
-            .describe(`The ID of the message/email to be moved to the trash.`)
-        ),
-      })
-      .describe(`Moves the specified message to the trash.`)
-  )
-  .setActionType("CLIENT")
-  .setOutputAsVoid()
-  .setAuthType("OAuth")
-  .setOAuthData({
+  .describe("Moves the specified message to the trash.")
+  .input({
+    messageIds: z.array(
+      z
+        .string()
+        .min(1)
+        .describe(`The ID of the message/email to be moved to the trash.`)
+    ),
+  })
+  .authType("OAuth")
+  .oAuthData({
     humanReadableDescription: "Ability to modify your Google emails",
     humanReadableName: "Google Email",
     button: {
@@ -43,7 +39,7 @@ const GoogleMoveEmailToTrash = createADEAction({
     scopes: ["https://www.googleapis.com/auth/gmail.modify"],
     oauthAppGenerationURL: "https://console.cloud.google.com/apis/credentials",
   })
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     async function moveEmailToTrash(messageId: string) {
       const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/trash`
 

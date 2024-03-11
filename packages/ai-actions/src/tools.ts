@@ -10,14 +10,14 @@ import {
   setupActionCaller,
 } from "."
 import { TAnyActionData, TStreamable } from "./action-data"
-import { ActionBuilderWithFunction } from "./with-function"
+import { ActionBuilderWithHandler } from "./with-handler"
 
 /**
  * Given an action registry, generate the tools for the LLM.
  */
 export const generateLLMTools = <
   const T extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
+    [key: string]: ActionBuilderWithHandler<any>
   }>,
   U extends (keyof T)[] | undefined,
 >(
@@ -68,13 +68,13 @@ export type TFewShotExampleCalls<
   U extends (keyof TRegistry)[] | undefined,
 > = ValuesOf<{
   [K in TActionRegistrySubset<TRegistry, U>]: {
-    name: ReturnType<TRegistry[K]["getFunctionName"]>
-    arguments: z.input<ReturnType<TRegistry[K]["getInputSchema"]>>
-  } & (ReturnType<TRegistry[K]["getActionType"]> extends "ECHO"
+    name: TRegistry[K]["functionName"]
+    arguments: z.input<TRegistry[K]["inputSchema"]>
+  } & (ReturnType<TRegistry[K]["_def"]["handler"]> extends void
     ? {}
-    : ReturnType<TRegistry[K]["getOutputSchema"]> extends z.ZodVoid
-      ? {}
-      : { response: z.output<ReturnType<TRegistry[K]["getOutputSchema"]>> })
+    : {
+        response: Awaited<ReturnType<TRegistry[K]["_def"]["handler"]>>
+      })
 }>
 
 interface TCreateFewShotToolCallMessages<
@@ -95,9 +95,7 @@ interface TChooseTool<
   U extends (keyof TRegistry)[] | undefined = undefined,
 > {
   (
-    name: ReturnType<
-      TRegistry[TActionRegistrySubset<TRegistry, U>]["getFunctionName"]
-    >
+    name: TRegistry[TActionRegistrySubset<TRegistry, U>]["functionName"]
   ): OpenAI.Chat.Completions.ChatCompletionToolChoiceOption
 }
 
@@ -107,9 +105,9 @@ type TToolsWithRender<
 > = {
   [K in TActionRegistrySubset<TRegistry, U>]: {
     description?: string | undefined
-    parameters: ReturnType<TRegistry[K]["getInputSchema"]>
+    parameters: TRegistry[K]["inputSchema"]
     render: (
-      props: z.output<ReturnType<TRegistry[K]["getInputSchema"]>>
+      props: z.output<TRegistry[K]["inputSchema"]>
     ) => AsyncGenerator<TStreamable, TStreamable, void>
   }
 }
@@ -117,7 +115,7 @@ type TToolsWithRender<
 export const setupToolCalling = <
   TActionData extends TAnyActionData,
   const T extends Readonly<{
-    [K in TActionData["id"]]: ActionBuilderWithFunction<TActionData>
+    [K in TActionData["id"]]: ActionBuilderWithHandler<TActionData>
   }>,
   U extends (keyof T)[] | undefined = undefined,
 >(
@@ -150,7 +148,7 @@ export const setupToolCalling = <
   for (const actionId of actionIds) {
     const action = registry[actionId]
     if (!action) continue
-    functionNameToActionIdMap[action.getFunctionName()] = actionId
+    functionNameToActionIdMap[action.functionName] = actionId
   }
 
   const tools = generateLLMTools(registry, {
@@ -239,8 +237,7 @@ export const setupToolCalling = <
       for (const [ix, toolCall] of example.tool_calls.entries()) {
         const foundAction = Object.values(registry).find(
           (action) =>
-            (action as (typeof registry)[string]).getFunctionName() ===
-            toolCall.name
+            (action as (typeof registry)[string]).functionName === toolCall.name
         ) as (typeof registry)[string] | undefined
 
         if (!foundAction) {
@@ -253,9 +250,7 @@ export const setupToolCalling = <
           content:
             "response" in toolCall
               ? JSON.stringify(toolCall.response)
-              : foundAction.getActionType() === "ECHO"
-                ? JSON.stringify(toolCall.arguments)
-                : JSON.stringify({}),
+              : JSON.stringify({}),
         })
       }
 
@@ -277,7 +272,7 @@ export const setupToolCalling = <
     return {
       type: "function",
       function: {
-        name: registry[functionNameToActionIdMap[name]].getFunctionName(),
+        name: registry[functionNameToActionIdMap[name]].functionName,
       },
     }
   }
@@ -288,12 +283,12 @@ export const setupToolCalling = <
     const action = registry[id]
     if (!action) continue // should never happen
 
-    const renderFn = action.getRenderFunction()
+    const renderFn = action._def.render
     if (!renderFn) continue
 
-    toolsWithRender[action.getFunctionName()] = {
-      description: action.getInputSchema().description,
-      parameters: action.getInputSchema(),
+    toolsWithRender[action.functionName] = {
+      description: action.inputSchema.description,
+      parameters: action.inputSchema,
       render: async function* (props: any) {
         const { actionCaller } = setupActionCaller(registry, {
           ...args,
@@ -303,7 +298,7 @@ export const setupToolCalling = <
 
         const results = await actionCaller([
           {
-            name: action.getFunctionName(),
+            name: action.functionName,
             arguments: props,
           },
         ])
@@ -318,7 +313,7 @@ export const setupToolCalling = <
           input: result.parsedArguments,
           context: result.$parsedContext,
           auth: result.$auth,
-          actionFunction: action.getActionFunction(),
+          handler: action._def.handler,
         } as const satisfies Parameters<typeof renderFn>[0]
 
         function isGeneratorFunction(func: any) {

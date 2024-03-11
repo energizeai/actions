@@ -27,8 +27,8 @@ export async function generateMetadata({
         : "https://ade.energize.ai"
     }/api/og`
   )
-  imageUrl.searchParams.append("title", `${action.getMetadata().title}`)
-  imageUrl.searchParams.append("avatar", action.getMetadata().avatar.dark)
+  imageUrl.searchParams.append("title", `${action.metadata.title}`)
+  imageUrl.searchParams.append("avatar", action.metadata.avatar.dark)
 
   return {
     metadataBase: new URL(
@@ -36,12 +36,12 @@ export async function generateMetadata({
         ? "http://localhost:3000"
         : "https://ade.energize.ai"
     ),
-    title: `ADE - ${action.getMetadata().title}`,
-    description: `${action.getMetadata().description}`,
+    title: `ADE - ${action.metadata.title}`,
+    description: `${action.metadata.description}`,
     openGraph: {
       images: [imageUrl],
-      title: `ADE - ${action.getMetadata().title}`,
-      description: `${action.getMetadata().description}`,
+      title: `ADE - ${action.metadata.title}`,
+      description: `${action.metadata.description}`,
     },
   }
 }
@@ -60,13 +60,13 @@ export default async function ActionLayout({
   return (
     <div className="w-full flex flex-col gap-4">
       <SectionHeader
-        title={actionData.getMetadata().title}
+        title={actionData.metadata.title}
         className="h-fit bg-background bg-background/80 backdrop-blur w-full"
         icon={
           <Avatar className="h-8 w-8 rounded-sm bg-muted text-foreground">
             <ThemedImage
-              srcLight={actionData.getMetadata().avatar.light}
-              srcDark={actionData.getMetadata().avatar.dark}
+              srcLight={actionData.metadata.avatar.light}
+              srcDark={actionData.metadata.avatar.dark}
               ImageComponent={
                 <AvatarImage className={cn("bg-background")} src={""} />
               }
@@ -74,13 +74,13 @@ export default async function ActionLayout({
             <AvatarFallback className="bg-muted" />
           </Avatar>
         }
-        subtitle={actionData.getMetadata().description}
+        subtitle={actionData.metadata.description}
       >
         <Link
           target={env.NODE_ENV !== "development" ? "_blank" : "_self"}
           href={
             env.NODE_ENV !== "development"
-              ? `https://github.com/energizeai/actions/blob/main/apps/ade/registry/_actions/${actionData.getId()}.tsx`
+              ? `https://github.com/energizeai/actions/blob/main/apps/ade/registry/_actions/${actionData.id}.tsx`
               : `#`
           }
           className={cn(
@@ -88,7 +88,7 @@ export default async function ActionLayout({
           )}
         >
           <pre className="max-w-[300px] text-wrap break-all">
-            @/registry/_actions/{actionData.getId()}.tsx
+            @/registry/_actions/{actionData.id}.tsx
           </pre>
         </Link>
       </SectionHeader>

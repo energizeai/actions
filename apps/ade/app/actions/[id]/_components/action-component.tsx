@@ -5,19 +5,16 @@ import { GoogleReplyToEmailCard } from "@/registry/_components/google-reply-to-e
 import { GoogleSendMailCard } from "@/registry/_components/google-send-mail-card"
 import { LinearCreateIssueCard } from "@/registry/_components/linear-create-issue-card"
 import { ZoomCreateMeetingCard } from "@/registry/_components/zoom-create-meeting-card"
-import {
-  TActionComponentRouter,
-  TClientActionId,
-  TClientActionsRegistry,
-} from "@/registry/client"
-import { useActionRegistry } from "@/registry/provider"
+import { TActionId } from "@/registry/_properties/types"
+import { TActionComponentRouter } from "@/registry/client"
+import { useActionRegistries } from "@/registry/provider"
 import { api } from "@/trpc/react"
 import { extractErrorMessage } from "@/trpc/shared"
 import { createActionComponentRouter } from "ai-actions"
 import { toast } from "sonner"
 
 function ActionComponent({
-  clientActionId,
+  actionId,
   state,
   args,
   userData = {
@@ -25,7 +22,7 @@ function ActionComponent({
     name: "",
   },
 }: {
-  clientActionId: TClientActionId
+  actionId: TActionId
   state: "active" | "placeholder" | "skeleton"
   args: any
   userData?: {
@@ -33,7 +30,7 @@ function ActionComponent({
     name: string
   }
 }) {
-  const { clientRegistry } = useActionRegistry<TClientActionsRegistry>()
+  const { actionsRegistry } = useActionRegistries("ADE")
   const caller = api.actions.testActionFunction.useMutation()
 
   const Router = createActionComponentRouter<TActionComponentRouter>({
@@ -44,7 +41,7 @@ function ActionComponent({
     "zoom-createMeeting": ZoomCreateMeetingCard,
   })
 
-  const actionData = clientRegistry[clientActionId]
+  const actionData = actionsRegistry[actionId]
 
   return (
     <Router
@@ -57,7 +54,7 @@ function ActionComponent({
       onSubmit={(props) => {
         try {
           caller.mutateAsync({
-            actionId: clientActionId,
+            actionId,
             inputDataAsString: JSON.stringify(props.args),
             userData,
             localTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
