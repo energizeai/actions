@@ -1,10 +1,10 @@
 import { TActionBuilderConstructorData } from "./action-builder"
-import { TActionData, TActionFunction } from "./action-data"
+import { TActionData, TActionHandler } from "./action-data"
 import { AuthType, TNoAuth, TTokenAuth, TTokenAuthConfig } from "./auth"
-import { ClientActionData } from "./client"
+import { ClientActionData } from "./client-registry"
 
 export * from "./callers"
-export * from "./client"
+export * from "./client-registry"
 export * from "./functions"
 export * from "./helpers"
 export * from "./registry-builder"
@@ -12,11 +12,16 @@ export * from "./tools"
 export * from "./utility"
 
 export {
+  ActionRegistriesProviderWrapper as ActionRegistriesProvider,
+  ActionRegistryContext,
+} from "./provider"
+
+export {
   AuthType,
   type ClientActionData,
   type TActionBuilderConstructorData,
   type TActionData,
-  type TActionFunction,
+  type TActionHandler as TActionFunction,
   type TNoAuth,
   type TTokenAuth,
   type TTokenAuthConfig,

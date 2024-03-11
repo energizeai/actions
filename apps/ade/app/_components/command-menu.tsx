@@ -120,17 +120,17 @@ export function CommandMenu({ ...props }: DialogProps) {
               return (
                 <CommandItem
                   key={actionId}
-                  value={action.getMetadata().title}
+                  value={action.metadata.title}
                   onSelect={() => {
                     runCommand(() => router.push(`/actions/${actionId}`))
                   }}
                 >
                   <ThemedImage
-                    srcLight={action.getMetadata().avatar.light}
-                    srcDark={action.getMetadata().avatar.dark}
+                    srcLight={action.metadata.avatar.light}
+                    srcDark={action.metadata.avatar.dark}
                     ImageComponent={<img className="h-4 w-4 mr-2" />}
                   />
-                  {action.getMetadata().title}
+                  {action.metadata.title}
                 </CommandItem>
               )
             })}

@@ -2,12 +2,12 @@ import { RouterOutputs } from "@/trpc/shared"
 import { TRPCClientErrorLike } from "@trpc/client"
 import { UseTRPCMutationResult } from "@trpc/react-query/shared"
 import {
-  createClientActionRegistry,
+  createClientActionsRegistry,
   inferActionComponentRouter,
 } from "ai-actions"
 import { ActionsRegistry } from "."
 
-export const ClientActionsRegistry = createClientActionRegistry(
+export const ClientActionsRegistry = createClientActionsRegistry(
   ActionsRegistry,
   {
     pipeMetadata(metadata) {
@@ -20,11 +20,12 @@ export const ClientActionsRegistry = createClientActionRegistry(
   }
 )
 
+export type TClientActionsRegistry = typeof ClientActionsRegistry
+
 export type TActionComponentRouter = inferActionComponentRouter<
-  typeof ClientActionsRegistry,
+  TClientActionsRegistry,
   {
     displayState: "placeholder" | "active" | "skeleton"
-  } & {
     mutationResults?: UseTRPCMutationResult<
       RouterOutputs["actions"]["testActionFunction"],
       TRPCClientErrorLike<any>,
@@ -33,7 +34,3 @@ export type TActionComponentRouter = inferActionComponentRouter<
     >
   }
 >
-
-export type TClientActionId = keyof typeof ClientActionsRegistry
-
-export type TClientActionsRegistry = typeof ClientActionsRegistry

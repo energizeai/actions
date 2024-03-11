@@ -1,5 +1,4 @@
 import { TAnyActionRegistry } from "."
-import { TActionType } from "./action-data"
 import { TAuthType } from "./auth"
 
 /**
@@ -17,51 +16,50 @@ export const filterActionRegistryByAuthType = <
   registry: T,
   authType: U
 ): {
-  [K in keyof T as ReturnType<T[K]["getAuthConfig"]>["type"] extends U
-    ? K
-    : never]: T[K]
+  [K in keyof T as T[K]["auth"]["type"] extends U ? K : never]: T[K]
 } => {
   return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (action.getAuthConfig().type === authType) {
+    if (action.auth.type === authType) {
       acc[id] = action
     }
     return acc
   }, {} as any)
 }
 
+/**
+ * Filter the action registry by metadat
+ *
+ * @param registry The registry of actions.
+ * @param filterFn The filter function to apply to the actions.
+ *
+ * @returns The filtered registry of actions.
+ */
+export const filterActionRegistryByMetadata = <
+  const T extends TAnyActionRegistry,
+>(
+  registry: T,
+  fn: (metadata: T[keyof T]["metadata"]) => boolean
+): T => {
+  return Object.entries(registry).reduce((acc, [id, action]) => {
+    const result = fn(action.metadata)
+    if (result) {
+      acc[id] = action
+    }
+    return acc
+  }, {} as any)
+}
+
+/**
+ * Create a readonly map of {
+ *   [id]: id
+ * }
+ */
 export const generateActionIdMap = <const T extends TAnyActionRegistry>(
   registry: T
 ): Readonly<{ [K in keyof T]: K }> => {
   return Object.freeze(
     Object.keys(registry).reduce((acc, id) => ({ ...acc, [id]: id }), {})
   ) as Readonly<{ [K in keyof T]: K }>
-}
-
-/**
- * Filter the action registry by the action type.
- *
- * @param registry The registry of actions.
- * @param authType The auth type to filter by.
- *
- * @returns The filtered registry of actions.
- */
-export const filterActionRegistryByActionType = <
-  const T extends TAnyActionRegistry,
-  U extends TActionType,
->(
-  registry: T,
-  actionType: U
-): {
-  [K in keyof T as ReturnType<T[K]["getActionType"]> extends U
-    ? K
-    : never]: T[K]
-} => {
-  return Object.entries(registry).reduce((acc, [id, action]) => {
-    if (action.getActionType() === actionType) {
-      acc[id] = action
-    }
-    return acc
-  }, {} as any)
 }
 
 /**

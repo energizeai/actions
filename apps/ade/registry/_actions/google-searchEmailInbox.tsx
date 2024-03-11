@@ -38,29 +38,25 @@ const GoogleSearchEmailInboxAction = createADEAction({
     examples: ["what new messages do I have in my inbox?"],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        query: z
-          .string()
-          .optional()
-          .default("is:unread")
-          .describe(
-            `Only return messages matching the specified query. Supports the same query format as the Gmail search box. For example, "from:someuser@example.com rfc822msgid:<somemsgid@example.com> is:unread".`
-          ),
-        pageToken: z
-          .string()
-          .optional()
-          .describe(
-            `Page token to retrieve a specific page of results in the list. Optional.`
-          ),
-      })
-      .describe(`List the messages in your Gmail inbox`)
-  )
-  .setActionType("SERVER")
-  .setOutputSchema(OutputSchema)
-  .setAuthType("OAuth")
-  .setOAuthData({
+  .describe("Query the messages in your Gmail inbox")
+  .input({
+    query: z
+      .string()
+      .optional()
+      .default("is:unread")
+      .describe(
+        `Only return messages matching the specified query. Supports the same query format as the Gmail search box. For example, "from:someuser@example.com rfc822msgid:<somemsgid@example.com> is:unread".`
+      ),
+    pageToken: z
+      .string()
+      .optional()
+      .describe(
+        `Page token to retrieve a specific page of results in the list. Optional.`
+      ),
+  })
+  .output(OutputSchema)
+  .authType("OAuth")
+  .oAuthData({
     humanReadableDescription: "Read-only access to your Google email",
     humanReadableName: "Google Email",
     button: {
@@ -71,7 +67,7 @@ const GoogleSearchEmailInboxAction = createADEAction({
     scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
     oauthAppGenerationURL: "https://console.cloud.google.com/apis/credentials",
   })
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     // Fetch the messages from the Gmail API
     const base = "https://gmail.googleapis.com/gmail/v1/users/me/messages"
 

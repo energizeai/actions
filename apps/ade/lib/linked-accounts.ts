@@ -27,7 +27,7 @@ export const refreshTokenIfNeeded = async (
   console.log("needs refresh", needsRefresh, expiresAt, now)
 
   const action = ActionsRegistry[linkedAccount.actionId]
-  const authConfig = action.getAuthConfig()
+  const authConfig = action.auth
 
   // if the action doesn't use OAuth, return null
   if (authConfig.type !== "OAuth") {
@@ -53,10 +53,9 @@ export const refreshTokenIfNeeded = async (
     },
     body: new URLSearchParams({
       refresh_token: linkedAccount.refreshToken,
-      client_id:
-        process.env[getClientIdEnvKey(action.getMetadata())] || "ERROR",
+      client_id: process.env[getClientIdEnvKey(action.metadata)] || "ERROR",
       client_secret:
-        process.env[getClientSecretEnvKey(action.getMetadata())] || "ERROR",
+        process.env[getClientSecretEnvKey(action.metadata)] || "ERROR",
       grant_type: "refresh_token",
     }),
   })
@@ -87,7 +86,7 @@ export const refreshTokenIfNeeded = async (
 }
 
 export const getAccessToken = async (linkedAccount: LinkedAccount) => {
-  const authConfig = ActionsRegistry[linkedAccount.actionId].getAuthConfig()
+  const authConfig = ActionsRegistry[linkedAccount.actionId].auth
 
   if (authConfig.type === "None") {
     throw new Error("Action does not require authentication")

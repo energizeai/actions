@@ -6,6 +6,7 @@ export const ZoomCreateMeetingAction = createADEAction({
   metadata: {
     title: "Create Meeting",
     description: "Create a new Zoom meeting",
+    renderOnClient: true,
     resource: "Zoom",
     avatar: {
       light: "/logos/zoom.svg",
@@ -17,39 +18,25 @@ export const ZoomCreateMeetingAction = createADEAction({
     examples: ["Create a new Zoom meeting"],
   },
 })
-  .setInputSchema(
-    z.object({
-      agenda: z.string().max(2000).describe("Meeting agenda"),
-      duration: z.number().describe("Length in minutes").default(30),
-      start_time: z
-        .string()
-        .describe("Starting time in GMT, formatted yyyy-MM-ddTHH:mm:ssZ")
-        .optional(),
-      topic: z.string().describe("Meeting Name").max(2000),
-      meeting_invitees: z
-        .array(z.string().email().describe("Email of the invitee"))
-        .describe("Meeting invitee list"),
-    })
-  )
-
-  // ==========================================================================
-  // Define the output schema for your action
-  // ==========================================================================
-
-  .setActionType("CLIENT")
-  .setOutputSchema(
-    z.object({
-      join_url: z.string().describe("Join URL"),
-      password: z.string().describe("Meeting password"),
-    })
-  )
-
-  // ==========================================================================
-  // Define the authentication configuration for your action
-  // ==========================================================================
-
-  .setAuthType("OAuth")
-  .setOAuthData({
+  .describe("Create a new Zoom meeting")
+  .input({
+    agenda: z.string().max(2000).describe("Meeting agenda"),
+    duration: z.number().describe("Length in minutes").default(30),
+    start_time: z
+      .string()
+      .describe("Starting time in GMT, formatted yyyy-MM-ddTHH:mm:ssZ")
+      .optional(),
+    topic: z.string().describe("Meeting Name").max(2000),
+    meeting_invitees: z
+      .array(z.string().email().describe("Email of the invitee"))
+      .describe("Meeting invitee list"),
+  })
+  .output({
+    join_url: z.string().describe("Join URL"),
+    password: z.string().describe("Meeting password"),
+  })
+  .authType("OAuth")
+  .oAuthData({
     humanReadableDescription: "Enables write access to Zoom Meetings API",
     humanReadableName: "Create Meeting",
     button: {
@@ -63,12 +50,7 @@ export const ZoomCreateMeetingAction = createADEAction({
     scopes: ["meeting:write", "user_info:read"],
     oauthAppGenerationURL: "https://marketplace.zoom.us/develop/create",
   })
-
-  // ==========================================================================
-  // Define the action function for your action
-  // ==========================================================================
-
-  .setActionFunction(async ({ input, auth, context }) => {
+  .handler(async ({ input, auth, context }) => {
     const { userData } = context
 
     // Get Zoom userID

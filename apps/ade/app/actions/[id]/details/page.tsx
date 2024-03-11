@@ -5,7 +5,6 @@ import { TActionId } from "@/registry/_properties/types"
 import { ExternalLink } from "lucide-react"
 import Link from "next/link"
 
-import { TClientActionId } from "@/registry/client"
 import { ActionComponent } from "../_components/action-component"
 
 export default function ActionDetailsPage({
@@ -27,10 +26,10 @@ export default function ActionDetailsPage({
         description, and other information.
       </p>
       <div className="grid mb-4 gap-4 grid-cols-1 lg:grid-cols-2 flex-1 p-4 border rounded">
-        {actionData.getMetadata().apiReference && (
+        {actionData.metadata.apiReference && (
           <Link
             className="flex items-center hover:underline font-semibold text-muted-foreground"
-            href={actionData.getMetadata().apiReference || "#"}
+            href={actionData.metadata.apiReference || "#"}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -45,7 +44,7 @@ export default function ActionDetailsPage({
             Default Keywords:
           </span>
           <div className="flex items-center justify-start gap-2 flex-wrap">
-            {actionData.getMetadata().defaultKeywords.map((keyword, index) => (
+            {actionData.metadata.defaultKeywords.map((keyword, index) => (
               <Badge key={index} variant={"outline"}>
                 @{keyword}
               </Badge>
@@ -57,7 +56,7 @@ export default function ActionDetailsPage({
           <span className="font-semibold text-muted-foreground mr-2">
             Authentication Method:
           </span>
-          {actionData.getAuthConfig().type.toUpperCase()}
+          {actionData.auth.type.toUpperCase()}
         </div>
         <div className="flex items-center line-clamp-1">
           <span className="mr-4">🗣️</span>
@@ -65,7 +64,7 @@ export default function ActionDetailsPage({
             Chat Message:
           </span>
           <span className="flex-1 line-clamp-1">
-            {actionData.getMetadata().chatMessage}
+            {actionData.metadata.chatMessage}
           </span>
         </div>
         <div className="flex items-center">
@@ -74,7 +73,7 @@ export default function ActionDetailsPage({
             Loading Message:
           </span>
           <span className="flex-1 line-clamp-1">
-            {actionData.getMetadata().loadingMessage}
+            {actionData.metadata.loadingMessage}
           </span>
         </div>
       </div>
@@ -93,7 +92,7 @@ export default function ActionDetailsPage({
         language="json"
         value={JSON.stringify(actionData.getInputJSONSchema(), null, 2)}
       />
-      <h1 className="text-xl font-semibold mt-4">Action Function</h1>
+      <h1 className="text-xl font-semibold mt-4">Action Handler</h1>
       <p className="text-muted-foreground mb-7">
         This is the TS function that runs the action. This is the code that will
         be executed when the action is run.
@@ -106,16 +105,16 @@ export default function ActionDetailsPage({
           maxWidth: "100%",
         }}
         language="typescript"
-        value={actionData.getActionFunction().toString()}
+        value={actionData.handler.toString()}
       />
       <h1 className="text-xl font-semibold mt-4">Output</h1>
       <p className="text-muted-foreground mb-7">
         This is the resulting output of the action.
       </p>
-      {actionData.getActionType() === "CLIENT" ? (
+      {actionData.metadata.renderOnClient ? (
         <div className="lg:max-w-screen-sm">
           <ActionComponent
-            clientActionId={params.id as TClientActionId}
+            actionId={params.id}
             args={undefined}
             state="placeholder"
             userData={undefined}

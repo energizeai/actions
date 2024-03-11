@@ -1,40 +1,33 @@
 "use client"
 
-import { TAnyClientActionRegistry } from "ai-actions"
-import { ReactNode, createContext, useContext } from "react"
+import {
+  ActionRegistriesProviderWrapper,
+  TActionRegistriesContext,
+  createUseActionRegistries,
+} from "ai-actions"
+import { createContext, useContext } from "react"
+import { ClientActionsRegistry } from "./client"
 
-const ActionRegistryContext = createContext<{
-  clientRegistry: TAnyClientActionRegistry
-}>({ clientRegistry: {} })
+const Registries = [ClientActionsRegistry]
 
-type ActionRegistryProviderProps = {
-  clientRegistry: TAnyClientActionRegistry
-  children: ReactNode
-}
+export const ActionRegistriesContext =
+  createContext<TActionRegistriesContext>(undefined)
 
-export const ActionsRegistryProvider = ({
-  clientRegistry,
+export function ActionRegistriesProvider({
   children,
-}: ActionRegistryProviderProps) => {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <ActionRegistryContext.Provider
-      value={{
-        clientRegistry,
-      }}
+    <ActionRegistriesProviderWrapper
+      Context={ActionRegistriesContext}
+      actionRegistries={Registries}
     >
       {children}
-    </ActionRegistryContext.Provider>
+    </ActionRegistriesProviderWrapper>
   )
 }
 
-export const useActionRegistry = <T extends TAnyClientActionRegistry>() => {
-  const context = useContext(ActionRegistryContext)
-
-  if (context === undefined) {
-    throw new Error(
-      "useActionRegistry must be used within a ActionRegistryProvider"
-    )
-  }
-
-  return context as { clientRegistry: T }
-}
+export const useActionRegistries = createUseActionRegistries(Registries, () =>
+  useContext(ActionRegistriesContext)
+)

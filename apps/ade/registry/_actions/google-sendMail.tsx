@@ -7,6 +7,7 @@ const GoogleSendMailAction = createADEAction({
     title: "Send Email",
     description: "Send an email with the Gmail API",
     resource: "Google",
+    renderOnClient: true,
     loadingMessage: "Generating email...",
     chatMessage: "Please send an email",
     avatar: {
@@ -19,26 +20,22 @@ const GoogleSendMailAction = createADEAction({
     examples: ["Send an email to johnappleseed@gmail.com"],
   },
 })
-  .setInputSchema(
-    z.object({
-      subject: z.string().describe("The subject of the email"),
-      body: z.string().describe("The body of the email"),
-      to: z
-        .array(
-          z.object({
-            email: z
-              .string()
-              .email()
-              .describe("The email address to send the email to"),
-          })
-        )
-        .describe("The email address to send the email to"),
-    })
-  )
-  .setActionType("CLIENT")
-  .setOutputAsVoid()
-  .setAuthType("OAuth")
-  .setOAuthData({
+  .input({
+    subject: z.string().describe("The subject of the email"),
+    body: z.string().describe("The body of the email"),
+    to: z
+      .array(
+        z.object({
+          email: z
+            .string()
+            .email()
+            .describe("The email address to send the email to"),
+        })
+      )
+      .describe("The email address to send the email to"),
+  })
+  .authType("OAuth")
+  .oAuthData({
     humanReadableDescription: "Ability to send emails using Google's api",
     humanReadableName: "Gmail Send",
     button: {
@@ -49,7 +46,7 @@ const GoogleSendMailAction = createADEAction({
     scopes: ["https://www.googleapis.com/auth/gmail.send"],
     oauthAppGenerationURL: "https://console.cloud.google.com/apis/credentials",
   })
-  .setActionFunction(async ({ input, auth, context }) => {
+  .handler(async ({ input, auth, context }) => {
     const { userData } = context
     function createEmail(
       to: string[],

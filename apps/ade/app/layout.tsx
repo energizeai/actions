@@ -11,8 +11,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 
 import { env } from "@/env/server.mjs"
-import { ClientActionsRegistry } from "@/registry/client"
-import { ActionsRegistryProvider } from "@/registry/provider"
+import { ActionRegistriesProvider } from "@/registry/provider"
 import { TRPCReactProvider } from "@/trpc/react"
 import { cookies } from "next/headers"
 import SideNav from "./_components/side-nav"
@@ -55,7 +54,7 @@ export default function RootLayout({
         )}
       >
         <TRPCReactProvider cookies={cookies().toString()}>
-          <ActionsRegistryProvider clientRegistry={ClientActionsRegistry}>
+          <ActionRegistriesProvider>
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
@@ -76,7 +75,7 @@ export default function RootLayout({
               </TooltipProvider>
               <Toaster duration={3000} />
             </ThemeProvider>
-          </ActionsRegistryProvider>
+          </ActionRegistriesProvider>
         </TRPCReactProvider>
       </body>
     </html>

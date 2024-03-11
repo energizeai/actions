@@ -6,6 +6,7 @@ const GoogleReplyToEmailAction = createADEAction({
   metadata: {
     title: "Reply To Email",
     description: "Send an email with the Gmail API",
+    renderOnClient: true,
     resource: "Google",
     loadingMessage: "Replying to email...",
     chatMessage: "Please reply to email",
@@ -18,20 +19,17 @@ const GoogleReplyToEmailAction = createADEAction({
       "https://developers.google.com/gmail/api/reference/rest/v1/users.messages/send",
   },
 })
-  .setInputSchema(
-    z.object({
-      body: z.string().describe("The body of the email"),
-      subject: z.string().describe("The subject of the email thread."),
-      to: z
-        .string()
-        .describe("The email address of the last sender in the thread."),
-      threadId: z.string().describe("The ID of the thread to reply to."),
-    })
-  )
-  .setActionType("CLIENT")
-  .setOutputAsVoid()
-  .setAuthType("OAuth")
-  .setOAuthData({
+  .describe("Send an email with the Gmail API")
+  .input({
+    body: z.string().describe("The body of the email"),
+    subject: z.string().describe("The subject of the email thread."),
+    to: z
+      .string()
+      .describe("The email address of the last sender in the thread."),
+    threadId: z.string().describe("The ID of the thread to reply to."),
+  })
+  .authType("OAuth")
+  .oAuthData({
     humanReadableDescription: "Ability to send emails using Google's api",
     humanReadableName: "Gmail Send",
     button: {
@@ -42,7 +40,7 @@ const GoogleReplyToEmailAction = createADEAction({
     scopes: ["https://www.googleapis.com/auth/gmail.send"],
     oauthAppGenerationURL: "https://console.cloud.google.com/apis/credentials",
   })
-  .setActionFunction(async ({ input, auth, context }) => {
+  .handler(async ({ input, auth, context }) => {
     const { userData } = context
     function createEmail(
       to: string[],

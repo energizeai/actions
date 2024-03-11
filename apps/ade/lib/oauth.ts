@@ -7,21 +7,17 @@ export const getResourceStringForOAuth = (resource: string) => {
   return resource.toUpperCase().replaceAll(" ", "_")
 }
 
-export const getClientIdEnvKey = (
-  actionMetadata: ReturnType<TAction["getMetadata"]>
-) => {
+export const getClientIdEnvKey = (actionMetadata: TAction["metadata"]) => {
   return `${getResourceStringForOAuth(actionMetadata.resource)}_CLIENT_ID`
 }
 
-export const getClientSecretEnvKey = (
-  actionMetadata: ReturnType<TAction["getMetadata"]>
-) => {
+export const getClientSecretEnvKey = (actionMetadata: TAction["metadata"]) => {
   return `${getResourceStringForOAuth(actionMetadata.resource)}_CLIENT_SECRET`
 }
 
 export const getAuthorizationEndpoint = async (
   actionId: TActionId,
-  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
+  authConfig: TOAuthAction["auth"]
 ) => {
   let authorizationEndpoint = null
 
@@ -37,7 +33,7 @@ export const getAuthorizationEndpoint = async (
 
   if (!authorizationEndpoint) return null
 
-  const clientIdKey = getClientIdEnvKey(ActionsRegistry[actionId].getMetadata())
+  const clientIdKey = getClientIdEnvKey(ActionsRegistry[actionId].metadata)
 
   const link = new URL(authorizationEndpoint)
   link.searchParams.append("client_id", process.env[clientIdKey] ?? "ERROR")
@@ -53,9 +49,7 @@ export const getAuthorizationEndpoint = async (
   return link.toString()
 }
 
-export const getTokenEndpoint = async (
-  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
-) => {
+export const getTokenEndpoint = async (authConfig: TOAuthAction["auth"]) => {
   let tokenEndpoint = null
 
   if (authConfig.config.discoveryEndpoint) {
@@ -71,9 +65,7 @@ export const getTokenEndpoint = async (
   return tokenEndpoint
 }
 
-export const getRevokeEndpoint = async (
-  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
-) => {
+export const getRevokeEndpoint = async (authConfig: TOAuthAction["auth"]) => {
   let revokeEndpoint = null
 
   if (authConfig.config.discoveryEndpoint) {
@@ -89,9 +81,7 @@ export const getRevokeEndpoint = async (
   return revokeEndpoint
 }
 
-export const getRefreshEndpoint = async (
-  authConfig: ReturnType<TOAuthAction["getAuthConfig"]>
-) => {
+export const getRefreshEndpoint = async (authConfig: TOAuthAction["auth"]) => {
   let refreshEndpoint = null
 
   if (authConfig.config.discoveryEndpoint) {

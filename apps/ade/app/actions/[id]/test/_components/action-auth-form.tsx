@@ -1,17 +1,17 @@
 import { getAuthorizationEndpoint } from "@/lib/oauth"
 import { ActionsRegistry } from "@/registry"
-import { TActionId } from "@/registry/_properties/types"
+import { TActionId, TTokenActionId } from "@/registry/_properties/types"
 import OAuthForm from "./oauth-form"
 import TokenForm from "./token-form"
 
 export const ActionAuthForm = async ({ actionId }: { actionId: TActionId }) => {
   const action = ActionsRegistry[actionId]
-  const authConfig = action.getAuthConfig()
+  const authConfig = action.auth
 
   if (authConfig.type === "None") return null
 
   if (authConfig.type === "Token") {
-    return <TokenForm actionId={actionId} />
+    return <TokenForm actionId={actionId as TTokenActionId} />
   }
 
   let authorizationEndpoint = await getAuthorizationEndpoint(

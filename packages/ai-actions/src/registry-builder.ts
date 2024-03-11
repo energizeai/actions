@@ -1,43 +1,29 @@
 import z from "zod"
 import { ActionBuilder, TActionBuilderConstructorData } from "./action-builder"
-import {
-  TActionMetadata,
-  TAnyRegistryData,
-  ValidZodSchema,
-} from "./action-data"
-import { ActionBuilderWithFunction } from "./with-function"
+import { TAnyRegistryData, ValidZodSchema } from "./action-data"
+import { ActionBuilderWithHandler } from "./with-handler"
 
 export interface TActionsArray<TRegistry extends TAnyRegistryData>
   extends Array<
-    ReturnType<
-      ActionBuilderWithFunction<any>["getRegistryData"]
-    > extends TRegistry
-      ? ActionBuilderWithFunction<any>
+    ReturnType<ActionBuilderWithHandler<any>["registryData"]> extends TRegistry
+      ? ActionBuilderWithHandler<any>
       : never
   > {}
+
+type inferId<T extends TAnyActionRegistry[string]> = T["id"]
 
 type TActionsRegistry<
   TRegistry extends TAnyRegistryData,
   T extends TActionsArray<TRegistry>,
-> = T extends [infer A, ...infer R]
-  ? A extends ActionBuilderWithFunction<any>
-    ? ReturnType<A["getRegistryData"]> extends infer ARegistryData
-      ? ARegistryData extends TRegistry
-        ? ReturnType<A["getId"]> extends infer TId
-          ? TId extends string
-            ? R extends TActionsArray<TRegistry>
-              ? Readonly<{ [K in TId]: A }> & TActionsRegistry<TRegistry, R>
-              : never
-            : never
-          : never
-        : never
-      : never
-    : never
-  : Readonly<{}>
+> = {
+  [K in T[number] as K["registryData"] extends TRegistry
+    ? inferId<K>
+    : never]: K
+}
 
 export interface TAnyActionRegistry
   extends Readonly<{
-    [key: string]: ActionBuilderWithFunction<any>
+    [key: string]: ActionBuilderWithHandler<any>
   }> {}
 
 // string literal for the create actions registry function
@@ -56,21 +42,16 @@ export interface TCreateActionsRegistryFunction<
 }
 
 // function to create an action
-type TCreateActionFunction<TRegistry extends TAnyRegistryData> =
-  TRegistry["metadataSchema"] extends infer TMetadataSchema
-    ? TMetadataSchema extends TActionMetadata | unknown
-      ? <TId extends string, TFunctionName extends string = TId>(
-          input: {
-            id: TId
-            functionName?: TFunctionName
-          } & (TMetadataSchema extends ValidZodSchema
-            ? { metadata: z.input<TMetadataSchema> }
-            : {})
-        ) => ActionBuilder<
-          TActionBuilderConstructorData<TRegistry, TId, TFunctionName>
-        >
-      : never
-    : never
+export interface TCreateActionFunction<TRegistry extends TAnyRegistryData> {
+  <TId extends string, TFunctionName extends string = TId>(
+    input: {
+      id: TId
+      functionName?: TFunctionName
+    } & (TRegistry["metadataSchema"] extends ValidZodSchema
+      ? { metadata: z.input<TRegistry["metadataSchema"]> }
+      : {})
+  ): ActionBuilder<TActionBuilderConstructorData<TRegistry, TId, TFunctionName>>
+}
 
 // return type for the generated functions
 type TGenerateFunctionsRet<TRegistry extends TAnyRegistryData> =
@@ -100,7 +81,7 @@ type TGenerateFunctionsRet<TRegistry extends TAnyRegistryData> =
  *     title: z.string(),
  *     description: z.string(),
  *   }),
- *   actionFunctionContextSchema: z.object({
+ *   handlerContextSchema: z.object({
  *     userData: z.object({
  *       email: z.string().email(),
  *       name: z.string(),
@@ -120,24 +101,22 @@ export const generateActionRegistryFunctions = <
     >(
       registry: T
     ): TActionsRegistry<TRegistry, T> => {
-      type TId = ReturnType<T[number]["getId"]>
+      type TId = T[number]["id"]
       const seenFunctionNames = new Set<string>()
 
       return Object.freeze(
         registry.reduce((acc, action) => {
-          const id = action.getId() as TId
+          const id = action.id as TId
 
           if (acc[id]) {
             throw new Error(`Duplicate action id: ${id}`)
           }
 
-          if (seenFunctionNames.has(action.getFunctionName())) {
-            throw new Error(
-              `Duplicate function name: ${action.getFunctionName()}`
-            )
+          if (seenFunctionNames.has(action.functionName)) {
+            throw new Error(`Duplicate function name: ${action.functionName}`)
           }
 
-          seenFunctionNames.add(action.getFunctionName())
+          seenFunctionNames.add(action.functionName)
 
           acc[id] = action
           return acc
@@ -218,21 +197,19 @@ const { createActionsRegistry, createAction } = generateActionRegistryFunctions(
   {
     namespace: "",
     metadataSchema: undefined,
-    actionFunctionContextSchema: undefined,
+    handlerContextSchema: undefined,
     tokenAuthMetadataSchema: undefined,
     oAuthMetadataSchema: undefined,
   }
 )
 
-export type inferAcitonMetadataSchema<T> =
-  T extends TCreateActionFunction<infer TRegistry>
-    ? TRegistry["metadataSchema"] extends infer TMetadata
-      ? TMetadata extends TActionMetadata
-        ? TMetadata
-        : never
-      : never
-    : never
+export type inferActionRegistryInputs<TRegistry extends TAnyActionRegistry> = {
+  [K in keyof TRegistry]: z.output<TRegistry[K]["inputSchema"]>
+}
 
-export { createAction, createActionsRegistry }
+export type inferActionRegistryOutputs<TRegistry extends TAnyActionRegistry> = {
+  [K in keyof TRegistry]: Awaited<ReturnType<TRegistry[K]["handler"]>>
+}
 
 export { type TActionInput, type TActionMetadata } from "./action-data"
+export { createAction, createActionsRegistry }

@@ -32,35 +32,29 @@ const DalleCreateImageAction = createADEAction({
     ],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        prompt: z.string().min(1).describe(IMAGE_PROMPT_DESCRIPTION),
-        size: z
-          .enum(["1024x1024", "1792x1024", "1024x1792"])
-          .optional()
-          .default("1024x1024")
-          .describe(`The size of the generated images. Optional`),
-        style: z
-          .enum(["vivid", "natural"])
-          .optional()
-          .default("vivid")
-          .describe(
-            `Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images.`
-          ),
-      })
-      .describe(`Create an image using DALL-E 3.`)
-  )
-  .setActionType("SERVER")
-  .setOutputSchema(
-    z.object({
-      generatedImageUrl: z
-        .string()
-        .describe(`The public URL of the generated image.`),
-    })
-  )
-  .setAuthType("Token")
-  .setTokenData({
+  .describe("Create an image using DALL-E 3")
+  .input({
+    prompt: z.string().min(1).describe(IMAGE_PROMPT_DESCRIPTION),
+    size: z
+      .enum(["1024x1024", "1792x1024", "1024x1792"])
+      .optional()
+      .default("1024x1024")
+      .describe(`The size of the generated images. Optional`),
+    style: z
+      .enum(["vivid", "natural"])
+      .optional()
+      .default("vivid")
+      .describe(
+        `Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images.`
+      ),
+  })
+  .output({
+    generatedImageUrl: z
+      .string()
+      .describe(`The public URL of the generated image.`),
+  })
+  .authType("Token")
+  .tokenData({
     humanReadableDescription: "Ability to generate images using DALL-E 3",
     humanReadableName: "OpenAI API Token",
     button: {
@@ -70,7 +64,7 @@ const DalleCreateImageAction = createADEAction({
       "https://platform.openai.com/docs/quickstart?context=python",
     customDataSchema: null,
   })
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     const openai = new OpenAI({
       apiKey: auth.accessToken,
     })

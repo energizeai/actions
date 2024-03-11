@@ -48,7 +48,7 @@ const {{ properCase name }}Action = createADEAction({
   // Define the action function for your action
   // ==========================================================================
 
-  .setActionFunction(async ({ input, auth, context }) => {
+  .handler(async ({ input, auth, context }) => {
     // Add your action function logic here
     console.log(auth)
     console.log(input)

@@ -111,51 +111,47 @@ const BingWebSearchAction = createADEAction({
     ],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        query: z
-          .string()
-          .min(1)
-          .describe(
-            `The query to search for. You may rewrite the user's query to make it more specific and increase the likelihood that the browser will find what the user is looking for.`
-          ),
-        answerCount: z
-          .number()
-          .default(8)
-          .describe(
-            `The number of search results to return. Optional. Defaults to 8.`
-          ),
-        responseFilter: z
-          .enum(["Webpages", "News", "Places"])
-          .optional()
-          .default("Webpages")
-          .describe(
-            `The type of results to return. Optional. Defaults to Webpages.`
-          ),
-        category: z
-          .enum([
-            "Business",
-            "Entertainment",
-            "Health",
-            "Politics",
-            "Products",
-            "ScienceAndTechnology",
-            "Sports",
-            "US",
-            "World",
-          ])
-          .optional()
-          .describe(
-            "The category of news articles to return. Optional. Defaults to all categories. Only used when responseFilter is News."
-          ),
-      })
-      .describe(`Browse the web using Bing.`)
-  )
-  .setActionType("SERVER")
-  .setOutputSchema(BingWebSearchOutput)
-  .setAuthType("Token")
-  .setTokenData({
+  .describe(`Browse the web using Bing.`)
+  .input({
+    query: z
+      .string()
+      .min(1)
+      .describe(
+        `The query to search for. You may rewrite the user's query to make it more specific and increase the likelihood that the browser will find what the user is looking for.`
+      ),
+    answerCount: z
+      .number()
+      .default(8)
+      .describe(
+        `The number of search results to return. Optional. Defaults to 8.`
+      ),
+    responseFilter: z
+      .enum(["Webpages", "News", "Places"])
+      .optional()
+      .default("Webpages")
+      .describe(
+        `The type of results to return. Optional. Defaults to Webpages.`
+      ),
+    category: z
+      .enum([
+        "Business",
+        "Entertainment",
+        "Health",
+        "Politics",
+        "Products",
+        "ScienceAndTechnology",
+        "Sports",
+        "US",
+        "World",
+      ])
+      .optional()
+      .describe(
+        "The category of news articles to return. Optional. Defaults to all categories. Only used when responseFilter is News."
+      ),
+  })
+  .output(BingWebSearchOutput)
+  .authType("Token")
+  .tokenData({
     humanReadableDescription:
       "Ability to search the web using Bing Web Search API v7",
     humanReadableName: "Bing Web Search",
@@ -166,12 +162,7 @@ const BingWebSearchAction = createADEAction({
       "https://learn.microsoft.com/en-us/bing/search-apis/bing-web-search/create-bing-search-service-resource",
     customDataSchema: null,
   })
-
-  // ==========================================================================
-  // Define the action function
-  // ==========================================================================
-
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     const { query, responseFilter, answerCount, category } = input
 
     const BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0"

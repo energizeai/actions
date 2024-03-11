@@ -2,17 +2,6 @@ import { simpleParser } from "mailparser"
 import z from "zod"
 import { createADEAction } from "../_properties/generators"
 
-const outputSchema = z.object({
-  id: z.string().describe(`The ID of the message.`),
-  threadId: z.string().describe(`The ID of the thread.`),
-  labelIds: z
-    .array(z.string())
-    .describe(`List of IDs of labels applied to this message.`),
-  subject: z.string().optional().describe(`The subject of the message.`),
-  textBody: z.string().optional().describe(`The text body of the message.`),
-  from: z.string().describe(`The email address of the sender.`),
-})
-
 const GoogleReadEmailAction = createADEAction({
   id: "google-readEmail",
   metadata: {
@@ -28,19 +17,24 @@ const GoogleReadEmailAction = createADEAction({
       "https://developers.google.com/gmail/api/reference/rest/v1/users.messages/get",
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        messageId: z.string().min(1).describe(`The ID of the email to read.`),
-      })
-      .describe(
-        `Read a specified email from the user's Gmail. This is useful to read an email that was not already provided.`
-      )
+  .describe(
+    "Read a specified email from the user's Gmail. This is useful to read an email that was not already provided."
   )
-  .setActionType("SERVER")
-  .setOutputSchema(outputSchema)
-  .setAuthType("OAuth")
-  .setOAuthData({
+  .input({
+    messageId: z.string().min(1).describe(`The ID of the email to read.`),
+  })
+  .output({
+    id: z.string().describe(`The ID of the message.`),
+    threadId: z.string().describe(`The ID of the thread.`),
+    labelIds: z
+      .array(z.string())
+      .describe(`List of IDs of labels applied to this message.`),
+    subject: z.string().optional().describe(`The subject of the message.`),
+    textBody: z.string().optional().describe(`The text body of the message.`),
+    from: z.string().describe(`The email address of the sender.`),
+  })
+  .authType("OAuth")
+  .oAuthData({
     humanReadableDescription: "Read-only access to your Google email",
     humanReadableName: "Google Email",
     button: {
@@ -51,7 +45,7 @@ const GoogleReadEmailAction = createADEAction({
     scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
     oauthAppGenerationURL: "https://console.cloud.google.com/apis/credentials",
   })
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     const getEmailUrl = new URL(
       `https://gmail.googleapis.com/gmail/v1/users/me/messages/${input.messageId}`
     )

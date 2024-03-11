@@ -35,26 +35,22 @@ const PlanetScaleGetBranchSchemaAction = createADEAction({
     examples: ["what does my database schema look like?"],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        filterTableNames: z
-          .array(z.string().describe(`A table names to filter the schema by.`))
-          .optional()
-          .describe(
-            `A list of table names to filter the schema by. Optional. Defaults to returning the schema for all tables.`
-          ),
-        page: z
-          .number()
-          .optional()
-          .describe(
-            `The page to fetch. Optional. Defaults to fetching the first page.`
-          ),
-      })
-      .describe(`Get the schema for the current branch in PlanetScale.`)
-  )
-  .setActionType("SERVER")
-  .setOutputSchema(
+  .describe("Get the schema for the current branch in PlanetScale.")
+  .input({
+    filterTableNames: z
+      .array(z.string().describe(`A table names to filter the schema by.`))
+      .optional()
+      .describe(
+        `A list of table names to filter the schema by. Optional. Defaults to returning the schema for all tables.`
+      ),
+    page: z
+      .number()
+      .optional()
+      .describe(
+        `The page to fetch. Optional. Defaults to fetching the first page.`
+      ),
+  })
+  .output(
     z.object({
       rawTables: z.array(
         z.string().describe(`The raw MYSQL schema for a table.`)
@@ -66,8 +62,8 @@ const PlanetScaleGetBranchSchemaAction = createADEAction({
         ),
     })
   )
-  .setAuthType("Token")
-  .setTokenData({
+  .authType("Token")
+  .tokenData({
     humanReadableDescription:
       "Ability to read your branch schema on PlanetScale",
     humanReadableName: "PlanetScale API Token",
@@ -108,7 +104,7 @@ const PlanetScaleGetBranchSchemaAction = createADEAction({
       return { isValid: true }
     },
   })
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     const response = await fetch(
       buildGetBranchSchemaEndpoint(auth.customData),
       {

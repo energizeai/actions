@@ -2,9 +2,7 @@ import { filterActionRegistryByAuthType, generateActionIdMap } from "ai-actions"
 import { ActionsRegistry } from ".."
 
 type TActionId = keyof typeof ActionsRegistry
-type TAuthType = ReturnType<
-  (typeof ActionsRegistry)[TActionId]["getAuthConfig"]
->["type"]
+type TAuthType = (typeof ActionsRegistry)[TActionId]["auth"]["type"]
 
 const NoAuthActionsRegistry = filterActionRegistryByAuthType(
   ActionsRegistry,

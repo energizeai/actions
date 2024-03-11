@@ -1,20 +1,33 @@
+import { TOptionalActionOutput } from "./action-data"
 import {
   TOAuthConfigWithInputMetadata,
   TOAuthConfigWithOutputMetadata,
 } from "./auth"
-import { ActionBuilderWithAuth } from "./with-auth"
-import { TActionDataWithOutput } from "./with-output"
+import {
+  ActionBuilderWithInput,
+  TActionDataWithInput,
+  TOmitOnInputWithAuth,
+} from "./with-input"
 
 export class ActionBuilderWithOAuthType<
-  TLocalActionData extends TActionDataWithOutput,
+  TLocalActionData extends TActionDataWithInput,
+  TOutput extends TOptionalActionOutput,
 > {
   _actionData: TLocalActionData
+  _outputSchema: TOutput
 
-  constructor({ actionData }: { actionData: TLocalActionData }) {
+  constructor({
+    actionData,
+    outputSchema,
+  }: {
+    actionData: TLocalActionData
+    outputSchema: TOutput
+  }) {
     this._actionData = actionData
+    this._outputSchema = outputSchema
   }
 
-  setOAuthData = (
+  oAuthData = (
     data: TOAuthConfigWithInputMetadata<TLocalActionData["registryData"]>
   ) => {
     let base: TOAuthConfigWithOutputMetadata<TLocalActionData["registryData"]> =
@@ -31,14 +44,17 @@ export class ActionBuilderWithOAuthType<
       base = { ...base, ...safeParsed.data }
     }
 
-    return new ActionBuilderWithAuth({
+    const ret = new ActionBuilderWithInput({
       actionData: {
         ...this._actionData,
-        authConfig: {
-          type: "OAuth",
-          config: base,
-        },
       },
+      authConfig: {
+        type: "OAuth",
+        config: base,
+      },
+      outputSchema: this._outputSchema,
     })
+
+    return ret as Omit<typeof ret, TOmitOnInputWithAuth<TOutput>>
   }
 }

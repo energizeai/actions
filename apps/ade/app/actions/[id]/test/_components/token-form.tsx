@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { camelCaseToTitleCase } from "@/lib/utils"
 import { ActionsRegistry } from "@/registry"
-import { TActionId, TTokenAction } from "@/registry/_properties/types"
+import { TTokenActionId } from "@/registry/_properties/types"
 import { api } from "@/trpc/react"
 import { extractErrorMessage } from "@/trpc/shared"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -33,10 +33,8 @@ import { toast } from "sonner"
 import { z } from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
 
-export default function TokenForm({ actionId }: { actionId: TActionId }) {
-  const authConfig = ActionsRegistry[actionId].getAuthConfig() as ReturnType<
-    TTokenAction["getAuthConfig"]
-  >
+export default function TokenForm({ actionId }: { actionId: TTokenActionId }) {
+  const authConfig = ActionsRegistry[actionId].auth
   const router = useRouter()
 
   const formSchema = z.object({

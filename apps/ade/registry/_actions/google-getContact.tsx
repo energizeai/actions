@@ -9,14 +9,6 @@ const SearchContactsResponseSchema = z.object({
   ),
 })
 
-const outputSchema = z.object({
-  displayName: z.string().nullable().describe(`The contact's display name.`),
-  primaryEmailAddress: z
-    .string()
-    .nullable()
-    .describe(`The contact's primary email address.`),
-})
-
 const GoogleGetContactAction = createADEAction({
   id: "google-getContact",
   metadata: {
@@ -33,24 +25,31 @@ const GoogleGetContactAction = createADEAction({
     examples: ["can you tell me what is the email address of ..."],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        query: z
-          .string()
-          .min(1)
-          .describe(
-            `The query matches on a single contact's names, nickNames, emailAddresses, phoneNumbers, and organizations. Can only match 1 person at a time.`
-          ),
-      })
-      .describe(
-        `Get a contact from the user's Google Contacts. This is useful to lookup someones email address if it wasn't already provided.`
-      )
+  .describe(
+    "Get a contact from the user's Google Contacts. This is useful to lookup someones email address if it wasn't already provided."
   )
-  .setActionType("SERVER")
-  .setOutputSchema(outputSchema)
-  .setAuthType("OAuth")
-  .setOAuthData({
+  .input({
+    query: z
+      .string()
+      .min(1)
+      .describe(
+        `The query matches on a single contact's names, nickNames, emailAddresses, phoneNumbers, and organizations. Can only match 1 person at a time.`
+      ),
+  })
+  .output({
+    displayName: z
+      .string()
+      .nullable()
+      .describe(`The contact's display name.`)
+      .default(null),
+    primaryEmailAddress: z
+      .string()
+      .nullable()
+      .describe(`The contact's primary email address.`)
+      .default(null),
+  })
+  .authType("OAuth")
+  .oAuthData({
     humanReadableDescription: "Read-only access to your Google Contacts",
     humanReadableName: "Google Contacts",
     button: {
@@ -64,7 +63,7 @@ const GoogleGetContactAction = createADEAction({
     ],
     oauthAppGenerationURL: "https://console.cloud.google.com/apis/credentials",
   })
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     async function getOtherContact() {
       const base = "https://people.googleapis.com/v1/otherContacts:search"
 
@@ -104,12 +103,10 @@ const GoogleGetContactAction = createADEAction({
         )
       }
 
-      const contactParsed = outputSchema.parse({
-        displayName: rawContact.names?.[0]?.displayName || null,
-        primaryEmailAddress: rawContact.emailAddresses?.[0]?.value || null,
-      })
-
-      return contactParsed
+      return {
+        displayName: rawContact.names?.[0]?.displayName,
+        primaryEmailAddress: rawContact.emailAddresses?.[0]?.value,
+      }
     }
 
     // search contacts
@@ -147,12 +144,10 @@ const GoogleGetContactAction = createADEAction({
 
     const rawContact = parsedData.data.results[0]!.person
 
-    const contactParsed = outputSchema.parse({
+    return {
       displayName: rawContact.names?.[0]?.displayName || null,
       primaryEmailAddress: rawContact.emailAddresses?.[0]?.value || null,
-    })
-
-    return contactParsed
+    }
   })
 
 export { GoogleGetContactAction }

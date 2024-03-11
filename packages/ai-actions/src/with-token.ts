@@ -1,21 +1,34 @@
+import { TOptionalActionOutput } from "./action-data"
 import {
   TTokenAuth,
   TTokenAuthConfigWithInputMetadata,
   TTokenCustomData,
 } from "./auth"
-import { ActionBuilderWithAuth } from "./with-auth"
-import { TActionDataWithOutput } from "./with-output"
+import {
+  ActionBuilderWithInput,
+  TActionDataWithInput,
+  TOmitOnInputWithAuth,
+} from "./with-input"
 
 export class ActionBuilderWithTokenType<
-  TLocalActionData extends TActionDataWithOutput,
+  TLocalActionData extends TActionDataWithInput,
+  TOutput extends TOptionalActionOutput,
 > {
   _actionData: TLocalActionData
+  _outputSchema: TOutput
 
-  constructor({ actionData }: { actionData: TLocalActionData }) {
+  constructor({
+    actionData,
+    outputSchema,
+  }: {
+    actionData: TLocalActionData
+    outputSchema: TOutput
+  }) {
     this._actionData = actionData
+    this._outputSchema = outputSchema
   }
 
-  setTokenData = <T extends TTokenCustomData>(
+  tokenData = <T extends TTokenCustomData>(
     data: TTokenAuthConfigWithInputMetadata<T, TLocalActionData["registryData"]>
   ) => {
     let base = { ...data }
@@ -37,11 +50,14 @@ export class ActionBuilderWithTokenType<
       config: base,
     }
 
-    return new ActionBuilderWithAuth({
+    const ret = new ActionBuilderWithInput({
       actionData: {
         ...this._actionData,
-        authConfig,
       },
+      authConfig,
+      outputSchema: this._outputSchema,
     })
+
+    return ret as Omit<typeof ret, TOmitOnInputWithAuth<TOutput>>
   }
 }

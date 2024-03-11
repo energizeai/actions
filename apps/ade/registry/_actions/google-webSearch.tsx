@@ -43,22 +43,18 @@ const GoogleWebSearchAction = createADEAction({
     ],
   },
 })
-  .setInputSchema(
-    z
-      .object({
-        query: z
-          .string()
-          .min(1)
-          .describe(
-            `The query to search for. You may rewrite the user's query to make it more specific and increase the likelihood that the browser will find what the user is looking for.`
-          ),
-      })
-      .describe(`Browse the web using Google.`)
-  )
-  .setActionType("SERVER")
-  .setOutputSchema(GoogleWebSearchResponseSchema)
-  .setAuthType("Token")
-  .setTokenData({
+  .describe("Browse the web using Google.")
+  .input({
+    query: z
+      .string()
+      .min(1)
+      .describe(
+        `The query to search for. You may rewrite the user's query to make it more specific and increase the likelihood that the browser will find what the user is looking for.`
+      ),
+  })
+  .output(GoogleWebSearchResponseSchema)
+  .authType("Token")
+  .tokenData({
     humanReadableDescription:
       "Ability to search the web using Google Custom Search",
     humanReadableName: "Google Custom Search",
@@ -73,7 +69,7 @@ const GoogleWebSearchAction = createADEAction({
         .describe("The custom search engine ID to use for this request"),
     }),
   })
-  .setActionFunction(async ({ input, auth }) => {
+  .handler(async ({ input, auth }) => {
     const { query } = input
 
     const url = new URL("https://www.googleapis.com/customsearch/v1")
@@ -91,10 +87,7 @@ const GoogleWebSearchAction = createADEAction({
       throw new Error("Could not fetch results")
     }
 
-    const data = await response.json()
-    const searchResults = GoogleWebSearchResponseSchema.parse(data)
-
-    return searchResults
+    return await response.json()
   })
 
 export { GoogleWebSearchAction }
