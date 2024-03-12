@@ -1,6 +1,6 @@
 import z from "zod"
 import { ActionBuilder, TActionBuilderConstructorData } from "./action-builder"
-import { TAnyRegistryData, ValidZodSchema } from "./action-data"
+import { TAnyRegistryData } from "./action-data"
 import { ActionBuilderWithHandler } from "./with-handler"
 
 export interface TActionsArray<TRegistryData extends TAnyRegistryData>
@@ -51,7 +51,7 @@ export interface TCreateActionFunction<TRegistryData extends TAnyRegistryData> {
     input: {
       id: TId
       functionName?: TFunctionName
-    } & (TRegistryData["metadataSchema"] extends ValidZodSchema
+    } & (TRegistryData["metadataSchema"] extends z.ZodType<any>
       ? { metadata: z.input<TRegistryData["metadataSchema"]> }
       : {})
   ): Omit<
@@ -134,7 +134,7 @@ export const generateActionRegistryFunctions = <
       /**
        * The metadata for the action. This is used to validate the arguments passed to the action.
        */
-      metadata: typeof args.metadataSchema extends ValidZodSchema
+      metadata: typeof args.metadataSchema extends z.ZodType<any>
         ? z.input<typeof args.metadataSchema>
         : never
       /**

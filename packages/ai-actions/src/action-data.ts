@@ -2,16 +2,14 @@ import { ReactNode } from "react"
 import z from "zod"
 import { TAnyActionAuth, TAuthArg } from "./auth"
 
-export type ValidZodSchema = z.ZodString | z.ZodNumber | z.AnyZodObject
-
-export type TActionMetadata = ValidZodSchema | undefined
-export type THandlerContext = ValidZodSchema | undefined
+export type TActionMetadata = z.ZodType<any> | undefined
+export type THandlerContext = z.ZodType<any> | undefined
 export type TActionInput = z.ZodObject<any>
-export type TActionOutput = ValidZodSchema
+export type TActionOutput = z.ZodType<any>
 export type TOptionalActionOutput = TActionOutput | undefined
 export type TTokenAuthMetadata = z.ZodObject<any> | undefined
 export type TOAuthMetadata = z.ZodObject<any> | undefined
-export type TAdditionalParams = ValidZodSchema
+export type TAdditionalParams = z.ZodType<any>
 export type TOptionalAdditionalParams = TAdditionalParams | undefined
 
 export type TStreamable = ReactNode | Promise<ReactNode>
@@ -32,7 +30,7 @@ export interface TActionHandler<
     _: {
       input: z.output<TInput>
       context: TRegistry["handlerContextSchema"] extends infer U
-        ? U extends ValidZodSchema
+        ? U extends z.ZodType<any>
           ? z.output<U>
           : undefined
         : undefined
@@ -132,7 +130,7 @@ export interface TActionData<
   registryData: TRegistry
   id: TId
   functionName: TFunctionName
-  metadata: TRegistry["metadataSchema"] extends ValidZodSchema
+  metadata: TRegistry["metadataSchema"] extends z.ZodType<any>
     ? z.output<TRegistry["metadataSchema"]>
     : undefined
   inputSchema: TInput

@@ -1,9 +1,8 @@
 import React from "react"
 import z from "zod"
 import { TActionInput, TAnyActionRegistry, ValuesOf } from "."
-import { ValidZodSchema } from "./action-data"
 
-type TClientMetadata = z.output<ValidZodSchema> | undefined
+type TClientMetadata = z.output<z.ZodType<any>> | undefined
 
 export interface ClientActionData<
   TNamespace extends string,

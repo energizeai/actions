@@ -1,5 +1,5 @@
 import z from "zod"
-import { TAnyRegistryData, ValidZodSchema } from "./action-data"
+import { TAnyRegistryData } from "./action-data"
 import { ActionBuilderWithInput, TOmitOnInputBase } from "./with-input"
 
 export interface TActionBuilderConstructorData<
@@ -9,10 +9,8 @@ export interface TActionBuilderConstructorData<
 > {
   id: TId
   functionName: TFunctionName
-  metadata: TRegistry["metadataSchema"] extends infer U
-    ? U extends ValidZodSchema
-      ? z.output<U>
-      : undefined
+  metadata: TRegistry["metadataSchema"] extends z.ZodType<any>
+    ? z.output<TRegistry["metadataSchema"]>
     : undefined
   registryData: TRegistry
 }

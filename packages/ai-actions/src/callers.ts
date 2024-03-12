@@ -1,6 +1,10 @@
 import z from "zod"
 import { ValuesOf } from "."
-import { TAnyActionData, TAnyRegistryData, ValidZodSchema } from "./action-data"
+import {
+  TAdditionalParams,
+  TAnyActionData,
+  TAnyRegistryData,
+} from "./action-data"
 import { TAuthType } from "./auth"
 import { ActionBuilderWithHandler } from "./with-handler"
 
@@ -79,7 +83,7 @@ type inferContext<
   TId extends keyof TRegistry,
 > = TRegistry[TId]["registryData"] extends infer TRegistry
   ? TRegistry extends TAnyRegistryData
-    ? TRegistry["handlerContextSchema"] extends ValidZodSchema
+    ? TRegistry["handlerContextSchema"] extends z.ZodType<any>
       ? { context: z.input<TRegistry["handlerContextSchema"]> }
       : {}
     : {}
@@ -89,7 +93,7 @@ type inferAdditionalParamKeys<
   TRegistry extends TAnyActionRegistry,
   TId extends keyof TRegistry,
 > = {
-  [K in TId as TRegistry[K]["additionalParamsSchema"] extends ValidZodSchema
+  [K in TId as TRegistry[K]["additionalParamsSchema"] extends TAdditionalParams
     ? K
     : never]: z.input<TRegistry[K]["additionalParamsSchema"]>
 }
@@ -282,7 +286,7 @@ export const setupActionCaller = <
   const onActionExecutionStarted = args.onActionExecutionStarted
 
   // get the context
-  let handlerContext: ValidZodSchema["_output"] | undefined = undefined
+  let handlerContext: z.ZodType<any>["_output"] | undefined = undefined
   if (
     "context" in args &&
     actionIds.length > 0 &&
