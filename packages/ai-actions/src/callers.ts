@@ -108,18 +108,6 @@ type inferAdditionalParams<
         }
     : {}
 
-// infer the function context needed based on the action registry and the action id
-export interface inferFetchAdditionalParams<
-  TRegistry extends TAnyActionRegistry,
-  TId extends keyof TRegistry,
-> {
-  (
-    actionId: TId
-  ):
-    | Promise<z.input<TRegistry[TId]["additionalParamsSchema"]>>
-    | z.input<TRegistry[TId]["additionalParamsSchema"]>
-}
-
 // filter the action registry by the auth type and subset
 type filterByAuthType<
   T extends TAnyActionRegistry,
