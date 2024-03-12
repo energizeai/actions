@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.11.1
+
+### Patch Changes
+
+- f1a7588: Missing awaited
+
 ## 0.11.0
 
 ### Minor Changes
