@@ -70,7 +70,7 @@ export type TFewShotExampleCalls<
   [K in TActionRegistrySubset<TRegistry, U>]: {
     name: TRegistry[K]["functionName"]
     arguments: z.input<TRegistry[K]["inputSchema"]>
-  } & (ReturnType<TRegistry[K]["handler"]> extends void
+  } & (Awaited<ReturnType<TRegistry[K]["handler"]>> extends void
     ? {}
     : {
         response: Awaited<ReturnType<TRegistry[K]["handler"]>>
