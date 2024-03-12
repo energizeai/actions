@@ -1,4 +1,4 @@
-import { TOptionalActionOutput } from "./action-data"
+import { TOptionalActionOutput, TOptionalAdditionalParams } from "./action-data"
 import {
   TOAuthConfigWithInputMetadata,
   TOAuthConfigWithOutputMetadata,
@@ -12,19 +12,24 @@ import {
 export class ActionBuilderWithOAuthType<
   TLocalActionData extends TActionDataWithInput,
   TOutput extends TOptionalActionOutput,
+  TAdditional extends TOptionalAdditionalParams,
 > {
   _actionData: TLocalActionData
   _outputSchema: TOutput
+  _additionalParamsSchema: TAdditional
 
   constructor({
     actionData,
     outputSchema,
+    additionalParamsSchema,
   }: {
     actionData: TLocalActionData
     outputSchema: TOutput
+    additionalParamsSchema: TAdditional
   }) {
     this._actionData = actionData
     this._outputSchema = outputSchema
+    this._additionalParamsSchema = additionalParamsSchema
   }
 
   oAuthData = (
@@ -53,6 +58,7 @@ export class ActionBuilderWithOAuthType<
         config: base,
       },
       outputSchema: this._outputSchema,
+      additionalParamsSchema: this._additionalParamsSchema,
     })
 
     return ret as Omit<typeof ret, TOmitOnInputWithAuth<TOutput>>

@@ -1,6 +1,10 @@
 import z from "zod"
 import { ValuesOf } from "."
-import { TAnyActionData, TAnyRegistryData, ValidZodSchema } from "./action-data"
+import {
+  TAdditionalParams,
+  TAnyActionData,
+  TAnyRegistryData,
+} from "./action-data"
 import { TAuthType } from "./auth"
 import { ActionBuilderWithHandler } from "./with-handler"
 
@@ -29,6 +33,12 @@ export interface TCallerSuccessResult<
   id: string
   arguments: z.input<TAction["inputSchema"]>
   parsedArguments: z.output<TAction["inputSchema"]>
+  additionalParams: TAction["additionalParamsSchema"] extends undefined
+    ? undefined
+    : z.input<TAction["additionalParamsSchema"]>
+  parsedAdditionalParams: TAction["additionalParamsSchema"] extends undefined
+    ? undefined
+    : z.output<TAction["additionalParamsSchema"]>
   isSuccess: true
   isError: false
 
@@ -67,21 +77,40 @@ export type TCallerResults<
     | TCallerErrorResult<TRegistry[K]>
 }>[]
 
-// infer the function context needed based on the action registry
+// infer the function context needed based on the action registry and the action id
 type inferContext<
-  TActionData extends TAnyActionData,
-  T extends Readonly<{
-    [K in TActionData["id"]]: ActionBuilderWithHandler<TActionData>
-  }>,
-> = ValuesOf<T>["registryData"] extends infer TRegistry
+  TRegistry extends TAnyActionRegistry,
+  TId extends keyof TRegistry,
+> = TRegistry[TId]["registryData"] extends infer TRegistry
   ? TRegistry extends TAnyRegistryData
-    ? TRegistry["handlerContextSchema"] extends infer A
-      ? A extends ValidZodSchema
-        ? { context: z.input<A> }
-        : {}
+    ? TRegistry["handlerContextSchema"] extends z.ZodType<any>
+      ? { context: z.input<TRegistry["handlerContextSchema"]> }
       : {}
     : {}
   : {}
+
+type inferAdditionalParamKeys<
+  TRegistry extends TAnyActionRegistry,
+  TId extends keyof TRegistry,
+> = {
+  [K in TId as TRegistry[K]["additionalParamsSchema"] extends TAdditionalParams
+    ? K
+    : never]: z.input<TRegistry[K]["additionalParamsSchema"]>
+}
+
+type inferAdditionalParams<
+  TRegistry extends TAnyActionRegistry,
+  TId extends keyof TRegistry,
+> =
+  inferAdditionalParamKeys<TRegistry, TId> extends infer TKeys
+    ? keyof TKeys extends never
+      ? {}
+      : {
+          additionalParams: {
+            [K in keyof TKeys]: TKeys[K]
+          }
+        }
+    : {}
 
 // filter the action registry by the auth type and subset
 type filterByAuthType<
@@ -112,7 +141,7 @@ type filterByAuthType<
  *
  */
 export interface TFetchOAuthAccessToken<T> {
-  (actionId: T): Promise<{ accessToken: string }>
+  (actionId: T): Promise<{ accessToken: string }> | { accessToken: string }
 }
 
 type inferOAuthFunction<
@@ -128,10 +157,15 @@ type inferOAuthFunction<
     : {}
 
 export interface TFetchTokenAuthData<T> {
-  (actionId: T): Promise<{
-    accessToken: string
-    customData: z.AnyZodObject["_input"]
-  }>
+  (actionId: T):
+    | Promise<{
+        accessToken: string
+        customData: z.AnyZodObject["_input"]
+      }>
+    | {
+        accessToken: string
+        customData: z.AnyZodObject["_input"]
+      }
 }
 
 type inferTokenFunction<
@@ -171,6 +205,14 @@ export interface TActionFinished<
   ): void
 }
 
+export type TDynamicFunctionCallingArgs<
+  TRegistry extends TAnyActionRegistry,
+  TId extends keyof TRegistry,
+> = inferOAuthFunction<TRegistry, TId> &
+  inferTokenFunction<TRegistry, TId> &
+  inferContext<TRegistry, TId> &
+  inferAdditionalParams<TRegistry, TId>
+
 export type TFunctionCallingArgs<
   TRegistry extends TAnyActionRegistry,
   U extends (keyof TRegistry)[] | undefined = undefined,
@@ -186,9 +228,7 @@ export type TFunctionCallingArgs<
     TRegistry,
     TActionRegistrySubset<TRegistry, U>
   >
-} & inferContext<TAnyActionData, TRegistry> &
-  inferOAuthFunction<TRegistry, TActionRegistrySubset<TRegistry, U>> &
-  inferTokenFunction<TRegistry, TActionRegistrySubset<TRegistry, U>>
+} & TDynamicFunctionCallingArgs<TRegistry, TActionRegistrySubset<TRegistry, U>>
 
 interface TActionCaller<
   TActionData extends TAnyActionData,
@@ -246,7 +286,7 @@ export const setupActionCaller = <
   const onActionExecutionStarted = args.onActionExecutionStarted
 
   // get the context
-  let handleContext: ValidZodSchema["_output"] | undefined = undefined
+  let handlerContext: z.ZodType<any>["_output"] | undefined = undefined
   if (
     "context" in args &&
     actionIds.length > 0 &&
@@ -262,7 +302,7 @@ export const setupActionCaller = <
           `The context is invalid: ${funcitonContextSafe.error.message}`
         )
       }
-      handleContext = funcitonContextSafe.data
+      handlerContext = funcitonContextSafe.data
     }
   }
 
@@ -393,6 +433,15 @@ export const setupActionCaller = <
             // update the cache
             actionIdToAuthDataCache[actionId as string] = authData
 
+            const additionalParams =
+              "additionalParams" in args
+                ? (args.additionalParams as Object)[actionId]
+                : undefined
+            const additionalParamsSchema = action.additionalParamsSchema
+            const parsedAdditionalParams = additionalParamsSchema
+              ? additionalParamsSchema.parse(additionalParams)
+              : undefined
+
             type TSuccessData = Awaited<ReturnType<TActionData["handler"]>>
 
             /**
@@ -409,7 +458,9 @@ export const setupActionCaller = <
                 isError: false,
                 functionName,
                 parsedArguments: functionArgs.data,
-                $parsedContext: handleContext,
+                $parsedContext: handlerContext,
+                parsedAdditionalParams,
+                additionalParams,
                 $auth: authData,
                 arguments: input.arguments,
               }
@@ -419,7 +470,8 @@ export const setupActionCaller = <
               input: functionArgs.data,
               // @ts-expect-error
               auth: authData,
-              context: handleContext,
+              context: handlerContext,
+              additionalParams: parsedAdditionalParams,
             })
 
             return {
@@ -431,6 +483,8 @@ export const setupActionCaller = <
               isError: false,
               functionName,
               parsedArguments: functionArgs.data,
+              parsedAdditionalParams,
+              additionalParams,
               arguments: input.arguments,
             }
           } catch (error: unknown) {

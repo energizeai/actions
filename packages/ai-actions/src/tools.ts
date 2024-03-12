@@ -312,6 +312,7 @@ export const setupToolCalling = <
         const renderProps = {
           input: result.parsedArguments,
           context: result.$parsedContext,
+          additionalParams: result.parsedAdditionalParams,
           auth: result.$auth,
           handler: action.handler,
         } as const satisfies Parameters<typeof renderFn>[0]

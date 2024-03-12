@@ -5,7 +5,9 @@ import {
   TActionHandler,
   TActionInput,
   TActionOutput,
+  TAdditionalParams,
   TOptionalActionOutput,
+  TOptionalAdditionalParams,
 } from "./action-data"
 import { AuthType, TActionAuth, TTokenCustomData } from "./auth"
 import { ActionBuilderWithHandler } from "./with-handler"
@@ -16,43 +18,60 @@ type TActionBuilderWithInputData<
   TBuilderData extends TActionBuilderData,
   TInput extends TActionInput,
 > = TBuilderData &
-  Pick<TActionData<any, any, any, TInput, any, any, any>, "inputSchema">
+  Pick<TActionData<any, any, any, TInput, any, any, any, any>, "inputSchema">
 
 export interface TActionDataWithInput
   extends TActionBuilderWithInputData<TActionBuilderData, TActionInput> {}
 
-export type TOmitOnInputBase = "_actionData" | "_outputSchema" | "_authConfig"
+export type TOmitOnInputBase =
+  | "_actionData"
+  | "_outputSchema"
+  | "_authConfig"
+  | "_additionalParamsSchema"
+
 export type TOmitOnInputWithOutput =
   | TOmitOnInputBase
   | "output"
   | "outputSameAsInput"
+  | "additionalParams"
+
+export type TOmitOnInputWithAdditionalParams =
+  | TOmitOnInputBase
+  | "additionalParams"
+
 export type TOmitOnInputWithAuth<TOutput extends TOptionalActionOutput> =
   | TOmitOnInputWithOutput
+  | TOmitOnInputWithAdditionalParams
   | (TOutput extends undefined ? "setAuthType" : "setAuthType" | "noHandler")
 
 export class ActionBuilderWithInput<
   TLocalActionData extends TActionDataWithInput,
   TOutput extends TOptionalActionOutput,
+  TAdditional extends TOptionalAdditionalParams,
   TAuth extends TActionAuth<TLocalActionData["registryData"], TTokenCustomData>,
 > {
   _actionData: TLocalActionData
   _outputSchema: TOutput
   _authConfig: TAuth
+  _additionalParamsSchema: TAdditional
 
   constructor({
     actionData,
     outputSchema,
     authConfig,
+    additionalParamsSchema,
   }: {
     actionData: TLocalActionData
     outputSchema: TOutput
     authConfig: TAuth
+    additionalParamsSchema: TAdditional
   }) {
     this._actionData = {
       ...actionData,
     }
     this._outputSchema = outputSchema
     this._authConfig = authConfig
+    this._additionalParamsSchema = additionalParamsSchema
   }
 
   /**
@@ -64,6 +83,7 @@ export class ActionBuilderWithInput<
     ActionBuilderWithInput<
       TLocalActionData,
       T extends z.ZodRawShape ? z.ZodObject<T> : T,
+      TAdditional,
       TAuth
     >,
     TOmitOnInputWithOutput | "noHandler"
@@ -76,6 +96,7 @@ export class ActionBuilderWithInput<
         },
         outputSchema: cast,
         authConfig: this._authConfig,
+        additionalParamsSchema: this._additionalParamsSchema,
       }) as any
     }
 
@@ -86,6 +107,7 @@ export class ActionBuilderWithInput<
       },
       outputSchema: z.object(cast),
       authConfig: this._authConfig,
+      additionalParamsSchema: this._additionalParamsSchema,
     }) as any
   }
 
@@ -99,14 +121,61 @@ export class ActionBuilderWithInput<
       },
       outputSchema: this._actionData.inputSchema,
       authConfig: this._authConfig,
+      additionalParamsSchema: this._additionalParamsSchema,
     }) as unknown as Omit<
       ActionBuilderWithInput<
         TLocalActionData,
         TLocalActionData["inputSchema"],
+        TAdditional,
         TAuth
       >,
       TOmitOnInputWithOutput
     >
+  }
+
+  /**
+   * The additional parameters for the action. This is useful to pass in additional data that the action needs to run.
+   *
+   * @param additionalParams The additional parameters for the action.
+   * @returns The action builder with the additional parameters set.
+   * @example
+   */
+  additionalParams<T extends TAdditionalParams | z.ZodRawShape>(
+    additionalParams: T
+  ): Omit<
+    ActionBuilderWithInput<
+      TLocalActionData,
+      TOutput,
+      T extends z.ZodRawShape ? z.ZodObject<T> : T,
+      TAuth
+    >,
+    TOmitOnInputWithAdditionalParams
+  > {
+    if (
+      "_def" in additionalParams &&
+      "parse" in additionalParams &&
+      "safeParse" in additionalParams
+    ) {
+      const cast = additionalParams as TAdditionalParams
+      return new ActionBuilderWithInput({
+        actionData: {
+          ...this._actionData,
+        },
+        additionalParamsSchema: cast,
+        authConfig: this._authConfig,
+        outputSchema: this._outputSchema,
+      }) as any
+    }
+
+    const cast = additionalParams as z.ZodRawShape
+    return new ActionBuilderWithInput({
+      actionData: {
+        ...this._actionData,
+      },
+      additionalParamsSchema: z.object(cast),
+      authConfig: this._authConfig,
+      outputSchema: this._outputSchema,
+    }) as any
   }
 
   /**
@@ -116,13 +185,13 @@ export class ActionBuilderWithInput<
   authType(
     type: typeof AuthType.TOKEN
   ): Omit<
-    ActionBuilderWithTokenType<TLocalActionData, TOutput>,
+    ActionBuilderWithTokenType<TLocalActionData, TOutput, TAdditional>,
     "_actionData" | "_outputSchema"
   >
   authType(
     type: typeof AuthType.OAUTH
   ): Omit<
-    ActionBuilderWithOAuthType<TLocalActionData, TOutput>,
+    ActionBuilderWithOAuthType<TLocalActionData, TOutput, TAdditional>,
     "_actionData" | "_outputSchema"
   >
 
@@ -131,6 +200,7 @@ export class ActionBuilderWithInput<
       const ret = new ActionBuilderWithTokenType({
         actionData: this._actionData,
         outputSchema: this._outputSchema,
+        additionalParamsSchema: this._additionalParamsSchema,
       })
       return ret as Omit<typeof ret, "_actionData" | "_outputSchema">
     }
@@ -138,6 +208,7 @@ export class ActionBuilderWithInput<
     const ret = new ActionBuilderWithOAuthType({
       actionData: this._actionData,
       outputSchema: this._outputSchema,
+      additionalParamsSchema: this._additionalParamsSchema,
     })
 
     return ret as Omit<typeof ret, "_actionData" | "_outputSchema">
@@ -183,7 +254,8 @@ export class ActionBuilderWithInput<
       TLocalActionData["registryData"],
       TLocalActionData["inputSchema"],
       THandlerRet,
-      TAuth
+      TAuth,
+      TAdditional
     >
   ): ActionBuilderWithHandler<
     TActionData<
@@ -192,6 +264,7 @@ export class ActionBuilderWithInput<
       TLocalActionData["functionName"],
       TLocalActionData["inputSchema"],
       TOutput,
+      TAdditional,
       TAuth,
       TOutput extends TActionOutput
         ? THandlerRet extends Promise<z.input<TOutput>>
@@ -226,7 +299,7 @@ export class ActionBuilderWithInput<
         outputSchema: this._outputSchema,
         handler: isAsync(handler) ? handlerWrapperAsync : handlerWrapper,
         exampleInput: null,
-        actionType: "SERVER",
+        additionalParamsSchema: this._additionalParamsSchema,
         authConfig: this._authConfig,
         render: undefined,
       },
@@ -244,6 +317,7 @@ export class ActionBuilderWithInput<
         TLocalActionData["functionName"],
         TLocalActionData["inputSchema"],
         TLocalActionData["inputSchema"],
+        TAdditional,
         TAuth,
         z.output<TLocalActionData["inputSchema"]>
       >
