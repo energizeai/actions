@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.12.0
+
+### Minor Changes
+
+- 2314a11: Added additionalParams option to actions
+
 ## 0.11.1
 
 ### Patch Changes
