@@ -52,7 +52,10 @@ export interface TCreateActionFunction<TRegistry extends TAnyRegistryData> {
     } & (TRegistry["metadataSchema"] extends ValidZodSchema
       ? { metadata: z.input<TRegistry["metadataSchema"]> }
       : {})
-  ): ActionBuilder<TActionBuilderConstructorData<TRegistry, TId, TFunctionName>>
+  ): Omit<
+    ActionBuilder<TActionBuilderConstructorData<TRegistry, TId, TFunctionName>>,
+    "_actionData" | "_description"
+  >
 }
 
 // return type for the generated functions

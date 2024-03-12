@@ -11,6 +11,7 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
   exampleInput: z.input<TLocalActionData["inputSchema"]>
   inputSchema: TLocalActionData["inputSchema"]
   outputSchema: TLocalActionData["outputSchema"]
+  additionalParamsSchema: TLocalActionData["additionalParamsSchema"]
 
   auth: TLocalActionData["authConfig"]
   _render: TLocalActionData["render"]
@@ -24,6 +25,7 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
     this.exampleInput = actionData.exampleInput
     this.inputSchema = actionData.inputSchema
     this.outputSchema = actionData.outputSchema
+    this.additionalParamsSchema = actionData.additionalParamsSchema
 
     this.auth = actionData.authConfig
     this._render = actionData.render

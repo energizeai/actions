@@ -69,6 +69,7 @@ export class ActionBuilder<TLocalActionData extends TActionBuilderData> {
         inputSchema,
       },
       outputSchema: undefined,
+      additionalParamsSchema: undefined,
       authConfig: {
         type: "None",
         config: undefined,
