@@ -3,9 +3,11 @@ import { ActionBuilder, TActionBuilderConstructorData } from "./action-builder"
 import { TAnyRegistryData, ValidZodSchema } from "./action-data"
 import { ActionBuilderWithHandler } from "./with-handler"
 
-export interface TActionsArray<TRegistry extends TAnyRegistryData>
+export interface TActionsArray<TRegistryData extends TAnyRegistryData>
   extends Array<
-    ReturnType<ActionBuilderWithHandler<any>["registryData"]> extends TRegistry
+    ReturnType<
+      ActionBuilderWithHandler<any>["registryData"]
+    > extends TRegistryData
       ? ActionBuilderWithHandler<any>
       : never
   > {}
@@ -13,10 +15,10 @@ export interface TActionsArray<TRegistry extends TAnyRegistryData>
 type inferId<T extends TAnyActionRegistry[string]> = T["id"]
 
 type TActionsRegistry<
-  TRegistry extends TAnyRegistryData,
-  T extends TActionsArray<TRegistry>,
+  TRegistryData extends TAnyRegistryData,
+  T extends TActionsArray<TRegistryData>,
 > = {
-  [K in T[number] as K["registryData"] extends TRegistry
+  [K in T[number] as K["registryData"] extends TRegistryData
     ? inferId<K>
     : never]: K
 }
@@ -27,43 +29,45 @@ export interface TAnyActionRegistry
   }> {}
 
 // string literal for the create actions registry function
-type TCreateActionsRegistry<TRegistry extends TAnyRegistryData> =
-  `create${TRegistry["namespace"]}ActionsRegistry`
+type TCreateActionsRegistry<TRegistryData extends TAnyRegistryData> =
+  `create${TRegistryData["namespace"]}ActionsRegistry`
 
 // string literal for the create action function
-type TCreateAction<TRegistry extends TAnyRegistryData> =
-  `create${TRegistry["namespace"]}Action`
+type TCreateAction<TRegistryData extends TAnyRegistryData> =
+  `create${TRegistryData["namespace"]}Action`
 
 // function to create an action registry
 export interface TCreateActionsRegistryFunction<
-  TRegistry extends TAnyRegistryData,
+  TRegistryData extends TAnyRegistryData,
 > {
-  <const T extends TActionsArray<TRegistry>>(
+  <const T extends TActionsArray<TRegistryData>>(
     registry: T
-  ): TActionsRegistry<TRegistry, T>
+  ): TActionsRegistry<TRegistryData, T>
 }
 
 // function to create an action
-export interface TCreateActionFunction<TRegistry extends TAnyRegistryData> {
+export interface TCreateActionFunction<TRegistryData extends TAnyRegistryData> {
   <TId extends string, TFunctionName extends string = TId>(
     input: {
       id: TId
       functionName?: TFunctionName
-    } & (TRegistry["metadataSchema"] extends ValidZodSchema
-      ? { metadata: z.input<TRegistry["metadataSchema"]> }
+    } & (TRegistryData["metadataSchema"] extends ValidZodSchema
+      ? { metadata: z.input<TRegistryData["metadataSchema"]> }
       : {})
   ): Omit<
-    ActionBuilder<TActionBuilderConstructorData<TRegistry, TId, TFunctionName>>,
+    ActionBuilder<
+      TActionBuilderConstructorData<TRegistryData, TId, TFunctionName>
+    >,
     "_actionData" | "_description"
   >
 }
 
 // return type for the generated functions
-type TGenerateFunctionsRet<TRegistry extends TAnyRegistryData> = Readonly<
+type TGenerateFunctionsRet<TRegistryData extends TAnyRegistryData> = Readonly<
   {
-    [K in TCreateActionsRegistry<TRegistry>]: TCreateActionsRegistryFunction<TRegistry>
+    [K in TCreateActionsRegistry<TRegistryData>]: TCreateActionsRegistryFunction<TRegistryData>
   } & {
-    [K in TCreateAction<TRegistry>]: TCreateActionFunction<TRegistry>
+    [K in TCreateAction<TRegistryData>]: TCreateActionFunction<TRegistryData>
   }
 >
 
@@ -91,16 +95,16 @@ type TGenerateFunctionsRet<TRegistry extends TAnyRegistryData> = Readonly<
  * ```
  */
 export const generateActionRegistryFunctions = <
-  const TRegistry extends TAnyRegistryData,
+  const TRegistryData extends TAnyRegistryData,
 >(
-  args: TRegistry
-): TGenerateFunctionsRet<TRegistry> => {
+  args: TRegistryData
+): TGenerateFunctionsRet<TRegistryData> => {
   return {
     [`create${args.namespace}ActionsRegistry`]: <
-      const T extends TActionsArray<TRegistry>,
+      const T extends TActionsArray<TRegistryData>,
     >(
       registry: T
-    ): TActionsRegistry<TRegistry, T> => {
+    ): TActionsRegistry<TRegistryData, T> => {
       type TId = T[number]["id"]
       const seenFunctionNames = new Set<string>()
 
@@ -121,7 +125,7 @@ export const generateActionRegistryFunctions = <
           acc[id] = action
           return acc
         }, {} as any)
-      ) as TActionsRegistry<TRegistry, T>
+      ) as TActionsRegistry<TRegistryData, T>
     },
     [`create${args.namespace}Action`]: <
       TId extends string,
@@ -189,7 +193,7 @@ export const generateActionRegistryFunctions = <
         functionName: input.functionName || input.id,
       })
     },
-  } as TGenerateFunctionsRet<TRegistry>
+  } as TGenerateFunctionsRet<TRegistryData>
 }
 
 // generate default action registry functions
