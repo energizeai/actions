@@ -27,10 +27,12 @@ export interface TAnyActionRegistry
   }> {}
 
 // string literal for the create actions registry function
-type TCreateActionsRegistry<T extends string> = `create${T}ActionsRegistry`
+type TCreateActionsRegistry<TRegistry extends TAnyRegistryData> =
+  `create${TRegistry["namespace"]}ActionsRegistry`
 
 // string literal for the create action function
-type TCreateAction<T extends string> = `create${T}Action`
+type TCreateAction<TRegistry extends TAnyRegistryData> =
+  `create${TRegistry["namespace"]}Action`
 
 // function to create an action registry
 export interface TCreateActionsRegistryFunction<
@@ -54,18 +56,13 @@ export interface TCreateActionFunction<TRegistry extends TAnyRegistryData> {
 }
 
 // return type for the generated functions
-type TGenerateFunctionsRet<TRegistry extends TAnyRegistryData> =
-  TRegistry["namespace"] extends infer TNamespace
-    ? TNamespace extends string
-      ? Readonly<
-          {
-            [K in TCreateActionsRegistry<TNamespace>]: TCreateActionsRegistryFunction<TRegistry>
-          } & {
-            [K in TCreateAction<TNamespace>]: TCreateActionFunction<TRegistry>
-          }
-        >
-      : never
-    : never
+type TGenerateFunctionsRet<TRegistry extends TAnyRegistryData> = Readonly<
+  {
+    [K in TCreateActionsRegistry<TRegistry>]: TCreateActionsRegistryFunction<TRegistry>
+  } & {
+    [K in TCreateAction<TRegistry>]: TCreateActionFunction<TRegistry>
+  }
+>
 
 /**
  * Generate the functions to create an action registry.
