@@ -222,17 +222,19 @@ export const setupToolCalling = <
 
       const toolCallIds = example.tool_calls.map(() => generateToolCallId())
 
-      messages.push({
-        role: "assistant",
-        tool_calls: example.tool_calls.map((toolCall, ix) => ({
-          id: toolCallIds[ix]!,
-          function: {
-            name: toolCall.name,
-            arguments: JSON.stringify(toolCall.arguments),
-          },
-          type: "function",
-        })),
-      })
+      if (example.tool_calls.length > 0) {
+        messages.push({
+          role: "assistant",
+          tool_calls: example.tool_calls.map((toolCall, ix) => ({
+            id: toolCallIds[ix]!,
+            function: {
+              name: toolCall.name,
+              arguments: JSON.stringify(toolCall.arguments),
+            },
+            type: "function",
+          })),
+        })
+      }
 
       for (const [ix, toolCall] of example.tool_calls.entries()) {
         const foundAction = Object.values(registry).find(
