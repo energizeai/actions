@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.12.1
+
+### Patch Changes
+
+- 576ae50: Fix bug where OAI crashes if tool calls array is empty
+
 ## 0.12.0
 
 ### Minor Changes
