@@ -4,11 +4,20 @@ import { UseTRPCMutationResult } from "@trpc/react-query/shared"
 import {
   createClientActionsRegistry,
   inferActionComponentRouter,
+  pickFromActionsRegistry,
 } from "ai-actions"
 import { ActionsRegistry } from "."
 
+const ClientOnlyRegistry = pickFromActionsRegistry(ActionsRegistry, [
+  "google-sendMail",
+  "google-moveEmailToTrash",
+  "linear-createIssue",
+  "google-replyToEmail",
+  "zoom-createMeeting",
+])
+
 export const ClientActionsRegistry = createClientActionsRegistry(
-  ActionsRegistry,
+  ClientOnlyRegistry,
   {
     pipeMetadata(metadata) {
       return {
@@ -21,6 +30,7 @@ export const ClientActionsRegistry = createClientActionsRegistry(
 )
 
 export type TClientActionsRegistry = typeof ClientActionsRegistry
+export type TClientActionId = keyof TClientActionsRegistry
 
 export type TActionComponentRouter = inferActionComponentRouter<
   TClientActionsRegistry,

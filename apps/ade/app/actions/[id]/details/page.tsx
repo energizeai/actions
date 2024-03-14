@@ -105,7 +105,7 @@ export default function ActionDetailsPage({
           maxWidth: "100%",
         }}
         language="typescript"
-        value={actionData.handler.toString()}
+        value={actionData.$unwrappedHandler.toString()}
       />
       <h1 className="text-xl font-semibold mt-4">Output</h1>
       <p className="text-muted-foreground mb-7">

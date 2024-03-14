@@ -137,8 +137,17 @@ export interface TActionData<
   outputSchema: TOutput
   additionalParamsSchema: TAdditional
   authConfig: TAuth
-  handler: TActionHandler<TRegistry, TInput, THandlerRet, TAuth, TAdditional>
   exampleInput: z.input<TInput> | null
+
+  handler: TActionHandler<TRegistry, TInput, THandlerRet, TAuth, TAdditional>
+  $unwrappedHandler: TActionHandler<
+    TRegistry,
+    TInput,
+    THandlerRet,
+    TAuth,
+    TAdditional
+  >
+
   render:
     | ((
         props: Parameters<

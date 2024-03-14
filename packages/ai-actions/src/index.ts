@@ -11,10 +11,7 @@ export * from "./registry-builder"
 export * from "./tools"
 export * from "./utility"
 
-export {
-  ActionRegistriesProviderWrapper as ActionRegistriesProvider,
-  ActionRegistryContext,
-} from "./provider"
+export { ActionRegistriesProviderWrapper as ActionRegistriesProvider } from "./provider"
 
 export {
   AuthType,
