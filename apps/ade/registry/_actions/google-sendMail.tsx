@@ -7,7 +7,6 @@ const GoogleSendMailAction = createADEAction({
     title: "Send Email",
     description: "Send an email with the Gmail API",
     resource: "Google",
-    renderOnClient: true,
     loadingMessage: "Generating email...",
     chatMessage: "Please send an email",
     avatar: {

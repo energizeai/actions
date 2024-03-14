@@ -29,11 +29,7 @@ function ActionComponent({
     name: string
   }
 }) {
-  const {
-    ADEActionsRegistry: actionsRegistry,
-    testActionsRegistry,
-    ActionsRegistry,
-  } = useActionRegistries()
+  const { ADEActionsRegistry } = useActionRegistries()
   const caller = api.actions.testActionFunction.useMutation()
 
   const Router = createActionComponentRouter<TActionComponentRouter>({
@@ -44,7 +40,7 @@ function ActionComponent({
     "zoom-createMeeting": ZoomCreateMeetingCard,
   })
 
-  const actionData = actionsRegistry[actionId]
+  const actionData = ADEActionsRegistry[actionId]
 
   return (
     <Router

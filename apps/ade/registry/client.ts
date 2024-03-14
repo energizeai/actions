@@ -44,3 +44,6 @@ export type TActionComponentRouter = inferActionComponentRouter<
     >
   }
 >
+
+export const isClientAction = (actionId: string): actionId is TClientActionId =>
+  actionId in ClientActionsRegistry

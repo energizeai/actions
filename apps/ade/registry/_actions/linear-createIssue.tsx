@@ -8,7 +8,6 @@ const LinearCreateIssueAction = createADEAction({
     title: "Create Issue",
     description: "Create an issue in Linear",
     resource: "Linear",
-    renderOnClient: true,
     avatar: {
       light: "/logos/linear-dark.svg",
       dark: "/logos/linear-light.svg",

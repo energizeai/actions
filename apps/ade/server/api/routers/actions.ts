@@ -2,6 +2,7 @@ import { env } from "@/env/server.mjs"
 import { getAccessToken } from "@/lib/linked-accounts"
 import { ActionsRegistry } from "@/registry"
 import { ActionIds, TActionId } from "@/registry/_properties/types"
+import { isClientAction } from "@/registry/client"
 import { linkedAccounts } from "@/server/db/schema"
 import { trpcBadRequestError } from "@/trpc/shared"
 import { setupActionCaller } from "ai-actions"
@@ -83,7 +84,7 @@ export const actionsRouter = createTRPCRouter({
         throw trpcBadRequestError(result.message)
       }
 
-      if (ActionsRegistry[input.actionId].metadata.renderOnClient) {
+      if (isClientAction(input.actionId)) {
         return {
           isSuccess: true,
         } as const
