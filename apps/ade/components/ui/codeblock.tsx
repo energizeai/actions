@@ -5,8 +5,11 @@
 
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react"
 import { CSSProperties, FC, memo } from "react"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { coldarkDark } from "react-syntax-highlighter/dist/cjs/styles/prism"
+import {
+  Prism as SyntaxHighlighter,
+  SyntaxHighlighterProps,
+} from "react-syntax-highlighter"
+import { oneDark, prism } from "react-syntax-highlighter/dist/cjs/styles/prism"
 
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard"
 import { cn } from "@/lib/utils"
@@ -15,6 +18,7 @@ import { Button } from "./button"
 interface Props {
   language: string
   value: string
+  fileName?: string
   customStyles?: CSSProperties
   className?: string
   customTitle?: string
@@ -63,7 +67,7 @@ export const generateRandomString = (length: number, lowercase = false) => {
 }
 
 const CodeBlock: FC<Props> = memo(
-  ({ language, value, customStyles, className, customTitle }) => {
+  ({ language, value, customStyles, className, customTitle, fileName }) => {
     const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
 
     const downloadAsFile = () => {
@@ -99,19 +103,45 @@ const CodeBlock: FC<Props> = memo(
       copyToClipboard(value)
     }
 
+    const highlighterProps: Omit<SyntaxHighlighterProps, "children"> = {
+      language,
+      PreTag: "div",
+      customStyle: {
+        margin: 0,
+        width: "100%",
+        background: "transparent",
+        padding: "1.5rem 1rem",
+        border: "none",
+        ...customStyles,
+      },
+      codeTagProps: {
+        style: {
+          fontSize: "0.9rem",
+          fontFamily: "var(--font-mono)",
+        },
+      },
+    }
+
     return (
       <div
         className={cn(
-          "codeblock prose-invert relative w-full rounded-sm bg-slate-800 font-sans dark:bg-muted",
+          "codeblock prose-invert relative w-full rounded-sm dark:bg-muted bg-background font-sans border",
           className
         )}
       >
-        <div className="flex w-full items-center justify-between rounded-sm bg-slate-950 px-6 py-2 pr-4 text-white dark:bg-background/90">
-          <span className="text-sm">{customTitle || (language ?? "text")}</span>
+        <div className="flex w-full items-center justify-between dark:bg-background bg-muted px-6 py-2 pr-4 text-muted-foreground border-b rounded-t-sm">
+          <span className="text-sm">
+            {fileName && (
+              <span className="bg-primary/20 text-primary py-1 px-2 rounded-sm mr-4">
+                {fileName}
+              </span>
+            )}
+            {customTitle || (language ?? "text")}
+          </span>
           <div className="flex items-center space-x-1">
             <Button
               variant="ghost"
-              className="hover:bg-slate-700 hover:text-white focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0 dark:hover:bg-muted"
+              className="hover:bg-gray-200 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0 dark:hover:bg-muted"
               onClick={downloadAsFile}
               size="icon"
             >
@@ -121,7 +151,7 @@ const CodeBlock: FC<Props> = memo(
             <Button
               variant="ghost"
               size="icon"
-              className="text-xs hover:bg-slate-700 hover:text-white focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0 dark:hover:bg-muted"
+              className="text-xs hover:bg-gray-200 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0 dark:hover:bg-muted"
               onClick={onCopy}
             >
               {isCopied ? (
@@ -133,30 +163,16 @@ const CodeBlock: FC<Props> = memo(
             </Button>
           </div>
         </div>
-        <SyntaxHighlighter
-          language={language}
-          style={coldarkDark}
-          PreTag="div"
-          showLineNumbers
-          customStyle={{
-            margin: 0,
-            width: "100%",
-            background: "transparent",
-            padding: "1.5rem 1rem",
-            ...customStyles,
-          }}
-          lineNumberStyle={{
-            userSelect: "none",
-          }}
-          codeTagProps={{
-            style: {
-              fontSize: "0.9rem",
-              fontFamily: "var(--font-mono)",
-            },
-          }}
-        >
-          {value}
-        </SyntaxHighlighter>
+        <div data-hide-on-theme="dark">
+          <SyntaxHighlighter style={prism} {...highlighterProps}>
+            {value}
+          </SyntaxHighlighter>
+        </div>
+        <div data-hide-on-theme="light">
+          <SyntaxHighlighter style={oneDark} {...highlighterProps}>
+            {value}
+          </SyntaxHighlighter>
+        </div>
       </div>
     )
   }

@@ -48,14 +48,8 @@ const SideNavLink = ({
 export default function SideNav() {
   const pathname = usePathname()
 
-  return (
-    <div
-      className="flex-none w-[250px] hidden lg:flex flex-col gap-2 sticky top-24 left-0 -ml-3 pl-3 overflow-y-auto"
-      style={{
-        maxHeight: "calc(100vh - 8rem)",
-      }}
-    >
-      <h1 className="text-sm font-semibold mb-2">Documentation</h1>
+  const docs = (
+    <>
       <SideNavLink href={"/"}>
         <HandMetalIcon className="h-4 w-4" />
         Introduction
@@ -72,30 +66,41 @@ export default function SideNav() {
         <SparklesIcon className="h-4 w-4" />
         Contribute
       </SideNavLink>
-      <h1 className="text-sm font-semibold my-2">Actions</h1>
-      {Object.keys(ActionsRegistry).map((key) => {
-        const action = ActionsRegistry[key as TActionId]
+    </>
+  )
 
-        return (
-          <SideNavLink href={`/actions/${key}`} key={key}>
-            <ThemedImage
-              srcLight={action.metadata.avatar.light}
-              srcDark={action.metadata.avatar.dark}
-              invert={isActive(pathname, `/actions/${key}`)}
-              ImageComponent={
-                <img
-                  alt={`${key} icon`}
-                  src={""}
-                  className={cn("text-background h-4 w-4 rounded-sm")}
-                />
-              }
+  const actions = Object.keys(ActionsRegistry).map((key) => {
+    const action = ActionsRegistry[key as TActionId]
+
+    return (
+      <SideNavLink href={`/actions/${key}`} key={key}>
+        <ThemedImage
+          srcLight={action.metadata.avatar.light}
+          srcDark={action.metadata.avatar.dark}
+          invert={isActive(pathname, `/actions/${key}`)}
+          ImageComponent={
+            <img
+              alt={`${key} icon`}
+              src={""}
+              className={cn("text-background h-4 w-4 rounded-sm")}
             />
-            <p className="text-ellipsis whitespace-nowrap overflow-x-hidden">
-              {action.metadata.title}
-            </p>
-          </SideNavLink>
-        )
-      })}
+          }
+        />
+        <p className="text-ellipsis whitespace-nowrap overflow-x-hidden">
+          {action.metadata.title}
+        </p>
+      </SideNavLink>
+    )
+  })
+
+  return (
+    <div
+      className="flex-none w-[250px] hidden fixed top-[156px] z-10 md:flex lg:flex flex-col gap-2 -ml-3 pl-3 overflow-y-auto"
+      style={{
+        maxHeight: "calc(100vh - 180px)",
+      }}
+    >
+      {pathname.includes("/actions/") ? actions : docs}
     </div>
   )
 }

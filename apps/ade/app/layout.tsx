@@ -14,6 +14,7 @@ import { env } from "@/env/server.mjs"
 import { ActionRegistriesProvider } from "@/registry/provider"
 import { TRPCReactProvider } from "@/trpc/react"
 import { cookies } from "next/headers"
+import { DocPageOutline } from "./_components/outline"
 import SideNav from "./_components/side-nav"
 import TopNav from "./_components/top-nav"
 
@@ -63,12 +64,13 @@ export default function RootLayout({
             >
               <ThemeToggle shortcutOnly />
               <TooltipProvider delayDuration={0}>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-6">
                   <TopNav />
                   <div className="flex flex-row gap-10 mx-auto px-4 max-w-screen-xl w-full pt-2 pb-4">
                     <SideNav />
-                    <div className="flex-1 overflow-hidden max-w-full">
-                      {children}
+                    <div className="flex-1 overflow-hidden max-w-full lg:pl-[270px] md:pl-[270px] xl:flex flex-row gap-10 justify-end">
+                      <div className="w-full">{children}</div>
+                      <DocPageOutline />
                     </div>
                   </div>
                 </div>

@@ -169,3 +169,15 @@ input[type='number']::-webkit-outer-spin-button {
 .light [data-hide-on-theme='light'] {
   display: none;
 }
+
+.prose :where(code):not(:where([class~="not-prose"],[class~="not-prose"] *))::before {
+  content: "";
+}
+
+.prose :where(code):not(:where([class~="not-prose"],[class~="not-prose"] *))::after {
+  content: "";
+}
+
+.prose :where(a):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+  text-decoration: none;
+}
