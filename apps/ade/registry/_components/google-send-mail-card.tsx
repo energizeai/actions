@@ -39,6 +39,7 @@ const GoogleSendMailCard = ({
   displayState,
   inputSchema,
   metadata,
+  outputSchema,
   onSubmit,
   args,
   mutationResults,

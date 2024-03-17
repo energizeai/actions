@@ -14,7 +14,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf .next",
     "generate:action": "turbo gen action-starter",
-    "playground": "dotenv -e .env.local -- npx tsx playground/test.tsx"
+    "playground": "dotenv -e .env.local -- npx tsx playground/docs.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -73,6 +73,7 @@
     "lucide-react": "^0.316.0",
     "mailparser": "^3.6.7",
     "next": "^14.0.4",
+    "next-mdx-remote": "^4.4.1",
     "next-themes": "^0.2.1",
     "react": "^18.2.0",
     "react-aria": "^3.31.1",
@@ -81,10 +82,10 @@
     "react-hook-form": "^7.49.3",
     "react-resizable-panels": "^1.0.10",
     "react-stately": "^3.29.1",
-    "react-syntax-highlighter": "^15.5.0",
     "remark-gfm": "^4.0.0",
     "server-only": "^0.0.1",
     "sonner": "^1.3.1",
+    "sugar-high": "^0.6.0",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.2.1",
     "zod": "^3.22.4",

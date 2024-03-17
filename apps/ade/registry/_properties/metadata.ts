@@ -1,8 +1,6 @@
 import { z } from "zod"
 
 export const ActionsRegistryMetadataSchema = z.object({
-  renderOnClient: z.boolean().default(false),
-
   /**
    * The public facing name of the action. This should be a verb phrase.
    *

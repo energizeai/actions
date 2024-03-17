@@ -1,11 +1,5 @@
-import MarkdownContainer from "@/components/markdown/markdown-container"
-
-import Content from "./content.mdx"
+import { redirect } from "next/navigation"
 
 export default function Page() {
-  return (
-    <MarkdownContainer>
-      <Content />
-    </MarkdownContainer>
-  )
+  redirect("/introduction")
 }

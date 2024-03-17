@@ -5,8 +5,7 @@ import { GoogleReplyToEmailCard } from "@/registry/_components/google-reply-to-e
 import { GoogleSendMailCard } from "@/registry/_components/google-send-mail-card"
 import { LinearCreateIssueCard } from "@/registry/_components/linear-create-issue-card"
 import { ZoomCreateMeetingCard } from "@/registry/_components/zoom-create-meeting-card"
-import { TActionId } from "@/registry/_properties/types"
-import { TActionComponentRouter } from "@/registry/client"
+import { TActionComponentRouter, TClientActionId } from "@/registry/client"
 import { useActionRegistries } from "@/registry/provider"
 import { api } from "@/trpc/react"
 import { extractErrorMessage } from "@/trpc/shared"
@@ -22,7 +21,7 @@ function ActionComponent({
     name: "",
   },
 }: {
-  actionId: TActionId
+  actionId: TClientActionId
   state: "active" | "placeholder" | "skeleton"
   args: any
   userData?: {
@@ -30,7 +29,7 @@ function ActionComponent({
     name: string
   }
 }) {
-  const { actionsRegistry } = useActionRegistries("ADE")
+  const { ADEActionsRegistry } = useActionRegistries()
   const caller = api.actions.testActionFunction.useMutation()
 
   const Router = createActionComponentRouter<TActionComponentRouter>({
@@ -41,16 +40,23 @@ function ActionComponent({
     "zoom-createMeeting": ZoomCreateMeetingCard,
   })
 
-  const actionData = actionsRegistry[actionId]
+  const actionData = ADEActionsRegistry[actionId]
 
   return (
     <Router
       displayState={state}
       inputSchema={actionData.inputSchema}
+      outputSchema={actionData.outputSchema}
       functionName={actionData.functionName}
       args={args}
       metadata={actionData.metadata}
       mutationResults={caller}
+      fallback={
+        <div className="w-full h-full text-center flex-col gap-10 text-3xl flex items-center justify-center">
+          <h1 className="text-6xl">404</h1>
+          <p className="text-lg text-muted-foreground">Action not found</p>
+        </div>
+      }
       onSubmit={(props) => {
         try {
           caller.mutateAsync({

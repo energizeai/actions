@@ -5,6 +5,7 @@ import { TActionId } from "@/registry/_properties/types"
 import { ExternalLink } from "lucide-react"
 import Link from "next/link"
 
+import { isClientAction } from "@/registry/client"
 import { ActionComponent } from "../_components/action-component"
 
 export default function ActionDetailsPage({
@@ -105,16 +106,16 @@ export default function ActionDetailsPage({
           maxWidth: "100%",
         }}
         language="typescript"
-        value={actionData.handler.toString()}
+        value={actionData.$unwrappedHandler.toString()}
       />
       <h1 className="text-xl font-semibold mt-4">Output</h1>
       <p className="text-muted-foreground mb-7">
         This is the resulting output of the action.
       </p>
-      {actionData.metadata.renderOnClient ? (
+      {isClientAction(actionData.id) ? (
         <div className="lg:max-w-screen-sm">
           <ActionComponent
-            actionId={params.id}
+            actionId={actionData.id}
             args={undefined}
             state="placeholder"
             userData={undefined}

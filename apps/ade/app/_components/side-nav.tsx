@@ -2,15 +2,10 @@
 
 import { Button } from "@/components/ui/button"
 import { ThemedImage } from "@/components/ui/themed-image"
+import { getDocPosts } from "@/lib/docs"
 import { cn } from "@/lib/utils"
 import { ActionsRegistry } from "@/registry"
 import { TActionId } from "@/registry/_properties/types"
-import {
-  Fingerprint,
-  HandMetalIcon,
-  RocketIcon,
-  SparklesIcon,
-} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
@@ -33,7 +28,7 @@ const SideNavLink = ({
       <Button
         variant={"ghost"}
         className={cn(
-          "w-full justify-start gap-3 -ml-3",
+          "w-full justify-start gap-3 -ml-3 text-muted-foreground transition-colors duration-200",
           isActive(pathname, href) &&
             "bg-foreground text-background hover:bg-foreground/80 hover:text-background"
         )}
@@ -45,57 +40,67 @@ const SideNavLink = ({
   )
 }
 
-export default function SideNav() {
+export default function SideNav({
+  docPosts,
+}: {
+  docPosts: ReturnType<typeof getDocPosts>
+}) {
   const pathname = usePathname()
+  let lastSeenGroup = ""
+
+  const docs: React.ReactNode[] = []
+
+  for (const post of docPosts) {
+    if (post.metadata.group !== lastSeenGroup) {
+      docs.push(
+        <h3
+          key={post.metadata.group}
+          className="text-sm font-bold mb-2 first:mt-0 mt-6"
+        >
+          {post.metadata.group}
+        </h3>
+      )
+      lastSeenGroup = post.metadata.group
+    }
+    docs.push(
+      <SideNavLink key={post.slug} href={"/" + post.slug}>
+        {post.metadata.title}
+      </SideNavLink>
+    )
+  }
+
+  const actions = Object.keys(ActionsRegistry).map((key) => {
+    const action = ActionsRegistry[key as TActionId]
+
+    return (
+      <SideNavLink href={`/actions/${key}`} key={key}>
+        <ThemedImage
+          srcLight={action.metadata.avatar.light}
+          srcDark={action.metadata.avatar.dark}
+          invert={isActive(pathname, `/actions/${key}`)}
+          ImageComponent={
+            <img
+              alt={`${key} icon`}
+              src={""}
+              className={cn("text-background h-4 w-4 rounded-sm")}
+            />
+          }
+        />
+        <p className="text-ellipsis whitespace-nowrap overflow-x-hidden">
+          {action.metadata.title}
+        </p>
+      </SideNavLink>
+    )
+  })
 
   return (
     <div
-      className="flex-none w-[250px] hidden lg:flex flex-col gap-2 sticky top-24 left-0 -ml-3 pl-3 overflow-y-auto"
+      className="flex-none w-[250px] hidden fixed top-[152px] z-10 md:flex lg:flex flex-col gap-2 -ml-3 pl-3 overflow-y-auto"
       style={{
-        maxHeight: "calc(100vh - 8rem)",
+        maxHeight: "calc(100vh - 180px)",
       }}
     >
-      <h1 className="text-sm font-semibold mb-2">Documentation</h1>
-      <SideNavLink href={"/"}>
-        <HandMetalIcon className="h-4 w-4" />
-        Introduction
-      </SideNavLink>
-      <SideNavLink href={"/getting-started"}>
-        <RocketIcon className="h-4 w-4" />
-        Getting started
-      </SideNavLink>
-      <SideNavLink href={"/authentication"}>
-        <Fingerprint className="h-4 w-4" />
-        Authentication
-      </SideNavLink>
-      <SideNavLink href={"/contribute"}>
-        <SparklesIcon className="h-4 w-4" />
-        Contribute
-      </SideNavLink>
-      <h1 className="text-sm font-semibold my-2">Actions</h1>
-      {Object.keys(ActionsRegistry).map((key) => {
-        const action = ActionsRegistry[key as TActionId]
-
-        return (
-          <SideNavLink href={`/actions/${key}`} key={key}>
-            <ThemedImage
-              srcLight={action.metadata.avatar.light}
-              srcDark={action.metadata.avatar.dark}
-              invert={isActive(pathname, `/actions/${key}`)}
-              ImageComponent={
-                <img
-                  alt={`${key} icon`}
-                  src={""}
-                  className={cn("text-background h-4 w-4 rounded-sm")}
-                />
-              }
-            />
-            <p className="text-ellipsis whitespace-nowrap overflow-x-hidden">
-              {action.metadata.title}
-            </p>
-          </SideNavLink>
-        )
-      })}
+      {pathname.includes("/actions/") ? actions : docs}
     </div>
   )
 }

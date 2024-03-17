@@ -7,14 +7,10 @@ export * from "./callers"
 export * from "./client-registry"
 export * from "./functions"
 export * from "./helpers"
+export * from "./provider"
 export * from "./registry-builder"
 export * from "./tools"
 export * from "./utility"
-
-export {
-  ActionRegistriesProviderWrapper as ActionRegistriesProvider,
-  ActionRegistryContext,
-} from "./provider"
 
 export {
   AuthType,

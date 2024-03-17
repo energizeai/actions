@@ -6,7 +6,6 @@ export const ZoomCreateMeetingAction = createADEAction({
   metadata: {
     title: "Create Meeting",
     description: "Create a new Zoom meeting",
-    renderOnClient: true,
     resource: "Zoom",
     avatar: {
       light: "/logos/zoom.svg",

@@ -1,0 +1,79 @@
+---
+title: "Additional Parameters"
+group: "API"
+groupOrder: 200
+---
+
+#### Adding additional parameters to handlers
+
+# Additional Parameters
+
+In the previous page, we discussed how to pass context to your handlers.
+In this page, we will discuss how to pass additional parameters to your handlers.
+
+<Info>
+The difference between context and additional parameters is that context affects all your actions, while additional parameters are specific to a single action.
+</Info>
+
+## Setup
+
+To add additional parameters to your action, you need to call `additionalParams` on your action after you defined the input. Then you can use it in the `handler`.
+
+```typescript:index.ts
+import { createAction, createActionsRegistry } from "ai-actions"
+import { z } from "zod"
+
+const greetingAction = createAction({
+  id: "sendGreeting"
+})
+  .describe("Greet the user with a message")
+  .input({
+    message: z
+      .string()
+      .describe("The message to greet the user with"),
+  })
+  // We can add additional parameters to our action
+  .additionalParams({ <|highlight|>
+    name: z.string(), <|highlight|>
+    relationship: z.enum(["friend", "colleague"]).default("friend"), <|highlight|>
+  }) <|highlight|>
+  // Now we get type-safe `additionalParams` in our handler
+  .handler(async ({ input, additionalParams }) => { <|highlight|>
+    let greeting = "Hello"
+    if (additionalParams.relationship === "friend") {
+      greeting = "Hey"
+    }
+
+    return {
+      greeting: `${greeting}! ${input.message}`, <|highlight|>
+    }
+  })
+
+// Next we can create our Action Registry
+const ActionsRegistry = createActionsRegistry([
+  sendGreetingAction
+])
+```
+
+## Passing additional parameters to handlers
+
+Now that you have an action with additional parameters, you will be required to pass in these params whenever any of the following is called:
+- `setupToolCalling`
+- `setupFunctionCalling`
+- `setupActionCaller`
+
+```typescript:index.ts
+const { toolCallsHandler, tools } = setupToolCalling(ActionsRegistry, {
+  additionalParams: { <|highlight|>
+    sendGreeting: { <|highlight|>
+      name: "John Doe", <|highlight|>
+      relationship: "friend", <|highlight|>
+    }, <|highlight|>
+    // ... other additional parameters for other actions ... <|highlight|>
+  } <|highlight|>
+})
+```
+
+<Note>
+If you have multiple functions that take additional parameters, you will be required to pass in the additional parameters for each action.
+</Note>

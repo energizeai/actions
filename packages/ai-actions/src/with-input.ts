@@ -298,6 +298,7 @@ export class ActionBuilderWithInput<
         ...this._actionData,
         outputSchema: this._outputSchema,
         handler: isAsync(handler) ? handlerWrapperAsync : handlerWrapper,
+        $unwrappedHandler: handler,
         exampleInput: null,
         additionalParamsSchema: this._additionalParamsSchema,
         authConfig: this._authConfig,

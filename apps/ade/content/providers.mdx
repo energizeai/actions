@@ -1,0 +1,229 @@
+---
+title: "Provider"
+group: "React"
+groupOrder: 0
+---
+
+#### Use your action registries on the client
+
+# Providers
+
+This will show you how to use your action registries safely on the client with the `useActionRegistries` hook.
+
+<Info>
+This documentation will take it from the top, make sure to pay close attention to file names to avoid circular imports.
+Feel free to skip any parts your application does not use, e.g. custom metadata.
+</Info>
+
+## File Structure
+
+- `@/actions/generators.ts` Define your action generators
+- `@/actions/_actions/hello-world.tsx` Define your action
+- `@/actions/index.ts` Define your action registry
+- `@/actions/client.tsx` Define your client action registry
+- `@/actions/provider.tsx` Define your action provider
+- `@/app/layout.tsx` Define your action provider
+
+## Generators
+
+To begin, create a basic setup with custom metadata for your actions. 
+
+<Note>
+Note the field named `unsafeForClient`. Sometimes you may not want to expose all of your action metadata to the client. Throughout this guide, we will use this field to demo how to hide sensitive information.
+</Note>
+
+```typescript:@/actions/generators.ts
+import { generateActionRegistryFunctions } from "ai-actions"
+import { z } from "zod"
+
+const { createEnergizeActionsRegistry, createEnergizeAction } =
+  generateActionRegistryFunctions({
+    namespace: "Energize",
+    metadataSchema: z.object({
+      title: z.string(),
+      description: z.string(),
+      avatar: z.url(),
+      unsafeForClient: z.string() <|highlight|>,
+    })
+  })
+
+export { createEnergizeActionsRegistry, createEnergizeAction }
+```
+
+## Action
+
+Create a basic `Hello World` action for demo purposes.
+
+```typescript:@/actions/_actions/hello-world.tsx
+import z from "zod"
+import { createEnergizeAction } from "../_properties/generators"
+
+const HelloWorldAction = createEnergizeAction({
+  id: "helloWorld",
+  metadata: {
+    title: "Hello World",
+    description: "Get a greeting",
+    avatar: "https://example.com/avatar.png",
+    unsafeForClient: "This is a system message that should not be exposed to the client", <|highlight|>
+  },
+})
+  .describe("Get a greeting")
+  .input({
+    name: z.string().describe(`Name of the person to greet.`),
+  })
+  .handler(async ({ input }) => {
+    return {
+      greeting: `Hello, ${input.name}!`,
+    }
+  })
+
+export { HelloWorldAction }
+```
+
+## Registry
+
+Create the action registry with the defined actions.
+
+```typescript:@/actions/index.ts
+import { HelloWorldAction } from "@/actions/_actions/hello-world"
+
+const ActionsRegistry = createEnergizeActionsRegistry([
+  HelloWorldAction,
+])
+
+export { ActionsRegistry }
+```
+
+## Client Registry
+
+Use `createClientActionsRegistry` to create a client registry for your main action registry.
+Optionally, you can pass a `pipeMetadata` function to modify the metadata of your actions and omit anything you don't want to expose to the client. E.g. `unsafeForClient`.
+
+```typescript:@/actions/client.ts
+import { ActionsRegistry } from "@/actions"
+
+export const ClientActionsRegistry = createClientActionsRegistry(
+  ActionsRegistry,
+  {
+    pipeMetadata(metadata) { <|highlight|>
+      return {
+        avatar: metadata.avatar,
+        title: metadata.title,
+        description: metadata.description,
+        // here we do not pipe the unsafeForClient field <|highlight|>
+        // unsafeForClient: metadata.unsafeForClient, <|highlight|>
+      }
+    },
+  }
+)
+```
+
+Actions in the client registry **include the following data**:
+
+- Namespace
+- ID
+- Function name
+- Input schema
+- Output schema
+- Piped metadata
+
+They **DO NOT include** the following data:
+
+- Auth config
+- Example input
+- Render function
+- Handler
+- Etc.
+
+## Prepare
+
+Next, in the client file, call `prepareAIActions` to prepare the client registry for the provider. 
+
+<Note>
+You can pass as many client registries as you want to `prepareAIActions`.
+</Note>
+
+```typescript:@/actions/client.ts
+// here we prepare the client registry for our provider
+// note: we can add as many registries as we want here
+export const AIActions = prepareAIActions([ClientActionsRegistry])
+export type TAIActions = typeof AIActions
+```
+
+## Provider and hook
+
+Now form the `ActionRegistriesProvider` and `useActionRegistries` hook.
+
+```typescript:@/actions/provider.tsx
+"use client"
+
+import { TActionRegistriesContext, createUseActionRegistries } from "ai-actions"
+import { createContext, useContext } from "react"
+import { TAIActions } from "@/actions/client"
+
+const Context = createContext<TActionRegistriesContext>(undefined)
+
+export function ActionRegistriesProvider({
+  actions,
+  children,
+}: {
+  children: React.ReactNode
+  actions: TActionRegistriesContext
+}) {
+  return <Context.Provider value={actions}>{children}</Context.Provider>
+}
+
+export const useActionRegistries = createUseActionRegistries<TAIActions>(() =>
+  useContext(Context)
+)
+```
+
+## Layout
+
+Almost done! You can now use your provider in your layout.
+
+```typescript:@/app/layout.tsx
+import { ActionRegistriesProvider } from "@/actions/provider"
+import { AIActions } from "@/actions/client"
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ActionRegistriesProvider actions={AIActions}>
+          {children}
+        </ActionRegistriesProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+## 🎊 Access Actions In Your Components 🎊
+
+Now that you have a provider and hook, you can use actions in client components with the `useActionRegistries` hook.
+
+```typescript:@/random-client-component.tsx
+"use client"
+
+import { useActionRegistries } from "@/actions/provider"
+import { HelloWorldAction } from "@/actions/_actions/hello-world"
+
+export default function RandomClientComponent() {
+  const { EnergizeActionsRegistry } = useActionRegistries() <|highlight|>
+
+  const helloWorldAction = EnergizeActionsRegistry["helloWorld"]
+
+  return (
+    <div>
+      <h1>{helloWorldAction.metadata.title}</h1> <|highlight|>
+      <p>{helloWorldAction.metadata.description}</p> <|highlight|>
+{/* if we try to access the unsafeForClient field, we will get an error */} <|error|>
+      <p>{helloWorldAction.metadata.unsafeForClient}</p> <|error|>
+    </div>
+  )
+}

@@ -17,6 +17,8 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
   _render: TLocalActionData["render"]
   handler: TLocalActionData["handler"]
 
+  $unwrappedHandler: TLocalActionData["handler"]
+
   constructor({ actionData }: { actionData: TLocalActionData }) {
     this.id = actionData.id
     this.functionName = actionData.functionName
@@ -30,6 +32,7 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
     this.auth = actionData.authConfig
     this._render = actionData.render
     this.handler = actionData.handler
+    this.$unwrappedHandler = actionData.$unwrappedHandler
   }
 
   setExampleInput(exampleInput: z.input<TLocalActionData["inputSchema"]>) {

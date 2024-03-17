@@ -1,0 +1,145 @@
+---
+title: 'Introduction'
+group: 'Overview'
+groupOrder: 0
+---
+
+#### Welcome! 👋
+
+# Introduction
+
+`ai-actions` is the best DX for typesafe LLM function/tool calling.
+
+To get started, you can install `ai-actions` using npm:
+
+```bash:terminal
+npm i ai-actions zod
+```
+
+<Note>
+[Zod](https://zod.dev/) provides a simple way to define and validate types in your code.
+</Note>
+
+## Create Actions
+
+To make actions, you can use the `createAction` function from `ai-actions`.
+
+```typescript:index.ts
+import { createAction } from "ai-actions"
+import z from "zod"
+
+// An action that gets the current stock price of a ticker
+const getStockPriceAction = createAction({
+  id: "getStockPrice",
+})
+  .describe("Get the current stock price of a ticker.")
+  .input({
+    ticker: z
+      .string()
+      .describe("The ticker symbol of the stock to get the price of. E.g. AAPL"),
+  })
+  .handler(async ({ input }) => {
+    const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${input.ticker}`)
+    const data = (await response.json()).chart.result[0]
+    const price = data.meta.regularMarketPrice
+
+    return z.number().parse(price)
+  })
+
+// An action that extracts the person's name, age, and occupation from a sentence
+const extractPersonInfoAction = createAction({
+  id: "extractPersonInfo",
+})
+  .describe("Given a sentence, extract the person's name, age, and occupation.")
+  .input({
+    name: z.string().describe("The name of the person."),
+    age: z.number().describe("The age of the person."),
+    occupation: z
+      .string()
+      .describe("The occupation of the person.")
+      .default("Unknown")
+  })
+  // if we don't need to handle the input, 
+  // we can use noHandler to echo the input to the output
+  .noHandler()
+```
+
+A quick explanation of the above code:
+
+- `createAction` creates a new action with the given `id`.
+- `describe` sets a description for the action. This gets sent to the LLM.
+- `input` sets the input schema for the action. In this case, the input schema is a Zod schema that describes the `ticker` and `min` and `max` properties.
+- `handler` sets the handler function for the action. The handler function is called when the action is invoked. In this case, the handler function makes a request to the Yahoo Finance API to get the current stock price of the given ticker, and returns the price.
+
+## Create an Action Registry
+
+Next, we will put all our actions together in an Action Registry. This is a collection of actions that can be used together. All you have to do is pass them as an array.
+
+```typescript:index.ts
+import { createActionsRegistry } from "ai-actions"
+
+// Create the Action Registry
+const ActionsRegistry = createActionsRegistry([
+  getStockPriceAction,
+  extractPersonInfoAction
+])
+```
+
+A quick explanation of the above code:
+
+- `createActionsRegistry` creates a new Action Registry.
+- `getStockPriceAction` and `extractPersonInfoAction` are the actions that we created earlier.
+
+## Call the LLM
+
+```typescript:index.ts
+import { setupToolCalling } from "ai-actions"
+import OpenAI from "openai"
+
+const openai = new OpenAI()
+
+async function invokeActions(userMessage: string) {
+  const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+    {
+      role: "user",
+      content: userMessage,
+    },
+  ]
+
+  // setup the tool calling
+  const { toolCallsHandler, tools } = setupToolCalling(ActionsRegistry, {}) <|highlight|>
+
+  // call the LLM with the tools
+  const responseMessage = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo-1106",
+    messages,
+    tools,
+  })
+
+  // get the tool calls the LLM made
+  const choice = responseMessage.choices[0]
+  if (!choice || !choice.message.tool_calls) return
+
+  // pass the tool calls to the handler
+  const { results, toolCallMessages } = await toolCallsHandler( <|highlight|>
+    choice.message.tool_calls <|highlight|>
+  ) <|highlight|>
+
+  // a typesafe array of results from the handlers
+  console.log(results)
+
+  // append the assistant message to the messages
+  messages.push(choice.message)
+
+  // call the LLM again with the handler outputs
+  const secondResponse = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo-0125",
+    messages: messages.concat(toolCallMessages), // add the tool calls to the messages <|highlight|>
+  })
+
+  // log the final response
+  console.log(secondResponse.choices[0]?.message.content)
+}
+
+invokeActions("What is the stock price for MSFT?")
+```

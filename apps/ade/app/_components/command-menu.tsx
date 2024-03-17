@@ -17,17 +17,17 @@ import {
   CommandSeparator,
 } from "@/components/ui/command"
 import { ThemedImage } from "@/components/ui/themed-image"
+import { getDocPosts } from "@/lib/docs"
 import { ActionsRegistry } from "@/registry"
 import { TActionId } from "@/registry/_properties/types"
-import {
-  Fingerprint,
-  HandMetalIcon,
-  RocketIcon,
-  SearchIcon,
-  SparklesIcon,
-} from "lucide-react"
+import { SearchIcon } from "lucide-react"
 
-export function CommandMenu({ ...props }: DialogProps) {
+export function CommandMenu({
+  docPosts,
+  ...props
+}: DialogProps & {
+  docPosts: ReturnType<typeof getDocPosts>
+}) {
   const router = useRouter()
   const [open, setOpen] = React.useState(false)
   const { setTheme } = useTheme()
@@ -58,6 +58,32 @@ export function CommandMenu({ ...props }: DialogProps) {
     command()
   }, [])
 
+  const docGroupMap = docPosts.reduce(
+    (acc, post) => {
+      if (!post.metadata.group) return acc
+      if (!acc[post.metadata.group]) acc[post.metadata.group] = []
+      acc[post.metadata.group]!.push(post)
+      return acc
+    },
+    {} as Record<string, ReturnType<typeof getDocPosts>>
+  )
+
+  const docCommandGroups = Object.keys(docGroupMap).map((group) => (
+    <CommandGroup key={group} heading={group}>
+      {docGroupMap[group]!.map((post) => (
+        <CommandItem
+          value={post.metadata.title}
+          key={post.slug}
+          onSelect={() => {
+            runCommand(() => router.push(`/` + post.slug))
+          }}
+        >
+          {post.metadata.title}
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  ))
+
   return (
     <>
       <Button
@@ -76,44 +102,7 @@ export function CommandMenu({ ...props }: DialogProps) {
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Documentation">
-            <CommandItem
-              value={"Introduction"}
-              onSelect={() => {
-                runCommand(() => router.push(`/`))
-              }}
-            >
-              <HandMetalIcon className="h-3 w-3 mr-2" />
-              Introduction
-            </CommandItem>
-            <CommandItem
-              value={"Getting Started"}
-              onSelect={() => {
-                runCommand(() => router.push(`/getting-started`))
-              }}
-            >
-              <RocketIcon className="h-3 w-3 mr-2" />
-              Getting Started
-            </CommandItem>
-            <CommandItem
-              value={"Authentication"}
-              onSelect={() => {
-                runCommand(() => router.push(`/authentication`))
-              }}
-            >
-              <Fingerprint className="h-3 w-3 mr-2" />
-              Authentication
-            </CommandItem>
-            <CommandItem
-              value={"Contribue"}
-              onSelect={() => {
-                runCommand(() => router.push(`/contribute`))
-              }}
-            >
-              <SparklesIcon className="h-3 w-3 mr-2" />
-              Contribute
-            </CommandItem>
-          </CommandGroup>
+          {docCommandGroups}
           <CommandGroup heading="Actions">
             {Object.keys(ActionsRegistry).map((actionId, ix) => {
               const action = ActionsRegistry[actionId as TActionId]

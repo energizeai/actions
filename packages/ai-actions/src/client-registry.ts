@@ -1,6 +1,7 @@
 import React from "react"
 import z from "zod"
 import { TActionInput, TAnyActionRegistry, ValuesOf } from "."
+import { TOptionalActionOutput } from "./action-data"
 
 type TClientMetadata = z.output<z.ZodType<any>> | undefined
 
@@ -9,33 +10,42 @@ export interface ClientActionData<
   TId extends string,
   TFunctionName extends string,
   TInputSchema extends TActionInput,
+  TOutputSchema extends TOptionalActionOutput,
   TMetadata extends TClientMetadata,
 > {
   namespace: TNamespace
   actionId: TId
   functionName: TFunctionName
   inputSchema: TInputSchema
+  outputSchema: TOutputSchema
   metadata: TMetadata
 }
 
-export type TAnyClientActionRegistry = Readonly<{
-  [K in string]: ClientActionData<any, any, any, any, any>
-}>
+type TAnyClientActionData = ClientActionData<any, any, any, any, any, any>
+
+export interface TAnyClientActionRegistry
+  extends Readonly<{
+    [K in string]: TAnyClientActionData
+  }> {}
+
+type inferActionComponentPropsBase<T extends TAnyClientActionData> = {
+  args: z.output<T["inputSchema"]> | null
+  functionName: T["functionName"]
+  inputSchema: T["inputSchema"]
+  outputSchema: T["outputSchema"]
+  onSubmit: (args: z.output<T["inputSchema"]>) => void
+} & (T["metadata"] extends z.output<any>
+  ? {
+      metadata: T["metadata"]
+    }
+  : {})
 
 export type inferActionComponentRouter<
   T extends TAnyClientActionRegistry,
   Props extends {} = {},
 > = {
-  [K in keyof T]: Props & {
-    args: z.output<T[K]["inputSchema"]> | null
-    functionName: T[K]["functionName"]
-    inputSchema: T[K]["inputSchema"]
-    onSubmit: (args: z.output<T[K]["inputSchema"]>) => void
-  } & (T[K]["metadata"] extends z.output<any>
-      ? {
-          metadata: T[K]["metadata"]
-        }
-      : {})
+  [K in keyof T as T[K]["functionName"]]: Props &
+    inferActionComponentPropsBase<T[K]>
 }
 
 export type inferActionComponentProps<
@@ -45,11 +55,9 @@ export type inferActionComponentProps<
 
 export const createActionComponentRouter = <
   TRouter extends inferActionComponentRouter<TAnyClientActionRegistry, any>,
->(
-  args: Partial<{
-    [K in keyof TRouter]: React.FC<inferActionComponentProps<TRouter, K>>
-  }>
-) => {
+>(args: {
+  [K in keyof TRouter]: React.FC<inferActionComponentProps<TRouter, K>>
+}) => {
   type CustomProps =
     TRouter extends inferActionComponentRouter<any, infer K>
       ? K
@@ -60,6 +68,7 @@ export const createActionComponentRouter = <
       functionName: string
       args: unknown
       inputSchema: TRouter[keyof TRouter]["inputSchema"]
+      outputSchema: TRouter[keyof TRouter]["outputSchema"]
       onSubmit: (
         args: ValuesOf<{
           [K in keyof TRouter]: {
@@ -116,6 +125,7 @@ type inferClientReturn<
     T[K]["id"],
     T[K]["functionName"],
     T[K]["inputSchema"],
+    T[K]["outputSchema"],
     TTransformedMetadata
   >
 }
@@ -147,6 +157,7 @@ export const createClientActionsRegistry = <
     newRegistry[key as keyof TNewReg] = {
       namespace: action.registryData.namespace,
       inputSchema: action.inputSchema,
+      outputSchema: action.outputSchema,
       functionName: action.functionName,
       actionId: action.id,
       metadata: (options && "pipeMetadata" in options && options.pipeMetadata

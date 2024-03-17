@@ -6,7 +6,6 @@ const GoogleReplyToEmailAction = createADEAction({
   metadata: {
     title: "Reply To Email",
     description: "Send an email with the Gmail API",
-    renderOnClient: true,
     resource: "Google",
     loadingMessage: "Replying to email...",
     chatMessage: "Please reply to email",

@@ -1,33 +1,21 @@
 "use client"
 
-import {
-  ActionRegistriesProviderWrapper,
-  TActionRegistriesContext,
-  createUseActionRegistries,
-} from "ai-actions"
+import { TActionRegistriesContext, createUseActionRegistries } from "ai-actions"
 import { createContext, useContext } from "react"
-import { ClientActionsRegistry } from "./client"
+import { TAIActions } from "./client"
 
-const Registries = [ClientActionsRegistry]
-
-export const ActionRegistriesContext =
-  createContext<TActionRegistriesContext>(undefined)
+const Context = createContext<TActionRegistriesContext>(undefined)
 
 export function ActionRegistriesProvider({
+  actions,
   children,
 }: {
   children: React.ReactNode
+  actions: TActionRegistriesContext
 }) {
-  return (
-    <ActionRegistriesProviderWrapper
-      Context={ActionRegistriesContext}
-      actionRegistries={Registries}
-    >
-      {children}
-    </ActionRegistriesProviderWrapper>
-  )
+  return <Context.Provider value={actions}>{children}</Context.Provider>
 }
 
-export const useActionRegistries = createUseActionRegistries(Registries, () =>
-  useContext(ActionRegistriesContext)
+export const useActionRegistries = createUseActionRegistries<TAIActions>(() =>
+  useContext(Context)
 )

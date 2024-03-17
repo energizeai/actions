@@ -6,7 +6,6 @@ const GoogleMoveEmailToTrash = createADEAction({
   metadata: {
     title: "Move Emails to Trash",
     description: "Move a list of specific emails to the trash.",
-    renderOnClient: true,
     resource: "Google",
     avatar: {
       light: "/logos/google.svg",
