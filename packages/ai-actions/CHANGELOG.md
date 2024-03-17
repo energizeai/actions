@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.13.0
+
+### Minor Changes
+
+- fa00b6f: more intuitive useActionRegistries(), and fixing function names in the action component router
+
 ## 0.12.1
 
 ### Patch Changes
