@@ -137,7 +137,7 @@ They **DO NOT include** the following data:
 
 ## Prepare
 
-Next, in the client file, we call `prepareAIActions` to prepare the client registry for the provider. 
+Next, in the client file, call `prepareAIActions` to prepare the client registry for the provider. 
 
 <Note>
 You can pass as many client registries as you want to `prepareAIActions`.
@@ -152,7 +152,7 @@ export type TAIActions = typeof AIActions
 
 ## Provider and hook
 
-Now we will form the `ActionRegistriesProvider` and `useActionRegistries` hook.
+Now form the `ActionRegistriesProvider` and `useActionRegistries` hook.
 
 ```typescript:@/actions/provider.tsx
 "use client"
@@ -180,7 +180,7 @@ export const useActionRegistries = createUseActionRegistries<TAIActions>(() =>
 
 ## Layout
 
-Almost done! We can now use our provider in our layout.
+Almost done! You can now use your provider in your layout.
 
 ```typescript:@/app/layout.tsx
 import { ActionRegistriesProvider } from "@/actions/provider"
@@ -205,7 +205,7 @@ export default function RootLayout({
 
 ## 🎊 Access Actions In Your Components 🎊
 
-Now that we have our provider and hook, we can use actions in our client components with the `useActionRegistries` hook.
+Now that you have a provider and hook, you can use actions in client components with the `useActionRegistries` hook.
 
 ```typescript:@/random-client-component.tsx
 "use client"

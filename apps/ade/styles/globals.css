@@ -76,6 +76,9 @@
   .dark {
     --sh-identifier: #ecf0f1;
     --sh-sign: #bdc3c7;
+    --sh-class: #dd8dff;
+    --sh-keyword: #ff5e4c;
+    --sh-jsxliterals: #ff85f9;
 
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
