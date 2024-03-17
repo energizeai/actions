@@ -11,10 +11,11 @@ import { ThemeProvider } from "@/components/theme/theme-provider"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 
 import { env } from "@/env/server.mjs"
+import { getDocPosts } from "@/lib/docs"
+import { AIActions } from "@/registry/client"
 import { ActionRegistriesProvider } from "@/registry/provider"
 import { TRPCReactProvider } from "@/trpc/react"
 import { cookies } from "next/headers"
-import { DocPageOutline } from "./_components/outline"
 import SideNav from "./_components/side-nav"
 import TopNav from "./_components/top-nav"
 
@@ -46,6 +47,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }): JSX.Element {
+  const docPosts = getDocPosts()
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -55,7 +57,7 @@ export default function RootLayout({
         )}
       >
         <TRPCReactProvider cookies={cookies().toString()}>
-          <ActionRegistriesProvider>
+          <ActionRegistriesProvider actions={AIActions}>
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
@@ -65,12 +67,11 @@ export default function RootLayout({
               <ThemeToggle shortcutOnly />
               <TooltipProvider delayDuration={0}>
                 <div className="flex flex-col gap-6">
-                  <TopNav />
+                  <TopNav docPosts={docPosts} />
                   <div className="flex flex-row gap-10 mx-auto px-4 max-w-screen-xl w-full pt-2 pb-4">
-                    <SideNav />
+                    <SideNav docPosts={docPosts} />
                     <div className="flex-1 overflow-hidden max-w-full lg:pl-[270px] md:pl-[270px] xl:flex flex-row gap-10 justify-end">
-                      <div className="w-full">{children}</div>
-                      <DocPageOutline />
+                      {children}
                     </div>
                   </div>
                 </div>

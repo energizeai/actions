@@ -1,3 +1,9 @@
+---
+title: 'Introduction'
+group: 'Overview'
+groupOrder: 0
+---
+
 #### Welcome! 👋
 
 # Introduction
@@ -9,6 +15,10 @@ To get started, you can install `ai-actions` using npm:
 ```bash:terminal
 npm i ai-actions zod
 ```
+
+<Note>
+[Zod](https://zod.dev/) provides a simple way to define and validate types in your code.
+</Note>
 
 ## Create Actions
 
@@ -44,7 +54,10 @@ const extractPersonInfoAction = createAction({
   .input({
     name: z.string().describe("The name of the person."),
     age: z.number().describe("The age of the person."),
-    occupation: z.string().describe("The occupation of the person.").default("Unknown")
+    occupation: z
+      .string()
+      .describe("The occupation of the person.")
+      .default("Unknown")
   })
   // if we don't need to handle the input, 
   // we can use noHandler to echo the input to the output
@@ -68,16 +81,16 @@ import { createActionsRegistry } from "ai-actions"
 // Create the Action Registry
 const ActionsRegistry = createActionsRegistry([
   getStockPriceAction,
-  getRandomNumberAction,
+  extractPersonInfoAction
 ])
 ```
 
 A quick explanation of the above code:
 
 - `createActionsRegistry` creates a new Action Registry.
-- `getStockPriceAction` and `getRandomNumberAction` are the actions that we created earlier.
+- `getStockPriceAction` and `extractPersonInfoAction` are the actions that we created earlier.
 
-## Send the Actions to the LLM
+## Call the LLM
 
 ```typescript:index.ts
 import { setupToolCalling } from "ai-actions"
@@ -93,8 +106,8 @@ async function invokeActions(userMessage: string) {
     },
   ]
 
-  // setup the function calling
-  const { toolCallsHandler, tools } = setupToolCalling(ActionsRegistry, {})
+  // setup the tool calling
+  const { toolCallsHandler, tools } = setupToolCalling(ActionsRegistry, {}) <|highlight|>
 
   // call the LLM with the tools
   const responseMessage = await openai.chat.completions.create({
@@ -108,9 +121,9 @@ async function invokeActions(userMessage: string) {
   if (!choice || !choice.message.tool_calls) return
 
   // pass the tool calls to the handler
-  const { results, toolCallMessages } = await toolCallsHandler(
-    choice.message.tool_calls
-  )
+  const { results, toolCallMessages } = await toolCallsHandler( <|highlight|>
+    choice.message.tool_calls <|highlight|>
+  ) <|highlight|>
 
   // a typesafe array of results from the handlers
   console.log(results)
@@ -121,7 +134,7 @@ async function invokeActions(userMessage: string) {
   // call the LLM again with the handler outputs
   const secondResponse = await openai.chat.completions.create({
     model: "gpt-3.5-turbo-0125",
-    messages: messages.concat(toolCallMessages), // add the tool calls to the messages
+    messages: messages.concat(toolCallMessages), // add the tool calls to the messages <|highlight|>
   })
 
   // log the final response

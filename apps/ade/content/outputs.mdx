@@ -1,0 +1,62 @@
+---
+title: "Outputs"
+group: "API"
+groupOrder: 300
+---
+
+#### Parsing handler outputs
+
+# Outputs
+
+
+If you want to specify a custom schema for your action's output, you can do so by calling the `output` method on your action.
+
+<Note>
+By default, ai-actions does not require you to specify a zod schema for your action's output. It will automatically infer the schema from the return type of your handler.
+</Note>
+
+## Defining a custom output schema
+
+To add an output schema to your action, you need to call `output` on your action after you defined the input.
+
+```typescript:index.ts
+import { createAction, createActionsRegistry } from "ai-actions"
+import { z } from "zod"
+
+const greetingAction = createAction({
+  id: "sendGreeting"
+})
+  .describe("Greet the user with a message")
+  .input({
+    message: z
+      .string()
+      .describe("The message to greet the user with"),
+  })
+  // We can add an output schema to our action
+  .output({ <|highlight|>
+    greeting: z.string() <|highlight|>,
+  }) <|highlight|>
+  // Now our handler must return a value that respects the output schema
+  .handler(async ({ input }) => {
+    if (additionalParams.relationship === "friend") {
+      // This will error because the output schema does not match the return type of the handler <|error|>
+      return { <|error|>
+        friendGreeting: "Hey!" + input.message, <|error|>
+      } <|error|>
+    }
+
+    // This will not error because the output schema matches the return type of the handler <|highlight|>
+    return { <|highlight|>
+      greeting: `Hello! ${input.message}`, <|highlight|>
+    } <|highlight|>
+  })
+
+// Next we can create our Action Registry
+const ActionsRegistry = createActionsRegistry([
+  sendGreetingAction
+])
+```
+
+<Note>
+Whenever an action gets called with an output schema set, `ai-actions` will parse the raw output and return a value that respects the schema. This means things like `.default` and `.transform` work as expected!
+</Note>

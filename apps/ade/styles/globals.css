@@ -4,6 +4,16 @@
 
 @layer base {
   :root {
+    --sh-class: #8e44ad;
+    --sh-identifier: #2c3e50;
+    --sh-sign: #7f8c8d;
+    --sh-property: #3498db;
+    --sh-entity: #16a085;
+    --sh-jsxliterals: #9b59b6;
+    --sh-string: #27ae60;
+    --sh-keyword: #e74c3c;
+    --sh-comment: #95a5a6;
+
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
@@ -64,6 +74,9 @@
   }
 
   .dark {
+    --sh-identifier: #ecf0f1;
+    --sh-sign: #bdc3c7;
+
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
@@ -180,4 +193,45 @@ input[type='number']::-webkit-outer-spin-button {
 
 .prose :where(a):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
   text-decoration: none;
+}
+
+.sh__line {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.sh__line--highlighted {
+  background-color: rgba(0, 200, 255, 0.18);
+  border-top: 3px solid rgba(0, 200, 255, 0.0);
+  border-bottom: 3px solid rgba(0, 200, 255, 0.0);
+  padding-right: 3px;
+  position: relative;
+}
+
+.sh__line--highlighted::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 0px;
+  width: 3px;
+  height: calc(100% + 6px);
+  background-color: rgba(0, 200, 255);
+}
+
+.sh__line--error-highlighted {
+  background-color: rgba(255, 0, 0, 0.18);
+  border-top: 3px solid rgba(255, 0, 0, 0.0);
+  border-bottom: 3px solid rgba(255, 0, 0, 0.0);
+  padding-right: 3px;
+  position: relative;
+}
+
+.sh__line--error-highlighted::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 0px;
+  width: 3px;
+  height: calc(100% + 6px);
+  background-color: rgba(255, 0, 0);
 }

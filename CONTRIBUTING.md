@@ -14,10 +14,10 @@ If you need any help, feel free to reach out to [@ido](https://twitter.com/ido_p
 
 This repository is structured as follows:
 
-| Path                | Description                          |
-| ------------------- | ------------------------------------ |
-| `apps/ade/app`      | The Actions Development Enviornment. |
-| `packages/registry` | The registry storing all the Actions |
+| Path                  | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `apps/ade/app`        | The Actions Development Enviornment.        |
+| `packages/ai-actions` | The source code for the AI Actions library. |
 
 ## Development
 

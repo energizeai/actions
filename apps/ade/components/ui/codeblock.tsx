@@ -5,11 +5,7 @@
 
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react"
 import { CSSProperties, FC, memo } from "react"
-import {
-  Prism as SyntaxHighlighter,
-  SyntaxHighlighterProps,
-} from "react-syntax-highlighter"
-import { oneDark, prism } from "react-syntax-highlighter/dist/cjs/styles/prism"
+import { highlight } from "sugar-high"
 
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard"
 import { cn } from "@/lib/utils"
@@ -22,13 +18,10 @@ interface Props {
   customStyles?: CSSProperties
   className?: string
   customTitle?: string
+  highlightLineNumbers?: number[]
 }
 
-interface languageMap {
-  [key: string]: string | undefined
-}
-
-export const programmingLanguages: languageMap = {
+const programmingLanguages: Record<string, string> = {
   javascript: ".js",
   python: ".py",
   java: ".java",
@@ -54,7 +47,6 @@ export const programmingLanguages: languageMap = {
   html: ".html",
   css: ".css",
   bash: ".sh",
-  // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
 }
 
 export const generateRandomString = (length: number, lowercase = false) => {
@@ -67,7 +59,15 @@ export const generateRandomString = (length: number, lowercase = false) => {
 }
 
 const CodeBlock: FC<Props> = memo(
-  ({ language, value, customStyles, className, customTitle, fileName }) => {
+  ({
+    language,
+    value,
+    customStyles,
+    className,
+    customTitle,
+    fileName,
+    highlightLineNumbers,
+  }) => {
     const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
 
     const downloadAsFile = () => {
@@ -103,23 +103,44 @@ const CodeBlock: FC<Props> = memo(
       copyToClipboard(value)
     }
 
-    const highlighterProps: Omit<SyntaxHighlighterProps, "children"> = {
-      language,
-      PreTag: "div",
-      customStyle: {
-        margin: 0,
-        width: "100%",
-        background: "transparent",
-        padding: "1.5rem 1rem",
-        border: "none",
-        ...customStyles,
-      },
-      codeTagProps: {
-        style: {
-          fontSize: "0.9rem",
-          fontFamily: "var(--font-mono)",
-        },
-      },
+    let codeHTML = ""
+
+    const highlightSet = new Set(highlightLineNumbers || [])
+    const errorHighlightSet = new Set()
+    const valueSplit = value.split("\n")
+    for (let i = 0; i < valueSplit.length; i++) {
+      const line = valueSplit[i]!
+      if (line.includes("<|highlight|>")) {
+        highlightSet.add(i + 1)
+      }
+
+      if (line.includes("<|error|>")) {
+        errorHighlightSet.add(i + 1)
+      }
+    }
+
+    value = value.replaceAll(" <|highlight|>", "")
+    value = value.replaceAll(" <|error|>", "")
+
+    // split code html into lines and add highlighting to the 5th line
+    const split = highlight(value).split("\n")
+
+    for (let i = 0; i < split.length; i++) {
+      let line = split[i]!
+      const baseClass = "sh__line"
+
+      if (highlightSet.has(i + 1)) {
+        line = line.replace(baseClass, `${baseClass} sh__line--highlighted`)
+      }
+
+      if (errorHighlightSet.has(i + 1)) {
+        line = line.replace(
+          baseClass,
+          `${baseClass} sh__line--error-highlighted`
+        )
+      }
+
+      codeHTML += `${line}\n`
     }
 
     return (
@@ -163,15 +184,18 @@ const CodeBlock: FC<Props> = memo(
             </Button>
           </div>
         </div>
-        <div data-hide-on-theme="dark">
-          <SyntaxHighlighter style={prism} {...highlighterProps}>
-            {value}
-          </SyntaxHighlighter>
-        </div>
-        <div data-hide-on-theme="light">
-          <SyntaxHighlighter style={oneDark} {...highlighterProps}>
-            {value}
-          </SyntaxHighlighter>
+        <div className="bg-background dark:bg-muted p-5 pl-0 overflow-x-auto">
+          <pre className="bg-transparent p-0 m-0 overflow-x-visible">
+            <code
+              style={{
+                fontSize: "0.9rem",
+                fontFamily: "var(--font-mono)",
+                lineHeight: "1.5",
+              }}
+              className="overflow-x-visible"
+              dangerouslySetInnerHTML={{ __html: codeHTML }}
+            />
+          </pre>
         </div>
       </div>
     )

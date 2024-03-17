@@ -1,0 +1,66 @@
+---
+title: "Metadata"
+group: "API"
+groupOrder: 0
+---
+
+#### Storing metadata alongside your actions
+
+# Metadata
+
+The `ai-actions` library allows you to store metadata alongside your actions. 
+This metadata can be used to provide additional information about your actions, such as their purpose, usage, or any other relevant details.
+
+<Check>
+Metadata is type-safe!
+</Check>
+
+## Define your metadata schema
+
+Rather than using the default create functions, you need to make custom ones using the `generateActionRegistryFunctions` function. 
+These custom functions will require you to pass in a `metadata` parameter when creating your actions.
+
+```typescript:index.ts
+import { generateActionRegistryFunctions } from "ai-actions"
+import { z } from "zod"
+
+// First, we generate our custom functions
+const { createEnergizeAction, createEnergizeActionsRegistry } =
+  generateActionRegistryFunctions({
+    namespace: "Energize",
+    // Define the metadata schema for our actions
+    metadataSchema: z.object({ <|highlight|>
+      title: z.string(), <|highlight|>
+      description: z.string().default("Too lazy to describe"), <|highlight|>
+      avatar: z.string().url(), <|highlight|>
+    }), <|highlight|>
+  })
+
+// Now we can use our custom function that has our metadata built in
+const getWeatherAction = createEnergizeAction({
+  id: "getWeather",
+  // TS will require us to pass in our custom metadata object
+  metadata: { <|highlight|>
+    title: "Get Weather", <|highlight|>
+    description: "Get the weather for a given location", // <-- this is optional due to the default value <|highlight|>
+    avatar: "https://example.com/avatar.png", <|highlight|>
+  } <|highlight|>
+})
+  .describe("Get the current stock price of a ticker.")
+  .input({
+    ticker: z
+      .string()
+      .describe("The ticker symbol of the stock to get the price of. E.g. AAPL"),
+  })
+  .noHandler()
+
+// Now we can create our Action Registry with our custom function
+const ActionsRegistry = createEnergizeActionsRegistry([
+  getWeatherAction
+])
+
+// We can access the metadata of our action later with `.metadata`
+const weatherMetadata = ActionsRegistry["getWeather"].metadata <|highlight|>
+```
+
+And that's it! You can now define your actions with metadata.

@@ -1,6 +1,6 @@
 import { ReactNode, isValidElement } from "react"
 
-export function Tooltip({
+export function MarkdownTooltip({
   tip,
   children,
 }: {

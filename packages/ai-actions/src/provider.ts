@@ -1,6 +1,5 @@
 "use client"
 
-import { ReactNode } from "react"
 import { dezerialize, zerialize } from "zodex"
 import { TAnyClientActionRegistry } from "./client-registry"
 
@@ -39,26 +38,24 @@ const serializeClientActionsRegistry = <T extends TAnyClientActionRegistry>(
   return newRegistry as T
 }
 
-export const deserializeClientActionsRegistry = <
-  T extends TAnyClientActionRegistry,
->(
+const deserializeClientActionsRegistry = <T extends TAnyClientActionRegistry>(
   registry: T
 ): T => {
   return serializeClientActionsRegistry(registry, "deserialize")
 }
 
-export type TActionRegistriesContext =
-  | Record<string, TAnyClientActionRegistry>
+type TBase = {
+  [K in string]: TAnyClientActionRegistry
+}
+export type TActionRegistriesContext<TMap extends TBase = TBase> =
+  | {
+      serializedRegistryMap: TMap
+    }
   | undefined
 
 export function createUseActionRegistries<
-  const TClientRegistries extends Array<TAnyClientActionRegistry>,
-  TContext extends TActionRegistriesContext,
->(registries: TClientRegistries, useContext: () => TContext) {
-  type TMap = {
-    [K in TClientRegistries[number] as inferNamespace<K>]: K
-  }
-
+  const TContext extends NonNullable<TActionRegistriesContext>,
+>(useContext: () => TActionRegistriesContext) {
   function wrapper() {
     const context = useContext()
     if (context === undefined) {
@@ -67,13 +64,15 @@ export function createUseActionRegistries<
       )
     }
 
-    type TNamespace = keyof TMap extends string ? keyof TMap : never
+    const final: TContext["serializedRegistryMap"] = {} as any
 
-    const final: TMap = {} as any
-
-    for (const key in context) {
-      const deserialized = deserializeClientActionsRegistry(context[key] as any)
-      final[`${key}ActionsRegistry` as keyof TMap] = deserialized
+    for (const key in context.serializedRegistryMap) {
+      const deserialized = deserializeClientActionsRegistry(
+        context.serializedRegistryMap[key] as any
+      )
+      final[
+        `${key}ActionsRegistry` as keyof TContext["serializedRegistryMap"]
+      ] = deserialized
     }
 
     return final
@@ -82,29 +81,31 @@ export function createUseActionRegistries<
   return wrapper
 }
 
-type ActionRegistryProviderProps = {
-  Context: React.Context<TActionRegistriesContext>
-  actionRegistries: TAnyClientActionRegistry[]
-  children: ReactNode
-}
+export function prepareAIActions<
+  TRegistries extends Array<TAnyClientActionRegistry>,
+>(
+  actionRegistries: TRegistries
+): NonNullable<
+  TActionRegistriesContext<{
+    [K in TRegistries[number] as inferNamespace<K>]: K
+  }>
+> {
+  return {
+    serializedRegistryMap: actionRegistries.reduce(
+      (acc, curr) => {
+        const values = Object.values(curr)
 
-export function ActionRegistriesProviderWrapper({
-  children,
-  actionRegistries,
-  Context,
-}: ActionRegistryProviderProps) {
-  const reduced = actionRegistries.reduce(
-    (acc, curr) => {
-      const values = Object.values(curr)
+        const currnamespace = values[0]?.namespace || ""
+        const serialized = serializeClientActionsRegistry(curr)
 
-      const currnamespace = values[0]?.namespace || ""
-      const serialized = serializeClientActionsRegistry(curr)
+        // @ts-expect-error
+        acc[currnamespace] = serialized
 
-      acc[currnamespace] = serialized
-      return acc
-    },
-    {} as Record<string, TAnyClientActionRegistry>
-  )
-
-  return <Context.Provider value={reduced}>{children}</Context.Provider>
+        return acc
+      },
+      {} as {
+        [K in TRegistries[number] as inferNamespace<K>]: K
+      }
+    ),
+  }
 }

@@ -1,17 +1,15 @@
 "use client"
 
-import { cn } from "@/lib/utils"
+import { cn, slugify } from "@/lib/utils"
 import { LinkIcon } from "lucide-react"
 
-export default function MarkdownHeading(
+export default function MarkdownHeadingWithLink(
   props: React.ButtonHTMLAttributes<HTMLHeadingElement> & {
     tagname?: "H1" | "H2" | "H3" | "H4" | "H5" | "H6"
   }
 ) {
   const id =
-    typeof props.children === "string"
-      ? props.children.replace(/\s+/g, "-").toLowerCase()
-      : undefined
+    typeof props.children === "string" ? slugify(props.children) : undefined
 
   const children = (
     <>
@@ -49,5 +47,5 @@ export default function MarkdownHeading(
     return <h3 {...headingProps}>{children}</h3>
   }
 
-  return <h2 {...headingProps}></h2>
+  return <h2 {...headingProps}>{children}</h2>
 }

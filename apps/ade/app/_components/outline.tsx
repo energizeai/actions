@@ -1,32 +1,18 @@
 "use client"
 
 import { Skeleton } from "@/components/ui/skeleton"
+import { HeadingElement } from "@/lib/docs"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
-export function DocPageOutline() {
+export function DocPageOutline({
+  headingElements,
+}: {
+  headingElements: HeadingElement[]
+}) {
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [headingElements, setHeadingElements] = useState<
-    { id: string; text: string; tagName: string }[] | null
-  >(null)
   const pathname = usePathname()
-
-  useEffect(() => {
-    const headingElements = document.getElementsByClassName("markdown-heading")
-
-    if (!activeId && headingElements.length) {
-      setActiveId(headingElements[0]!.id)
-    }
-
-    setHeadingElements(
-      Array.from(headingElements).map((element) => ({
-        id: element.id,
-        text: (element as HTMLHeadingElement).innerText,
-        tagName: (element as HTMLHeadingElement).tagName,
-      }))
-    )
-  }, [])
 
   useEffect(() => {
     const elems = document.getElementsByClassName("markdown-heading")
@@ -84,18 +70,18 @@ export function DocPageOutline() {
   if (!headingElements || !headingElements.length) return null
 
   return (
-    <div className="flex-col gap-4 hidden xl:flex justify-start items-start fixed w-[250px]">
+    <div className="flex-col gap-4 hidden xl:flex justify-start items-start fixed w-[220px] overflow-x-hidden truncate">
       {[...headingElements].map((element) => {
         const id = element.id
         return (
           <button
             key={id}
             className={cn(
-              "text-left line-clamp-1 whitespace-nowrap overflow-hidden",
+              "text-left max-w-full truncate transition-colors duration-200",
               activeId === id
                 ? "text-primary font-semibold"
-                : "text-muted-foreground hover:text-foreground transition-colors duration-200",
-              element.tagName === "H3" && "pl-4"
+                : "text-muted-foreground hover:text-foreground",
+              element.tagname === "H3" && "pl-4"
             )}
             onClick={(e) => {
               e.preventDefault()

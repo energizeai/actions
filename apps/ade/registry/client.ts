@@ -5,6 +5,7 @@ import {
   createClientActionsRegistry,
   inferActionComponentRouter,
   pickFromActionsRegistry,
+  prepareAIActions,
 } from "ai-actions"
 import { ActionsRegistry } from "."
 
@@ -28,6 +29,9 @@ export const ClientActionsRegistry = createClientActionsRegistry(
     },
   }
 )
+
+export const AIActions = prepareAIActions([ClientActionsRegistry])
+export type TAIActions = typeof AIActions
 
 export type TClientActionsRegistry = typeof ClientActionsRegistry
 export type TClientActionId = keyof TClientActionsRegistry

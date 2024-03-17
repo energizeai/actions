@@ -3,13 +3,18 @@
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { ThemedImage } from "@/components/ui/themed-image"
+import { getDocPosts } from "@/lib/docs"
 import { cn } from "@/lib/utils"
 import { GithubIcon, TwitterIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { CommandMenu } from "./command-menu"
 
-export default function TopNav() {
+export default function TopNav({
+  docPosts,
+}: {
+  docPosts: ReturnType<typeof getDocPosts>
+}) {
   const pathname = usePathname()
 
   return (
@@ -34,7 +39,7 @@ export default function TopNav() {
               Energize AI
             </h1>
           </div>
-          <CommandMenu />
+          <CommandMenu docPosts={docPosts} />
           <div className="flex flex-1 hidden lg:flex justify-end gap-2 items-center">
             <Link
               href="https://github.com/energizeai/actions"

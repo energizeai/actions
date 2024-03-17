@@ -1,0 +1,76 @@
+---
+title: "Context"
+group: "API"
+groupOrder: 100
+---
+
+#### Adding context to handlers
+
+# Context
+
+It is common to want to pass additional data to all your handlers. If you are looking for this, you came to the right place!
+
+<Tip>
+A popular use case of context is passing user data to your handlers.
+</Tip>
+
+## Setup
+
+Rather than using the default functions, you want to make custom ones using the `generateActionRegistryFunctions` function. 
+These custom functions will give you the `context` parameter in your handlers.
+
+```typescript:index.ts
+import { generateActionRegistryFunctions } from "ai-actions"
+import { z } from "zod"
+
+// First, we generate our custom functions with our desired context schema
+const { createEnergizeAction, createEnergizeActionsRegistry } =
+  generateActionRegistryFunctions({
+    namespace: "Energize",
+    handlerContextSchema: z.object({ <|highlight|>
+      userData: z.object({ <|highlight|>
+        email: z.string().email(), <|highlight|>
+        name: z.string(), <|highlight|>
+      }), <|highlight|>
+    }) <|highlight|>
+  })
+
+const greetingAction = createEnergizeAction({
+  id: "sendGreeting"
+})
+  .describe("Greet the user with a message")
+  .input({
+    message: z
+      .string()
+      .describe("The message to greet the user with"),
+  })
+  // Now we get type-safe `context` in our handler
+  .handler(async ({ input, context }) => { <|highlight|>
+    return {
+      greeting: `Hey ${context.userData.name}! ${input.message}`, <|highlight|>
+    }
+  })
+
+// Next we can create our Action Registry with our custom function
+const ActionsRegistry = createEnergizeActionsRegistry([
+  greetingAction
+])
+```
+
+## Passing context to handlers
+
+Now that you have a registry built with your custom function, you will be required to pass in your context object whenever any of the following is called:
+- `setupToolCalling`
+- `setupFunctionCalling`
+- `setupActionCaller`
+
+```typescript:index.ts
+const { toolCallsHandler, tools } = setupToolCalling(ActionsRegistry, {
+  context: { <|highlight|>
+    userData: { <|highlight|>
+      email: "john@example.com", <|highlight|>
+      name: "John Doe", <|highlight|>
+    }, <|highlight|>
+  } <|highlight|>
+})
+```
