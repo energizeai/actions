@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.13.2
+
+### Patch Changes
+
+- 75a49c4: Fix context type when additional params is used
+
 ## 0.13.1
 
 ### Patch Changes
