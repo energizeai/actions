@@ -207,12 +207,46 @@ const { createActionsRegistry, createAction } = generateActionRegistryFunctions(
   }
 )
 
+/**
+ * Helper type to infer the inputs of actions
+ */
 export type inferActionRegistryInputs<TRegistry extends TAnyActionRegistry> = {
-  [K in keyof TRegistry]: z.output<TRegistry[K]["inputSchema"]>
+  [K in keyof TRegistry]: z.input<TRegistry[K]["inputSchema"]>
 }
 
+/**
+ * Helper type to infer the outputs of actions
+ */
 export type inferActionRegistryOutputs<TRegistry extends TAnyActionRegistry> = {
   [K in keyof TRegistry]: Awaited<ReturnType<TRegistry[K]["handler"]>>
+}
+
+/**
+ * Helper type to infer the additional parameters of actions
+ */
+export type inferActionRegistryAdditionalParams<
+  TRegistry extends TAnyActionRegistry,
+> = {
+  [K in keyof TRegistry as TRegistry[K]["additionalParamsSchema"] extends undefined
+    ? never
+    : K]: z.input<TRegistry[K]["additionalParamsSchema"]>
+}
+
+/**
+ * Helper type to infer the context of actions
+ */
+export type inferActionRegistryContext<TRegistry extends TAnyActionRegistry> =
+  TRegistry[keyof TRegistry]["registryData"]["handlerContextSchema"] extends undefined
+    ? undefined
+    : z.infer<
+        TRegistry[keyof TRegistry]["registryData"]["handlerContextSchema"]
+      >
+
+/**
+ * Helper type to infer the auth of actions
+ */
+export type inferActionRegistryAuth<TRegistry extends TAnyActionRegistry> = {
+  [K in keyof TRegistry]: TRegistry[K]["auth"]
 }
 
 export { type TActionInput, type TActionMetadata } from "./action-data"
