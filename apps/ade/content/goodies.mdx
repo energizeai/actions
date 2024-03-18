@@ -12,7 +12,7 @@ groupOrder: 0
 
 Let [@ido](https://twitter.com/ido_pesok) know if you find any of these functions useful or if you have any suggestions for improvements.
 
-## Infer Actions Registry Inputs
+## Infer Inputs
 
 Use this to infer the inputs for actions.
 
@@ -25,7 +25,7 @@ type TActionInputs = inferActionRegistryInputs<typeof ActionsRegistry> <|highlig
 type TInput = TActionInputs["myActionId"] <|highlight|>
 ```
 
-## Infer Actions Registry Outputs
+## Infer Outputs
 
 Use this to infer the outputs for actions.
 
@@ -36,6 +36,44 @@ const ActionRegistry = createActionsRegistry([...])
 
 type TActionOutputs = inferActionRegistryOutputs<typeof ActionsRegistry> <|highlight|>
 type TOutput = TActionOutputs["myActionId"] <|highlight|>
+```
+
+## Infer Additional Parameters
+
+Use this to infer the additional parameters for actions.
+
+```typescript:index.ts
+import { inferActionRegistryAdditionalParams, createActionsRegistry } from "ai-actions"
+
+const ActionRegistry = createActionsRegistry([...])
+
+type TActionAdditionalParams = inferActionRegistryAdditionalParams<typeof ActionsRegistry> <|highlight|>
+type TAdditionalParams = TActionAdditionalParams["myActionId"] <|highlight|>
+```
+
+## Infer Context
+
+Use this to infer the context for actions.
+
+```typescript:index.ts
+import { inferActionRegistryContext, createActionsRegistry } from "ai-actions"
+
+const ActionRegistry = createActionsRegistry([...])
+
+type TActionContext = inferActionRegistryContext<typeof ActionsRegistry> <|highlight|>
+```
+
+## Infer Auth
+
+Use this to infer the auth for actions.
+
+```typescript:index.ts
+import { inferActionRegistryAuth, createActionsRegistry } from "ai-actions"
+
+const ActionRegistry = createActionsRegistry([...])
+
+type TActionAuth = inferActionRegistryAuth<typeof ActionsRegistry> <|highlight|>
+type TAuth = TActionAuth["myActionId"] <|highlight|>
 ```
 
 ## Pick From Actions Registry
