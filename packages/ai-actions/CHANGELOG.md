@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.13.1
+
+### Patch Changes
+
+- b0d7b19: Enable function call handlers to pass in arguments is a string and take care of parsing
+
 ## 0.13.0
 
 ### Minor Changes
