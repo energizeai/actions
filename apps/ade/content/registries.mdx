@@ -1,0 +1,31 @@
+---
+title: "Registries"
+group: "Core"
+groupOrder: -500
+---
+
+#### Group actions into a registry
+
+# Registries
+
+A registry is a collection of actions that can be used together. All you have to do is pass them as an array to the `createActionsRegistry` function.
+
+It will return a `Record` of `ActionId` to `Action` mappings.
+
+```typescript:index.ts
+import { createActionsRegistry } from "ai-actions"
+
+const ActionsRegistry = createActionsRegistry([
+  myAction1,
+  myAction2,
+  myAction3,
+])
+
+const myAction1 = ActionsRegistry["myAction1"]
+```
+
+```typescript:ReturnType
+{
+  [ActionId]: Action
+}
+```

@@ -144,6 +144,8 @@ You can pass as many client registries as you want to `prepareAIActions`.
 </Note>
 
 ```typescript:@/actions/client.ts
+import { prepareAIActions } from "ai-actions"
+
 // here we prepare the client registry for our provider
 // note: we can add as many registries as we want here
 export const AIActions = prepareAIActions([ClientActionsRegistry])
@@ -161,8 +163,10 @@ import { TActionRegistriesContext, createUseActionRegistries } from "ai-actions"
 import { createContext, useContext } from "react"
 import { TAIActions } from "@/actions/client"
 
+// Create context
 const Context = createContext<TActionRegistriesContext>(undefined)
 
+// Create provider
 export function ActionRegistriesProvider({
   actions,
   children,
@@ -173,6 +177,7 @@ export function ActionRegistriesProvider({
   return <Context.Provider value={actions}>{children}</Context.Provider>
 }
 
+// Create hook
 export const useActionRegistries = createUseActionRegistries<TAIActions>(() =>
   useContext(Context)
 )
@@ -183,8 +188,8 @@ export const useActionRegistries = createUseActionRegistries<TAIActions>(() =>
 Almost done! You can now use your provider in your layout.
 
 ```typescript:@/app/layout.tsx
-import { ActionRegistriesProvider } from "@/actions/provider"
-import { AIActions } from "@/actions/client"
+import { ActionRegistriesProvider } from "@/actions/provider" <|highlight|>
+import { AIActions } from "@/actions/client" <|highlight|>
 
 export default function RootLayout({
   children,
@@ -194,9 +199,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ActionRegistriesProvider actions={AIActions}>
-          {children}
-        </ActionRegistriesProvider>
+        <ActionRegistriesProvider actions={AIActions}> <|highlight|>
+          {children} <|highlight|>
+        </ActionRegistriesProvider> <|highlight|>
       </body>
     </html>
   )
@@ -206,6 +211,7 @@ export default function RootLayout({
 ## 🎊 Access Actions In Your Components 🎊
 
 Now that you have a provider and hook, you can use actions in client components with the `useActionRegistries` hook.
+The hook returns a record of namespaced registries.
 
 ```typescript:@/random-client-component.tsx
 "use client"
@@ -217,6 +223,9 @@ export default function RandomClientComponent() {
   const { EnergizeActionsRegistry } = useActionRegistries() <|highlight|>
 
   const helloWorldAction = EnergizeActionsRegistry["helloWorld"]
+
+  // Access the input schema
+  const formSchema = helloWorldAction.inputSchema
 
   return (
     <div>

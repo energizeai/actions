@@ -8,4 +8,116 @@ groupOrder: 0
 
 # Action Calling
 
-Docs coming soon!
+Learn how to call your actions.
+
+<Note>
+Action Calling is what powers `Tool Calling` and `Function Calling`
+</Note>
+
+## Basic Example
+
+Pass your ActionsRegistry to the `setupActionCaller` function. This will return an object with an `actionCaller` property that you can use to call your actions.
+
+```typescript:index.ts
+import { createAction, createActionsRegistry, setupActionCaller } from "ai-actions"
+
+const extractCompanyInfoAction = createAction({ <|highlight|>
+  id: "extractCompanyInfo",
+})
+  .describe("Extract basic information about a company from the document.")
+  .input({
+    name: z.string().describe("The name of the company."),
+    based: z.string().describe("The location of the company."),
+  })
+  .noHandler()
+
+const getEventAction = createAction({ <|highlight|>
+  id: "getEvent",
+})
+  .describe("Get the next upcoming public event for a company.")
+  .input({
+    company: z
+      .enum(["Vercel", "Energize AI"])
+      .describe("The company to get the next event for."),
+  })
+  .handler({ input } => {
+    if (input.company === "Vercel") {
+      return {
+        name: "Vercel Ship 2024",
+        based: "NYC or Online",
+      }
+    }
+
+    return {
+      name: "Energize AI Ship 2024",
+      based: "SF",
+    }
+  })
+
+export const ActionsRegistry = createActionsRegistry([ <|highlight|>
+  extractCompanyInfoAction,
+  getEventAction,
+])
+
+// setup the action caller
+const { actionCaller } = setupActionCaller(ActionsRegistry, {}) <|highlight|>
+
+// call the actions
+const results = await actionCaller([ <|highlight|>
+  {
+    name: "extractCompanyInfo",
+    arguments: {
+      name: "Vercel",
+      based: "SF",
+    },
+  },
+  {
+    name: "getEvent",
+    arguments: {
+      company: "Vercel",
+    },
+  },
+])
+
+// log the results
+for (const r of results) { <|highlight|>
+  if (r.isError) continue <|highlight|>
+ <|highlight|>
+  console.log(r.data) <|highlight|>
+} <|highlight|>
+```
+
+## In Array
+
+You can pass an array of action IDs to the `actionCaller` function to filter out the registry for only the actions you want to call.
+
+```typescript:index.ts
+const { actionCaller } = setupActionCaller(ActionsRegistry, {
+  inArray: ["getEvent"] // now only getEvent can be called  <|highlight|>
+})
+```
+
+## Parallelization
+
+You can opt-in to parallelizing the actions by setting the `runInParallel` option to `true`.
+
+```typescript:index.ts
+const { actionCaller } = setupActionCaller(ActionsRegistry, {
+  runInParallel: true, <|highlight|>
+})
+```
+
+## Handlers
+
+You can setup handlers to run when actions get called and when they finish.
+
+```typescript:index.ts
+const { actionCaller } = setupActionCaller(ActionsRegistry, {
+  onActionExecutionStarted: ({ actionId }) => { <|highlight|>
+    console.log(`Action ${actionId} started`) <|highlight|>
+  }, <|highlight|>
+  onActionExecutionFinished: ({ actionId }) => { <|highlight|>
+    console.log(`Action ${actionId} finished`) <|highlight|>
+  }, <|highlight|>
+})
+```

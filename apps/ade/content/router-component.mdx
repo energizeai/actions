@@ -1,0 +1,122 @@
+---
+title: "Router Component"
+group: "React"
+groupOrder: 50
+---
+
+#### Render actions on the client with a router component
+
+# Router Component
+
+If you aren't streaming UI, you can use the `RouterComponent` to render actions on the client.
+
+<Warning>
+A prerequisite for using the `RouterComponent` is that you have a [Provider](/provider) setup. Please read the [Provider](/provider) documentation for more information.
+</Warning>
+
+## Infer the Router Component Type
+
+First, create a client registry as show in in the [Provider](/provider) documentation.
+
+Next, infer your `ActionComponentRouter` type. The `inferActionComponentRouter` type will infer the type of the router component based on the registry and the props you pass to the component.
+
+```typescript:@/actions/client.ts
+import { inferActionComponentRouter } from "ai-actions"
+
+type TClientActionsRegistry = typeof ClientActionsRegistry
+
+export type TActionComponentRouter = inferActionComponentRouter<
+  TClientActionsRegistry,
+  {
+    myCustomProp1: string
+    myCustomProp2: number
+  }
+>
+
+export type TClientActionId = keyof TClientActionsRegistry
+```
+
+## Infer Component Props
+
+For each of your actions, you can use `inferActionComponentProps` to infer the props that will be passed to the component for that action.
+
+```typescript:@/components/my-action-1.tsx
+"use client"
+
+import { TActionComponentRouter } from "@/actions/client"
+import { inferActionComponentProps } from "ai-actions"
+
+type Props = inferActionComponentProps< <|highlight|>
+  TActionComponentRouter, <|highlight|>
+  "myAction1" <|highlight|>
+> <|highlight|>
+
+const MyActionOneComponent = ({
+  myCustomProp1, // custom prop we defined earlier
+  myCustomProp2, // custom prop we defined earlier
+  inputSchema,
+  metadata,
+  outputSchema,
+  onSubmit,
+  args,
+}: Props) => {
+  return (
+    <div>
+      <h1>My Action One</h1>
+    </div>
+  )
+}
+```
+
+## Create your Router Component
+
+```typescript:@/components/router.tsx
+"use client"
+
+import { TActionComponentRouter, TClientActionId } from "@/actions/client"
+import { createActionComponentRouter } from "ai-actions"
+import { MyActionOneComponent } from "./my-action-1"
+import { MyActionTwoComponent } from "./my-action-2"
+
+export const MyRouterComponent = ({
+  actionId
+}: {
+  actionId: TClientActionId
+}) => {
+  const { EnergizeActionsRegistry } = useActionRegistries()
+
+  const Router = createActionComponentRouter<TActionComponentRouter>({ <|highlight|>
+    "myAction1": MyActionOneComponent, <|highlight|>
+    "myAction2": MyActionTwoComponent, <|highlight|>
+  }); <|highlight|>
+
+  const actionData = EnergizeActionsRegistry[actionId]
+
+  return (
+    <Router
+      inputSchema={actionData.inputSchema}
+      outputSchema={actionData.outputSchema}
+      functionName={"myAction1"} // this is a fake function name
+      args={{ param1: "hello", param2: 123 }} // this is a fake args object
+      metadata={actionData.metadata}
+      fallback={
+        <div className="w-full h-full text-center flex-col gap-10 text-3xl flex items-center justify-center">
+          <h1 className="text-6xl">404</h1>
+          <p className="text-lg text-muted-foreground">Action not found</p>
+        </div>
+      }
+      onSubmit={(props) => {
+        try {
+          console.log(props)
+        } catch (error) {
+          toast.error(extractErrorMessage(error))
+        }
+      }}
+      myCustomProp1="hello"
+      myCustomProp2={123}
+    />
+  )
+}
+```
+
+Awesome! You can now use the `MyRouterComponent` in your app and it will route your UI.

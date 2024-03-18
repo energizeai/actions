@@ -1,0 +1,95 @@
+---
+title: "Results"
+group: "Callers"
+groupOrder: 2000
+---
+
+#### Caller Results
+
+# Caller Results
+
+<Note>
+All callers return a `results` array. This array contains the results of each action call.
+</Note>
+
+## Properties
+
+<ResponseField name="status" type="'success' | 'error'">
+The status of the result. Either `success` or `error`.
+</ResponseField>
+
+<ResponseField name="data" type="T | null">
+The data returned by the action. This is only present if the status is `success`.
+</ResponseField>
+
+<ResponseField name="isSuccess" type="boolean">
+Whether the result is a success. This is true if the status is `success`.
+</ResponseField>
+
+<ResponseField name="isError" type="boolean">
+Whether the result is an error. This is true if the status is `error`.
+</ResponseField>
+
+<ResponseField name="actionId" type="string">
+The ID of the action that was called.
+</ResponseField>
+
+<ResponseField name="functionName" type="string | null">
+The name of the function that was called.
+</ResponseField>
+
+<ResponseField name="id" type="string | null">
+The ID of the result. For tool calls, this is the `tool_call_id`.
+</ResponseField>
+
+<ResponseField name="failedArguments" type="z.input<TInput> | null">
+The raw arguments that were passed to the action that failed. This is only present if the status is `error`.
+</ResponseField>
+
+<ResponseField name="failedParsedArguments" type="z.output<TInput> | null">
+The parsed arguments that were passed to the action that failed. This is only present if the status is `error`.
+</ResponseField>
+
+<ResponseField name="arguments" type="z.input<TInput> | null">
+The raw arguments that were passed to the action. This is only present if the status is `success`.
+</ResponseField>
+
+<ResponseField name="parsedArguments" type="z.output<TInput> | null">
+The parsed arguments that were passed to the action. This is only present if the status is `success`.
+</ResponseField>
+
+<ResponseField name="message" type="string | undefined">
+A message that was returned by the action. This is only present if the status is `error`.
+</ResponseField>
+
+<ResponseField name="cause" type="Error | undefined">
+The error that was thrown by the action. This is only present if the status is `error`.
+</ResponseField>
+
+<ResponseField name="additionalParams" type="z.input<TAdditional> | null">
+The raw additional parameters that were passed to the action. This is only present if the status is `success`.
+</ResponseField>
+
+<ResponseField name="parsedAdditionalParams" type="z.output<TAdditional> | null">
+The parsed additional parameters that were passed to the action. This is only present if the status is `success`.
+</ResponseField>
+
+## Processing
+
+```typescript:index.ts
+for (const result of results) {
+  if (result.isError) {
+    // do something here
+    continue
+  }
+
+  // now TS knows that status is 'success' and data will not be undefined
+  console.log(result.data)
+
+  // we can narrow the type further by checking actionId
+  if (result.actionId === "myActionId") {
+    // now TS knows that data is the output of myActionId
+    console.log(result.data)
+  }
+}
+```

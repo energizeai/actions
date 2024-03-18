@@ -8,4 +8,90 @@ groupOrder: 400
 
 # Token Authentication
 
-Docs coming soon!
+Learn how to add token-based authentication to your actions.
+
+## Setup Token Metadata
+
+<Info>
+This is an optional step if you want to store some extra data with the token.
+</Info>
+
+```typescript:index.ts
+import { generateActionRegistryFunctions } from "ai-actions"
+
+const { createEnergizeAction, createEnergizeActionsRegistry } =
+  generateActionRegistryFunctions({
+    namespace: "Energize",
+    // Define the metadata schema for your token actions
+    tokenAuthMetadataSchema: z.object({ <|highlight|>
+      generatingTokenReferenceURL: z // <|highlight|>
+        .string() <|highlight|>
+        .url() <|highlight|>
+    }), <|highlight|>
+  })
+```
+
+## Setup Token Authentication
+
+```typescript:index.ts
+const tokenAction = createEnergizeAction({
+  id: "sendGreeting",
+})
+  .input({
+    message: z
+      .string()
+      .describe("The message to greet the user with"),
+  })
+  .authType("Token") <|highlight|>
+  .tokenData({
+    generatingTokenReferenceURL:
+      "https://developers.provider.com/generate-token",
+    customDataSchema: z.object({
+      organization: z.string()
+    }),
+  })
+  .handler({ input, auth }) {
+    // we now have access to the token data
+    performApiCallWithToken({ <|highlight|>
+      token: auth.accessToken, <|highlight|>
+      organization: auth.customData.organization, <|highlight|>
+    }) <|highlight|>
+
+    return { greeting: `Hello, ${input.message}!` }
+  }
+
+const ActionsRegistry = createEnergizeActionsRegistry([
+  tokenAction,
+])
+```
+
+## Passing Token Data to Handlers
+
+Now that you have a registry built with your token actions, you will be required to pass in `fetchTokenAuthData` whenever any of the following is called:
+- `setupToolCalling`
+- `setupFunctionCalling`
+- `setupActionCaller`
+
+<Note>
+`getTokenDataForActionId` is a fake function that you will need to implement in your app. You can do whatever you want to fetch token data based on your needs.
+</Note>
+
+```typescript:index.ts
+import { setupToolCalling } from "ai-actions"
+import { getTokenDataForActionId } from "@/lib/tokens" // a way to fetch tokens for users/actions on your app
+
+const userId = "..."
+
+const { toolCallsHandler, tools } = setupToolCalling(ActionsRegistry, {
+  async fetchTokenAuthData(actionId) { <|highlight|>
+    // get the token data for the action and user <|highlight|>
+    const response = await getTokenDataForActionId(actionId, userId) <|highlight|>
+    return {  <|highlight|>
+      accessToken: response.token,  <|highlight|>
+      customData: { <|highlight|>
+        organization: response.organization, <|highlight|>
+      } <|highlight|>
+    } <|highlight|>
+  }, <|highlight|>
+})
+```

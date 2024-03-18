@@ -8,4 +8,128 @@ groupOrder: 0
 
 # Goodies
 
-Docs coming soon!
+`ai-actions` provides a few helper functions to make working with action registries easier. 
+
+Let [@ido](https://twitter.com/ido_pesok) know if you find any of these functions useful or if you have any suggestions for improvements.
+
+## Infer Actions Registry Inputs
+
+Use this to infer the inputs for actions.
+
+```typescript:index.ts
+import { inferActionRegistryInputs, createActionsRegistry } from "ai-actions"
+
+const ActionRegistry = createActionsRegistry([...])
+
+type TActionInputs = inferActionRegistryInputs<typeof ActionsRegistry> <|highlight|>
+type TInput = TActionInputs["myActionId"] <|highlight|>
+```
+
+## Infer Actions Registry Outputs
+
+Use this to infer the outputs for actions.
+
+```typescript:index.ts
+import { inferActionRegistryOutputs, createActionsRegistry } from "ai-actions"
+
+const ActionRegistry = createActionsRegistry([...])
+
+type TActionOutputs = inferActionRegistryOutputs<typeof ActionsRegistry> <|highlight|>
+type TOutput = TActionOutputs["myActionId"] <|highlight|>
+```
+
+## Pick From Actions Registry
+
+Use this to pick a subset of actions from a registry. Pass a single action id or an array of action ids to the `pickFromActionsRegistry` function.
+
+```typescript:index.ts
+import { createActionsRegistry, pickFromActionsRegistry } from "ai-actions"
+
+const ActionsRegistry = createActionsRegistry([
+  myAction1,
+  myAction2,
+  myAction3,
+])
+
+const PickedRegistry = pickFromActionsRegistry(ActionsRegistry, [
+  "myAction1",
+  "myAction2"
+])
+
+const one = PickedRegistry["myAction1"] <|highlight|>
+const two = PickedRegistry["myAction2"] <|highlight|>
+const three = PickedRegistry["myAction3"] // this will not work <|error|>
+```
+
+## Omit From Actions Registry
+
+Use this to omit a subset of actions from a registry. Pass a single action id or an array of action ids to the `omitFromActionsRegistry` function.
+
+```typescript:index.ts
+import { createActionsRegistry, omitFromActionsRegistry } from "ai-actions"
+
+const ActionsRegistry = createActionsRegistry([
+  myAction1,
+  myAction2,
+  myAction3,
+])
+
+const OmittedRegistry = omitFromActionsRegistry(ActionsRegistry, [
+  "myAction1",
+  "myAction2"
+])
+
+const one = OmittedRegistry["myAction1"] // this will not work <|error|>
+const two = OmittedRegistry["myAction2"] // this will not work <|error|>
+const three = OmittedRegistry["myAction3"] <|highlight|>
+```
+
+## Filter By Auth Type
+
+Use this to filter an actions registry by an auth type. Valid auth types are `None`, `Token`, and `OAuth`.
+
+```typescript:index.ts
+import { createActionsRegistry, filterActionRegistryByAuthType } from "ai-actions"
+
+const ActionsRegistry = createActionsRegistry([
+  myAction1, // this action has token auth
+  myAction2, // this action has token auth
+  myAction3, // this action has oauth
+])
+
+const TokenRegistry = filterActionRegistryByAuthType(ActionsRegistry, "Token")
+
+const one = TokenRegistry["myAction1"] <|highlight|>
+const two = TokenRegistry["myAction2"] <|highlight|>
+const three = TokenRegistry["myAction3"] // this will not work <|error|>
+
+const OAuthRegistry = filterActionRegistryByAuthType(ActionsRegistry, "OAuth")
+
+const one = OAuthRegistry["myAction1"] // this will not work <|error|>
+const two = OAuthRegistry["myAction2"] // this will not work <|error|>
+const three = OAuthRegistry["myAction3"] <|highlight|>
+```
+
+## Filter By Metadata
+
+Use this to filter an actions registry by metadata. You can pass a function to the `filterActionRegistryByMetadata` function that returns a boolean value.
+
+```typescript:index.ts
+import { createActionsRegistry, filterActionRegistryByMetadata } from "ai-actions"
+
+const ActionsRegistry = createActionsRegistry([
+  myAction1, // title is "My Action"
+  myAction2, // title is "My Action"
+  myAction3, // title is "Not My Action"
+])
+
+const MetadataRegistry = filterActionRegistryByMetadata(ActionsRegistry, (metadata) => {
+  return metadata.title === "My Action"
+})
+
+const one = MetadataRegistry["myAction1"] <|highlight|>
+const two = MetadataRegistry["myAction2"] <|highlight|>
+const three = MetadataRegistry["myAction3"] // this will not work <|error|>
+```
+
+
