@@ -32,9 +32,9 @@ export interface TActionHandler<
     } & (TAuth["type"] extends "None" ? {} : { auth: TAuthArg<TAuth> }) &
       (TAdditional extends TAdditionalParams
         ? { additionalParams: z.output<TAdditional> }
-        : {} & (TRegistry["handlerContextSchema"] extends z.ZodType<any>
+        : {}) & (TRegistry["handlerContextSchema"] extends z.ZodType<any>
             ? { context: z.output<TRegistry["handlerContextSchema"]> }
-            : {}))
+            : {})
   ): THandlerRet
 }
 
