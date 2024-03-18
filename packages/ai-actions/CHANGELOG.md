@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.13.3
+
+### Patch Changes
+
+- 9fe6f9a: Added more infer helper types
+
 ## 0.13.2
 
 ### Patch Changes
