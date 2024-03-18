@@ -8,4 +8,140 @@ groupOrder: 200
 
 # Tool Calling
 
-Docs coming soon!
+<Warning>
+Please read the [Action Calling](/action-calling) documentation first. Function calling builds on top of action calling and you still want to familiarize yourself with the powerful features in action calling.
+</Warning>
+
+## Calling Tools 
+
+To call tools, pass your action registry to the `setupToolCalling` function. This will return an object with a `tools` and `toolCallsHandler` property.
+
+Send the `tools` property to the LLM.
+
+Send the returned `tool_calls` to the `toolCallsHandler` function.
+
+Done! 🎊
+
+```typescript:index.ts
+import { setupToolCalling } from "ai-actions"
+import OpenAI from "openai"
+
+const openai = new OpenAI()
+
+async function invokeActions(userMessage: string) {
+  const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+    {
+      role: "user",
+      content: userMessage,
+    },
+  ]
+
+  // setup the tool calling
+  const { toolCallsHandler, tools } = setupToolCalling(ActionsRegistry, {}) <|highlight|>
+
+  // call the LLM with the tools
+  const responseMessage = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo-1106",
+    messages,
+    tools, // pass the tools <|highlight|>
+  })
+
+  // get the tool calls the LLM made
+  const choice = responseMessage.choices[0]
+  if (!choice || !choice.message.tool_calls) return
+
+  // pass the tool calls to the handler
+  const { results, toolCallMessages } = await toolCallsHandler( <|highlight|>
+    choice.message.tool_calls <|highlight|>
+  ) <|highlight|>
+
+  // a typesafe array of results from the handlers
+  console.log(results) <|highlight|>
+
+  // append the assistant message to the messages
+  messages.push(choice.message)
+
+  // call the LLM again with the handler outputs
+  const secondResponse = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo-0125",
+    messages: messages.concat(toolCallMessages), // add the tool calls to the messages <|highlight|>
+  })
+
+  // log the final response
+  console.log(secondResponse.choices[0]?.message.content)
+}
+
+invokeActions("What is the stock price for MSFT?")
+```
+
+## Few Shot Tool Calls
+
+Few shotting is a technique that allows you to teach the LLM in context by providing examples. 
+
+A common error is providing examples that don't match the schemas of the tool. This problem is solved by using the `createFewShotToolCallMessages` function.
+
+It will force you to provide type-safe arguments and responses that match the schemas of the tool.
+
+<Note>
+You can teach the LLM to parallel function call by passing multiple tool calls in response to a single user message.
+</Note>
+
+```typescript:index.ts
+const { toolCallsHandler, tools, createFewShotToolCallMessages } = setupToolCalling(ActionsRegistry, {})
+
+const fewShotMessages: OpenAI.Chat.ChatCompletionMessageParam[] = createFewShotToolCallMessages([ // pass the few shot tool calls to the handler <|highlight|>
+  { <|highlight|>
+    userMessageContent: "What is the stock price for MSFT and TSLA?", <|highlight|>
+    tool_calls: [ <|highlight|>
+      { <|highlight|>
+        name: "getStockPrice", <|highlight|>
+        arguments: { <|highlight|>
+          symbol: "MSFT", <|highlight|>
+        }, <|highlight|>
+        response: { <|highlight|>
+          price: 123, <|highlight|>
+        }, <|highlight|>
+      }, { <|highlight|>
+        name: "getStockPrice", <|highlight|>
+        arguments: { <|highlight|>
+          symbol: "TSLA", <|highlight|>
+        }, <|highlight|>
+        response: { <|highlight|>
+          price: 456, <|highlight|>
+        }, <|highlight|>
+      } <|highlight|>
+    ], <|highlight|>
+    assistantMessageContent: "The stock price for MSFT is $123 and the stock price for TSLA is $456", <|highlight|>
+  }, <|highlight|>
+]) <|highlight|>
+
+// call the LLM with the tools
+const responseMessage = await openai.chat.completions.create({
+  model: "gpt-3.5-turbo-1106",
+  messages: [
+    ...fewShotMessages,
+    {
+      role: "user",
+      content: "What is the stock price for AAPL?", // higher accuracy <|highlight|>
+    }
+  ],
+  tools,
+})
+```
+
+## Choose Tool
+
+If you want the LLM to always call a specific action, use `chooseTool`.
+
+```typescript:index.ts
+// setup the tool calling
+const { toolCallsHandler, tools, chooseTool } = setupToolCalling(ActionsRegistry, {}) <|highlight|>
+
+// call the LLM with the tools
+const responseMessage = await openai.chat.completions.create({
+  model: "gpt-3.5-turbo-1106",
+  messages,
+  tools,
+  tool_choice: chooseTool("myActionId"), <|highlight|>
+})
+```

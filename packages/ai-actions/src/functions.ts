@@ -41,7 +41,7 @@ interface TFunctionCallHandler<
 > {
   (functionCall: {
     name: string
-    arguments: Record<string, unknown>
+    arguments: Record<string, unknown> | string
   }): Promise<{
     functionCallMessage: OpenAI.Chat.Completions.ChatCompletionFunctionMessageParam
     results: TCallerResults<T, TActionRegistrySubset<T, U>>
@@ -109,6 +109,11 @@ export const setupFunctionCalling = <
     functionCall
   ) => {
     const { actionCaller } = setupActionCaller(registry, args)
+
+    // parse the arguments if they are a string
+    if (typeof functionCall.arguments === "string") {
+      functionCall.arguments = JSON.parse(functionCall.arguments)
+    }
 
     const results = await actionCaller([functionCall as any])
 

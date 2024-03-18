@@ -1,11 +1,181 @@
 ---
 title: "Streaming UI"
 group: "React"
-groupOrder: 0
+groupOrder: 100
 ---
 
 #### Enable your actions to stream UI, powered by [Vercel AI SDK](https://github.com/vercel/ai)
 
 # Streaming UI
 
-Docs coming soon!
+`ai-actions` integrates seamlessly with the Vercel AI SDK to enable streaming UI for your actions. This allows you to show the user a UI that updates in real-time as the action runs.
+
+<Warning>
+Please read the [Vercel docs](https://sdk.vercel.ai/docs/concepts/ai-rsc) on Generative UI before proceeding.
+</Warning>
+
+## AI State
+
+You will probably want to pass `aiState` or `createStreamableUI` to your handlers. You can do so using [context](/context). The context is also available in action `render` functions.
+
+Here is an example of what the generator would look like:
+
+```typescript:generators.ts
+import { generateActionRegistryFunctions } from "ai-actions";
+import { createStreamableUI, createAI, getMutableAIState } from "ai/rsc";
+import { z } from "zod";
+
+const { createDemoAction, createDemoActionsRegistry } =
+  generateActionRegistryFunctions({
+    namespace: "Demo",
+    handlerContextSchema: z.object({
+      aiState: z.custom<ReturnType<typeof getMutableAIState>>(),
+    }),
+  });
+```
+
+## Action with Render
+
+Here, a show stock price UI action is created. This action will show a UI to the user -- using `.render` -- that updates in real-time as the action runs.
+
+<Note>
+We can call `handler` from within `render`. This means you can split up the UI code and handler code. Useful if sometimes you want to run actions without rendering.
+</Note>
+
+```typescript:@/ai/index.tsx
+import { BotCard, BotMessage, Purchase } from "@/components/llm-stocks";
+import { sleep } from "@/lib/utils";
+import { z } from "zod";
+import { createAction, createActionsRegistry } from "ai-actions"
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export const showStockPriceUIAction = createAction({
+  id: "showStockPriceUI",
+})
+  .describe(
+    "Show price and the UI to purchase a stock or currency. Use this if the user wants to purchase a stock or currency."
+  )
+  .input({
+    symbol: z
+      .string()
+      .describe(
+        "The name or symbol of the stock or currency. e.g. DOGE/AAPL/USD."
+      ),
+  })
+  .handler(async () => {
+    await sleep(1000);
+    return {
+      price: Math.random() * 100,
+      numberOfShares: Math.random() * 100,
+    }
+  })
+  .render(async function* ({ handler, ...rest }) { <|highlight|>
+    const { input, context } = rest; <|highlight|>
+    const { symbol } = input; <|highlight|>
+    const { aiState } = context; <|highlight|>
+ <|highlight|>
+    // we show a loading state while the action is running <|highlight|>
+    yield <div>Loading...</div> <|highlight|>
+ <|highlight|>
+    const { price, numberOfShares } = await handler(rest); <|highlight|>
+ <|highlight|>
+ <|highlight|>
+    aiState.done([ <|highlight|>
+      ...aiState.get(), <|highlight|>
+      { <|highlight|>
+        role: "function", <|highlight|>
+        name: "showStockPriceUI", <|highlight|>
+        content: `[UI for purchasing ${numberOfShares} shares of ${symbol}. Current price = ${price}, total cost = ${ <|highlight|>
+          numberOfShares * price <|highlight|>
+        }]`, <|highlight|>
+      }, <|highlight|>
+    ]); <|highlight|>
+ <|highlight|>
+    // now we can show the user the price and the number of shares <|highlight|> 
+ <|highlight|>
+    return ( <|highlight|>
+      <div> <|highlight|>
+        Sure!{" "} <|highlight|>
+        {typeof numberOfShares === "number" <|highlight|>
+          ? `Click the button below to purchase ${numberOfShares} shares of $${symbol}:` <|highlight|>
+          : `How many $${symbol} would you like to purchase?`} <|highlight|>
+      </div> <|highlight|>
+    ); <|highlight|>
+  }); <|highlight|>
+
+export const ActionsRegistry = createActionsRegistry([
+  showStockPriceUIAction,
+])
+```
+
+## Server Action
+
+When you call `setupToolCalling`, you can use the `toolsWithRender` property to integrate seamlessly with the Vercel AI SDK.
+
+```typescript:server-action.ts
+import { AI } from "@/ai";
+import { ActionsRegistry } from "@/ai/index.ts";
+import { setupToolCalling } from "ai-actions";
+import { getMutableAIState, render } from "ai/rsc";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || "",
+});
+
+export async function submitUserMessage(
+  content: string,
+) {
+  "use server";
+
+  const aiState = getMutableAIState<typeof AI>();
+  aiState.update([
+    ...aiState.get(),
+    {
+      role: "user",
+      content,
+    },
+  ]);
+
+  const props: Parameters<typeof render>[0] = {
+    model: "gpt-3.5-turbo",
+    provider: openai,
+    messages: [{ role: "user", content: content }],
+    text: ({ content, done }) => {
+      if (done) {
+        aiState.done([
+          ...aiState.get(),
+          {
+            role: "assistant",
+            content,
+          },
+        ]);
+      }
+
+      return <div>{content}</div>;
+    },
+    // now we can just pass our registry to the render function using `toolsWithRender`
+    tools: setupToolCalling(ActionsRegistry, { <|highlight|>
+      context: { <|highlight|>
+        aiState, <|highlight|>
+      }, <|highlight|>
+    }).toolsWithRender, <|highlight|>
+  };
+
+  const ui = render(props); <|highlight|>
+
+  return {
+    id: Date.now(),
+    display: ui,
+  };
+}
+```
+
+## Full Example
+
+You can view the full functioning code [here](https://github.com/IdoPesok/next-ai-rsc-actions). This example will go into using `aiState`, `render`, and `createStreamableUI`.
+
+If you have any questions, DM [@ido](https://twitter.com/ido_pesok). Happy to help!

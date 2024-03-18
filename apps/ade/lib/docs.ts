@@ -101,7 +101,7 @@ export function getDocPosts() {
     })
   })
 
-  const groupOrder = ["Overview", "API", "Callers", "React", "Auth", "More"]
+  const groupOrder = ["Overview", "Core", "Callers", "React", "Auth", "More"]
 
   const values = Object.values(groups)
   values.sort((a, b) => {

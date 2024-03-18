@@ -1,0 +1,111 @@
+---
+title: "AI Actions"
+group: "Core"
+groupOrder: -1000
+---
+
+#### The building blocks
+
+# AI Actions
+
+There have been many names for this concept -- tools, functions, and more -- but the core idea is the same: actions are a primitive that take a defined input schema and runs code based on that input.
+
+## Hello World
+
+Let's start with a simple example. We'll create an action that takes a string and returns a greeting.
+
+```typescript:index.ts
+import { createAction } from "ai-actions"
+import { z } from "zod"
+
+const greetingAction = createAction({ <|highlight|>
+  id: "sendGreeting"
+})
+  .describe("Greet the user with a message")
+  .input({
+    message: z
+      .string()
+      .describe("The message to greet the user with"),
+  })
+  .handler({ input }) {
+    return {
+      greeting: `Hello, ${input.message}!`,
+    }
+  }
+```
+
+- `.describe` adds a description to the action. This is used to generate the prompts and details page for your action.
+- `.input` sets the input schema for the action. In this case, the input schema is a Zod schema that describes the `message` to greet the user with.
+- `.handler` sets the handler function for the action. It takes the input and returns an output.
+
+## Handlers
+
+For an action to be "built", you must define a handler function. The handler function is where the action will run. It takes the input and returns the output.
+
+If you just want to return the input, you can use the `noHandler` function.
+
+```typescript:index.ts
+import { createAction } from "ai-actions"
+import { z } from "zod"
+
+const greetingAction = createAction({ <|highlight|>
+  id: "sendGreeting"
+})
+  .describe("Greet the user with a message")
+  .input({
+    message: z
+      .string()
+      .describe("The message to greet the user with"),
+  })
+  .noHandler() // same thing as .handler({ input } => return input) <|highlight|>
+```
+
+## Properties
+
+<Note>
+After you define a handler, you will have access to the following properties:
+</Note>
+
+<ResponseField name="id" type="string">
+The unique identifier for the action. This is used to reference the action in the registry.
+</ResponseField>
+
+<ResponseField name="functionName" type="string">
+Usually the same as the `id`, but it can be different if you want to seperate IDs from functions.
+</ResponseField>
+
+<ResponseField name="metadata" type="Metadata | undefined">
+The metadata associated with the action. See the [metadata](/metadata) documentation for more information.
+</ResponseField>
+
+<ResponseField name="inputSchema" type="ZodSchema">
+The input schema for the action. This is the data that the action requires to run.
+</ResponseField>
+
+<ResponseField name="outputSchema" type="ZodSchema | undefined">
+The output schema for the action. This is the data that the action returns. See the [outputs](/outputs) documentation for more information.
+</ResponseField>
+
+<ResponseField name="handler" type="Function">
+The handler function for the action.
+</ResponseField>
+
+<ResponseField name="additionalParamsSchema" type="ZodSchema | undefined">
+The additional parameters schema for the action. This is used to pass in additional data that the action needs to run.
+</ResponseField>
+
+<ResponseField name="authConfig" type="TActionAuth | undefined">
+The authentication configuration for the action. This is used to generate the authentication page for the action and get users authenticated.
+</ResponseField>
+
+<ResponseField name="getInputJSONSchema" type="z.input<TInput> | null">
+The input JSON schema for the action. This is used to generate the input JSON schema for the action. Built with `zodToJsonSchema`.
+</ResponseField>
+
+<ResponseField name="getOutputJSONSchema" type="z.output<TOutput> | null">
+The output JSON schema for the action. This is used to generate the output JSON schema for the action. Built with `zodToJsonSchema`.
+</ResponseField>
+
+<ResponseField name="getChatCompletionTool" type="OpenAI.Chat.Completions.ChatCompletionTool">
+The chat completion tool for the action. This is used to generate the chat completion tool for the action.
+</ResponseField>

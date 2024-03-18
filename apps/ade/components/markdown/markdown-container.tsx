@@ -6,6 +6,7 @@ import { MDXRemote, MDXRemoteProps } from "next-mdx-remote/rsc"
 import Link from "next/link"
 import MarkdownHeadingWithLink from "./markdown-heading-with-link"
 import { MarkdownTooltip } from "./markdown-tooltip"
+import { TweetComponent } from "./tweet"
 
 export default function MarkdownContainer(props: MDXRemoteProps) {
   function Table({
@@ -48,6 +49,7 @@ export default function MarkdownContainer(props: MDXRemoteProps) {
     h2: (props) => <MarkdownHeadingWithLink {...props} tagname="H2" />,
     h3: (props) => <MarkdownHeadingWithLink {...props} tagname="H3" />,
     Tooltip: (props) => <MarkdownTooltip {...props} />,
+    StaticTweet: TweetComponent,
     a: (props) => {
       const href = props.href as string
       const className = cn(
