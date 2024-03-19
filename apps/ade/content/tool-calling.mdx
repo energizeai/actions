@@ -129,6 +129,61 @@ const responseMessage = await openai.chat.completions.create({
 })
 ```
 
+Here is another example of sequential tool calling:
+
+<Note>
+In this example, we teach the model to first get the contact information for Ido and then send an email to him asking what time the meeting is on Friday.
+</Note>
+
+```typescript:index.tsx
+const { toolCallsHandler, tools, createFewShotToolCallMessages } = setupToolCalling(ActionsRegistry, {})
+
+const fewShotMessages: OpenAI.Chat.ChatCompletionMessageParam[] = createFewShotToolCallMessages([ // pass the few shot tool calls to the handler <|highlight|>
+  { <|highlight|>
+    userMessageContent: "Can you get Ido's email and send mail to him asking what time the meeting is on Friday?", <|highlight|>
+    tool_calls: [ <|highlight|>
+      { <|highlight|>
+        name: "getContact", <|highlight|>
+        arguments: { <|highlight|>
+          query: "Ido", <|highlight|>
+        }, <|highlight|>
+        response: { <|highlight|>
+          email: "idoemail@example.com", <|highlight|>
+        }, <|highlight|>
+      } <|highlight|>
+    ], <|highlight|>
+  }, <|highlight|>
+  { <|highlight|>
+    tool_calls: [ <|highlight|>
+       { <|highlight|>
+        name: "sendEmail", <|highlight|>
+        arguments: { <|highlight|>
+          email: "idoemail@example.com", <|highlight|>
+          content: "Hi Ido, What time is the meeting on Friday?", <|highlight|>
+        }, <|highlight|>
+        response: { <|highlight|>
+          status: "success", <|highlight|>
+        }, <|highlight|>
+      } <|highlight|>
+    ], <|highlight|>
+    assistantMessageContent: "I have sent Ido an email asking what time the meeting is on Friday", <|highlight|>
+  }, <|highlight|>
+]) <|highlight|>
+
+// call the LLM with the tools
+const responseMessage = await openai.chat.completions.create({
+  model: "gpt-3.5-turbo-1106",
+  messages: [
+    ...fewShotMessages,
+    {
+      role: "user",
+      content: "Can you send Ethan an email asking what time the meeting is on Friday?", // higher accuracy <|highlight|>
+    }
+  ],
+  tools,
+})
+```
+
 ## Choose Tool
 
 If you want the LLM to always call a specific action, use `chooseTool`.

@@ -83,7 +83,7 @@ interface TCreateFewShotToolCallMessages<
 > {
   (
     examples: {
-      userMessageContent: string
+      userMessageContent?: string
       assistantMessageContent?: string
       tool_calls: TFewShotExampleCalls<TRegistry, U>[]
     }[]
@@ -211,10 +211,12 @@ export const setupToolCalling = <
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = []
 
     for (const example of examples) {
-      messages.push({
-        role: "user",
-        content: example.userMessageContent,
-      })
+      if (example.userMessageContent) {
+        messages.push({
+          role: "user",
+          content: example.userMessageContent,
+        })
+      }
 
       const generateToolCallId = () => {
         return "call_" + Math.random().toString(36).substring(2, 12)
