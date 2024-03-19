@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.13.4
+
+### Patch Changes
+
+- 09df536: Ability to omit user message from few shot
+
 ## 0.13.3
 
 ### Patch Changes
