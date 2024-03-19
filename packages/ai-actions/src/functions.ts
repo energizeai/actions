@@ -54,7 +54,7 @@ interface TCreateFewShotFunctionCallMessages<
 > {
   (
     examples: {
-      userMessageContent: string
+      userMessageContent?: string
       assistantMessageContent?: string
       function_call: TFewShotExampleCalls<TRegistry, U>
     }[]
@@ -153,10 +153,12 @@ export const setupFunctionCalling = <
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = []
 
     for (const example of examples) {
-      messages.push({
-        role: "user",
-        content: example.userMessageContent,
-      })
+      if (example.userMessageContent) {
+        messages.push({
+          role: "user",
+          content: example.userMessageContent,
+        })
+      }
 
       messages.push({
         role: "assistant",
