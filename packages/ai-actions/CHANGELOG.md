@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.14.0
+
+### Minor Changes
+
+- 20f9f6d: Added render support to function calling and some new infer types for few shot
+
 ## 0.13.4
 
 ### Patch Changes
