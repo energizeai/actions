@@ -9,6 +9,7 @@ import {
   setupActionCaller,
 } from "."
 import { TAnyActionData } from "./action-data"
+import { TActionsWithRender, setupActionsWithRender } from "./render"
 import { ActionBuilderWithHandler } from "./with-handler"
 
 /**
@@ -56,10 +57,26 @@ interface TCreateFewShotFunctionCallMessages<
     examples: {
       userMessageContent?: string
       assistantMessageContent?: string
-      function_call: TFewShotExampleCalls<TRegistry, U>
+      function_call: TFewShotExampleCalls<
+        TRegistry,
+        TActionRegistrySubset<TRegistry, U>
+      >
     }[]
   ): OpenAI.Chat.Completions.ChatCompletionMessageParam[]
 }
+
+/**
+ * Helper type to infer the few shot of function calls
+ */
+export type inferFewShotFunctionCallMessages<
+  TRegistry extends TAnyActionRegistry,
+  U extends keyof TRegistry | undefined = undefined,
+> = Parameters<
+  TCreateFewShotFunctionCallMessages<
+    TRegistry,
+    U extends keyof TRegistry ? U[] : undefined
+  >
+>[0]
 
 interface TChooseFunction<
   TRegistry extends TAnyActionRegistry,
@@ -88,6 +105,7 @@ export const setupFunctionCalling = <
   chooseFunction: TChooseFunction<T, U>
   createFewShotFunctionCallMessages: TCreateFewShotFunctionCallMessages<T, U>
   functionCallHandler: TFunctionCallHandler<T, U>
+  functionsWithRender: TActionsWithRender<T, U>
 } => {
   const { inArray } = args
 
@@ -196,10 +214,13 @@ export const setupFunctionCalling = <
     }
   }
 
+  const functionsWithRender = setupActionsWithRender(registry, actionIds, args)
+
   return {
     chooseFunction,
     functions,
     createFewShotFunctionCallMessages,
     functionCallHandler,
+    functionsWithRender,
   }
 }

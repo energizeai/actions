@@ -118,6 +118,23 @@ const responseMessage = await openai.chat.completions.create({
 })
 ```
 
+### Inferring Few Shot
+
+You can also use the `inferFewShotFunctionCallMessages` helper to infer the few shot function calls. 
+
+This is useful if you want to define few shot messages outside the scope of `createFewShotFunctionCallMessages`.
+
+```typescript:index.ts
+import { inferFewShotFunctionCallMessages } from "ai-actions"
+
+export const fewShotMessages: inferFewShotFunctionCallMessages<
+  typeof ActionsRegistry,
+  "myActionId" | "myActionId2" // optionally pass in the action ids to infer the few shot function calls for
+> = [
+  ...
+]
+```
+
 ## Choose Function
 
 If you want the LLM to always call a specific action, use `chooseFunction`.
