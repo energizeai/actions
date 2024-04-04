@@ -40,7 +40,7 @@ const getEventAction = createAction({ <|highlight|>
       .enum(["Vercel", "Energize AI"])
       .describe("The company to get the next event for."),
   })
-  .handler({ input } => {
+  .handler(({ input }) => {
     if (input.company === "Vercel") {
       return {
         name: "Vercel Ship 2024",

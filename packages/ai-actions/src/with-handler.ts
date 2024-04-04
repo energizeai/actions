@@ -1,3 +1,4 @@
+import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 import z from "zod"
 import zodToJsonSchema from "zod-to-json-schema"
@@ -78,6 +79,25 @@ export class ActionBuilderWithHandler<TLocalActionData extends TAnyActionData> {
         description,
         parameters: jsonSchema,
       },
+    }
+  }
+
+  getAnthropicTool(): Anthropic.Beta.Tools.Tool {
+    const jsonSchema = zodToJsonSchema(this.inputSchema)
+    let description = `${jsonSchema["description"] || ""}`
+
+    delete jsonSchema["$schema"]
+    delete jsonSchema["description"]
+
+    // @ts-expect-error
+    delete jsonSchema["$ref"]
+    // @ts-expect-error
+    delete jsonSchema["additionalProperties"]
+
+    return {
+      name: this.functionName,
+      description,
+      input_schema: jsonSchema as any,
     }
   }
 }

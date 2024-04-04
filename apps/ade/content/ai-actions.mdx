@@ -27,11 +27,11 @@ const greetingAction = createAction({ <|highlight|>
       .string()
       .describe("The message to greet the user with"),
   })
-  .handler({ input }) {
+  .handler(({ input }) => {
     return {
       greeting: `Hello, ${input.message}!`,
     }
-  }
+  })
 ```
 
 - `.describe` adds a description to the action. This is used to generate the prompts and details page for your action.
@@ -57,7 +57,7 @@ const greetingAction = createAction({ <|highlight|>
       .string()
       .describe("The message to greet the user with"),
   })
-  .noHandler() // same thing as .handler({ input } => return input) <|highlight|>
+  .noHandler() // same thing as .handler(({ input }) => return input) <|highlight|>
 ```
 
 ## Properties

@@ -1,0 +1,85 @@
+---
+title: "Anthropic - Tool Calling"
+group: "Callers"
+groupOrder: 210
+---
+
+#### Anthropic Tool Calling
+
+# Tool Calling
+
+<Warning>
+Please read the [Action Calling](/action-calling) documentation first. Function calling builds on top of action calling and you still want to familiarize yourself with the powerful features in action calling.
+</Warning>
+
+<Warning>
+Please read the [Tool Calling](/tool-calling) documentation first. Anthropic tool calling builds on top of tool calling and you still want to familiarize yourself with the powerful features in tool calling.
+</Warning>
+
+## Calling Tools 
+
+Pass `provider: "anthropic"` to the `setupToolCalling` function to use Anthropic tool calling.
+
+Done! 🎊
+
+```typescript:index.ts
+import Anthropic from "@anthropic-ai/sdk"
+import { ToolsBetaMessageParam } from "@anthropic-ai/sdk/resources/beta/tools/messages.mjs"
+
+const anthropic = new Anthropic({
+  apiKey: "", // defaults to process.env["ANTHROPIC_API_KEY"] <|highlight|>
+})
+
+async function invokeActions(userMessage: string) {
+  // setup the tool calling
+  const { toolCallsHandler, tools } = setupToolCalling(ActionsRegistry, {
+    provider: "anthropic", <|highlight|>
+  })
+
+  const messages: ToolsBetaMessageParam[] = [
+    {
+      role: "user",
+      content: userMessage,
+    }
+  ]
+
+  // call the LLM with the tools
+  const msg = await anthropic.beta.tools.messages.create({
+    model: "claude-3-haiku-20240307",
+    max_tokens: 1024,
+    messages,
+    tools,
+  })
+
+  if (!msg || msg.stop_reason !== "tool_use") return
+
+  // pass the tool calls to the handler
+  const { results, toolCallMessages } = await toolCallsHandler(msg.content)
+
+  // a typesafe array of results from the handlers
+  console.log(results)
+
+  // append the assistant message to the messages
+  messages.push({
+    role: msg.role,
+    content: msg.content,
+  })
+
+  // call the LLM again with the handler outputs
+  const secondMsg = await anthropic.beta.tools.messages.create({
+    model: "claude-3-haiku-20240307",
+    max_tokens: 1024,
+    messages: messages.concat(toolCallMessages),
+    tools,
+  })
+
+  // log the final response
+  console.log(secondMsg)
+}
+
+invokeActions("When is the next Vercel event?")
+```
+
+## Few Shot Tool Calls
+
+Please refer to the [Few Shot Tool Calling](/tool-calling#few-shot-tool-calling) documentation for more information.

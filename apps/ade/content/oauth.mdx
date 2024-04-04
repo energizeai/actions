@@ -52,14 +52,14 @@ const oauthAction = createEnergizeAction({
     ],
     oauthAppGenerationURL: "https://console.cloud.google.com/apis/credentials",
   })
-  .handler({ input, auth }) {
+  .handler(({ input, auth }) => {
     // we now have access to the OAuth data
     const foundContact = performApiCallWithOAuth({ <|highlight|>
       accessToken: auth.accessToken, <|highlight|>
     }) <|highlight|>
 
     return { greeting: `Hello, ${foundContact.name}!` }
-  }
+  })
 
 const ActionsRegistry = createEnergizeActionsRegistry([
   oauthAction,

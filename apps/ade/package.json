@@ -14,9 +14,10 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf .next",
     "generate:action": "turbo gen action-starter",
-    "playground": "dotenv -e .env.local -- npx tsx playground/handle-tools.tsx"
+    "playground": "dotenv -e .env.local -- npx tsx playground/anthropic.tsx"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.1",
     "@hookform/resolvers": "^3.3.4",
     "@internationalized/date": "^3.5.1",
     "@linear/sdk": "^13.0.0",
