@@ -17,6 +17,7 @@
     "playground": "dotenv -e .env.local -- npx tsx playground/handle-tools.tsx"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.1",
     "@hookform/resolvers": "^3.3.4",
     "@internationalized/date": "^3.5.1",
     "@linear/sdk": "^13.0.0",

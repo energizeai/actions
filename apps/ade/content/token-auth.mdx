@@ -50,7 +50,7 @@ const tokenAction = createEnergizeAction({
       organization: z.string()
     }),
   })
-  .handler({ input, auth }) {
+  .handler(({ input, auth }) => {
     // we now have access to the token data
     performApiCallWithToken({ <|highlight|>
       token: auth.accessToken, <|highlight|>
@@ -58,7 +58,7 @@ const tokenAction = createEnergizeAction({
     }) <|highlight|>
 
     return { greeting: `Hello, ${input.message}!` }
-  }
+  })
 
 const ActionsRegistry = createEnergizeActionsRegistry([
   tokenAction,
