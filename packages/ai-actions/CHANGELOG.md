@@ -1,5 +1,11 @@
 # ai-actions
 
+## 0.15.0
+
+### Minor Changes
+
+- d93fadd: Anthropic tool calling!
+
 ## 0.14.0
 
 ### Minor Changes
