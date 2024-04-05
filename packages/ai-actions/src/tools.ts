@@ -120,7 +120,8 @@ interface TCreateFewShotToolCallMessages<
     examples: {
       userMessageContent?: string
       assistantMessageContent?: string
-      tool_calls: TFewShotExampleCalls<
+      thinkingStep?: string
+      tool_calls?: TFewShotExampleCalls<
         TRegistry,
         TActionRegistrySubset<TRegistry, U>
       >[]
@@ -308,24 +309,42 @@ export const setupToolCalling = <
         return prefix + Math.random().toString(36).substring(2, 12)
       }
 
-      const toolCallIds = example.tool_calls.map(() => generateToolCallId())
+      const toolCallIds = (example.tool_calls ?? []).map(() =>
+        generateToolCallId()
+      )
 
-      if (example.tool_calls.length > 0) {
+      if (example.tool_calls && example.tool_calls.length > 0) {
+        const thinkingStep = example.thinkingStep
+          ? example.thinkingStep.includes("<thinking>")
+            ? example.thinkingStep
+            : `<thinking>${example.thinkingStep}</thinking>`
+          : undefined
+
         if (provider === "anthropic") {
+          const content = example.tool_calls.map((toolCall, ix) => ({
+            id: toolCallIds[ix]!,
+            input: toolCall.arguments,
+            name: toolCall.name,
+            type: "tool_use",
+          })) as Array<ToolsBetaContentBlock>
+
+          if (thinkingStep) {
+            content.unshift({
+              type: "text",
+              text: thinkingStep,
+            })
+          }
+
           const msg: ToolsBetaMessageParam = {
             role: "assistant",
-            content: example.tool_calls.map((toolCall, ix) => ({
-              id: toolCallIds[ix]!,
-              input: toolCall.arguments,
-              name: toolCall.name,
-              type: "tool_use",
-            })) as Array<ToolsBetaContentBlock>,
+            content,
           }
 
           messages.push(msg as any)
         } else {
           const msg: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
             role: "assistant",
+            content: thinkingStep,
             tool_calls: example.tool_calls.map((toolCall, ix) => ({
               id: toolCallIds[ix]!,
               function: {
@@ -340,7 +359,7 @@ export const setupToolCalling = <
         }
       }
 
-      for (const [ix, toolCall] of example.tool_calls.entries()) {
+      for (const [ix, toolCall] of (example.tool_calls ?? []).entries()) {
         const foundAction = Object.values(registry).find(
           (action) =>
             (action as (typeof registry)[string]).functionName === toolCall.name
