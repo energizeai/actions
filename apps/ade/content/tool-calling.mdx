@@ -184,6 +184,39 @@ const responseMessage = await openai.chat.completions.create({
 })
 ```
 
+### Chain of Thought
+
+You can add an optional `thinkingStep` to each index in the few shot array. This will be used to generate the thinking step in the LLM and boost performance.
+
+```typescript:index.ts
+const fewShotMessages = createFewShotToolCallMessages([ // pass the few shot tool calls to the handler
+  {
+    userMessageContent: "What is the stock price for MSFT and TSLA?",
+    thinkingStep: "The user asked for the stock price for MSFT and TSLA. I will need to get the stock prices for both of them in parallel using the getStockPrice tool.", <|highlight|>
+    tool_calls: [
+      {
+        name: "getStockPrice",
+        arguments: {
+          symbol: "MSFT",
+        },
+        response: {
+          price: 123,
+        },
+      }, {
+        name: "getStockPrice",
+        arguments: {
+          symbol: "TSLA",
+        },
+        response: {
+          price: 456,
+        },
+      }
+    ],
+    assistantMessageContent: "The stock price for MSFT is $123 and the stock price for TSLA is $456",
+  },
+])
+```
+
 ### Inferring Few Shot
 
 You can also use the `inferFewShotToolCallMessages` helper to infer the few shot tool calls. 
